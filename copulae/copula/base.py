@@ -12,6 +12,8 @@ from copulae.utils import format_docstring
 
 TailDep = NamedTuple('Lambda', lower=np.ndarray, upper=np.ndarray)
 
+np.set_printoptions(linewidth=120)
+
 
 class BaseCopula(AbstractCopula, ABC):
     """
@@ -277,4 +279,11 @@ class BaseCopula(AbstractCopula, ABC):
 
     @abstractmethod
     def __random__(self, n: int, seed: int = None):
+        raise NotImplementedError
+
+    @abstractmethod
+    def summary(self):
+        """
+        Prints information about the copula
+        """
         raise NotImplementedError

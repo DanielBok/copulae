@@ -99,6 +99,10 @@ class AbstractCopula(ABC):
     def random(self, n: int, seed: int = None):
         pass
 
+    @abstractmethod
+    def summary(self):
+        pass
+
 
 class FitStats:
     """
@@ -132,7 +136,7 @@ class FitStats:
         self.setup = setup
         self.results = results
 
-    def __repr__(self):
+    def __str__(self):
         msg = f"""
 Log. Lik        : {self.log_lik}
 Var. Est.       : Not Implemented Yet
@@ -140,10 +144,13 @@ Method          : {self.method}
 Data Pts.       : {self.nsample}
 """.strip()
 
+        skip_keys = {'final_simplex'}
         for title, dic in [('Optim Options', self.setup), ('Results', self.results)]:
             if dic is not None:
-                string = "\n".join(f'\t{i}    : {v}' for i, v in dic.items())
+                string = "\n".join(f'\t{k}    : {v}' for k, v in dic.items() if k not in skip_keys)
                 msg += f"\n\n{title}\n{string}"
 
-        print(msg.strip())
-        return None
+        return msg
+
+    def summary(self):
+        print(self)

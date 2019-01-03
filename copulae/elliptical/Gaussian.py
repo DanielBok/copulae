@@ -78,3 +78,19 @@ class GaussianCopula(AbstractEllipticalCopula):
     def __random__(self, n: int, seed: int = None):
         r = mvn.rvs(cov=self.sigma, size=n, random_state=seed)
         return norm.cdf(r)
+
+    def __str__(self):
+        msg = f"""
+Gaussian Copulas with {self.dim} dimensions
+
+Correlation Matrix (P):
+{self.sigma}
+        """.strip()
+
+        if self.fit_stats is not None:
+            msg += f'\n\n{self.fit_stats}'
+
+        return msg
+
+    def summary(self):
+        print(self)
