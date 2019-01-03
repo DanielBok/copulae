@@ -1,4 +1,5 @@
 from abc import ABC
+from typing import Optional
 
 import numpy as np
 from copulae.copula.base import BaseCopula
@@ -32,3 +33,13 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
             raise ValueError(f'correlation matrix needs to be of dimension ({d}, {d}) for copula')
 
         self._rhos = sigma[tri_indices(d, 1, 'lower')]
+
+    def drho(self, x: Optional[np.ndarray] = None):
+        if x is None:
+            x = self._rhos
+        return 6 / (np.pi * np.sqrt(4 - x ** 2))
+
+    def dtau(self, x: Optional[np.ndarray] = None):
+        if x is None:
+            x = self._rhos
+        return 2 / (np.pi * np.sqrt(1 - x ** 2))

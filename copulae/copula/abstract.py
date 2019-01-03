@@ -19,10 +19,6 @@ class AbstractCopula(ABC):
             raise ValueError("Copula dimension must be an integer greater than 1.")
 
     @abstractmethod
-    def _check_dimension(self, x: np.ndarray):
-        pass
-
-    @abstractmethod
     def fit(self, data: np.ndarray, method='mpl', x0: np.ndarray = None, verbose=1, optim_options: dict = None):
         pass
 
@@ -46,7 +42,15 @@ class AbstractCopula(ABC):
 
     @abstractmethod
     def irho(self, rho: Array):
-        raise NotImplementedError
+        pass
+
+    @abstractmethod
+    def dtau(self, x: Optional[np.ndarray]):
+        pass
+
+    @abstractmethod
+    def drho(self, x: Optional[np.ndarray]):
+        pass
 
     @abstractmethod
     def cdf(self, x: Array, log=False) -> np.ndarray:

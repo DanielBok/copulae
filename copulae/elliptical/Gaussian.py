@@ -38,15 +38,18 @@ class GaussianCopula(AbstractEllipticalCopula):
             params = np.repeat(params, len(self._rhos))
         self._rhos = np.array(params)
 
+    @property
     def tau(self):
         return np.arcsin(self.params) * 2 / np.pi
 
+    @property
     def rho(self):
         return np.arcsin(self.params / 2) * 6 / np.pi
 
-    def lambda_(self):
+    @property
+    def __lambda__(self):
         i01 = (self.params == 1).astype(float)
-        return self._lambda_(i01, i01)
+        return i01, i01
 
     def itau(self, tau: Array):
         return np.sin(tau * np.pi / 2)

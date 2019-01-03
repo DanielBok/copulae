@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections import namedtuple
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 
 import numpy as np
 
@@ -20,26 +20,7 @@ class BaseCopula(AbstractCopula, ABC):
     """
 
     def __init__(self, dim: int, name: str):
-        """
-        Creates a new abstract Copula.
-
-        :param dim: integer (greater than 1)
-            The dimension of the copulae
-
-        :param name: string
-            Default copulae. one of Gaussian, Student (T)
-        """
         super().__init__(dim, name)
-
-    def _check_dimension(self, x: Array):
-        x = np.array(x)
-        if len(x.shape) != 2:
-            raise ValueError("Data passed in must be a matrix where rows represent the number of data and columns "
-                             "represent the dimension of the copula")
-
-        dim = x.shape[1]
-        if dim != self.dim:
-            raise ValueError(f"Expected vector of dimension {self.dim}, get matrix of dimension {dim}")
 
     @format_docstring(params_doc=__estimator_params_docs__)
     def fit(self, data: np.ndarray, x0: np.ndarray = None, method='mpl', est_var=False, verbose=1,
@@ -51,7 +32,6 @@ class BaseCopula(AbstractCopula, ABC):
         :return: (float, float)
             Tuple containing parameters of the Gaussian Copula
         """
-        self._check_dimension(data)
         data = self.pobs(data)
 
         CopulaEstimator(self, data, x0=x0, method=method, est_var=est_var, verbose=verbose, optim_options=optim_options)
@@ -84,12 +64,13 @@ class BaseCopula(AbstractCopula, ABC):
                 lower: numpy array
                 upper: numpy array
         """
-        raise NotImplementedError
-
-    @staticmethod
-    def _lambda_(lower: np.array, upper: np.array) -> TailDep:
         Lambda = namedtuple('lambda', ['lower', 'upper'])
-        return Lambda(lower, upper)
+        return Lambda(*self.__lambda__)
+
+    @property
+    @abstractmethod
+    def __lambda__(self):
+        raise NotImplementedError
 
     def itau(self, tau: Array):
         """
@@ -116,6 +97,30 @@ class BaseCopula(AbstractCopula, ABC):
         :param rho: numpy array
             numerical values of Spearman's rho in [-1, 1].
         :return:
+        """
+        raise NotImplementedError
+
+    @property
+    def dtau(self, x: Optional[np.ndarray] = None):
+        """
+        Computes derivative of Kendall's Tau
+
+        :param x: numpy array, optional
+            1d vector to compute derivative of Kendall's Tau. If not supplied, will default to copulas parameters
+        :return: numpy array
+            Derivative of Kendall's Tau
+        """
+        raise NotImplementedError
+
+    @property
+    def drho(self, x: Optional[np.ndarray] = None):
+        """
+        Computes derivative of Spearman's Rho
+
+        :param x: numpy array optional
+            1d vector to compute derivative of Spearman's Rho. If not supplied, will default to copulas parameters
+        :return: numpy array
+            Derivative of Spearman's Rho
         """
         raise NotImplementedError
 
