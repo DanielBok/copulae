@@ -253,7 +253,7 @@ class BaseCopula(AbstractCopula, ABC):
         """
         return pseudo_obs(data, ties)
 
-    def random(self, n: int, seed: int=None):
+    def random(self, n: int, seed: int = None):
         """
         Generate random observations for the copula
 
@@ -268,6 +268,8 @@ class BaseCopula(AbstractCopula, ABC):
         if self.fit_stats is None:
             raise RuntimeError("Copula must be fitted before it can generate random numbers")
 
+        return self.__random__(n, seed)
+
     @abstractmethod
-    def __random(self, n: int):
+    def __random__(self, n: int, seed: int = None):
         raise NotImplementedError
