@@ -24,16 +24,6 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
         sigma[tri_indices(d, 1)] = np.tile(self._rhos, 2)
         return sigma
 
-    @sigma.setter
-    def sigma(self, sigma: Array):
-        sigma = np.array(sigma)
-
-        d = self.dim
-        if sigma.shape != (d, d):
-            raise ValueError(f'correlation matrix needs to be of dimension ({d}, {d}) for copula')
-
-        self._rhos = sigma[tri_indices(d, 1, 'lower')]
-
     def drho(self, x: Optional[np.ndarray] = None):
         if x is None:
             x = self._rhos
@@ -43,3 +33,79 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
         if x is None:
             x = self._rhos
         return 2 / (np.pi * np.sqrt(1 - x ** 2))
+
+    def __getitem__(self, i):
+        if type(i) is int:
+            return self._rhos[i]
+        elif hasattr(i, '__len__'):
+            if len(i) == 2:
+                return self.sigma[i]
+            else:
+                raise IndexError('only 2-dimensional indices supported')
+        raise IndexError("only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean "
+                         "arrays are valid indices")
+
+    def __setitem__(self, i, value):
+        d = self.dim
+        if type(i) is int:
+            self._rhos[i] = value
+            return
+
+        if type(i) is slice:
+            value = np.asarray(value)
+            if value.shape != (d, d):
+                return IndexError(f"The value being set shoud be a matrix of dimension ({d}, {d})")
+            self._rhos = value[tri_indices(d, 1, 'lower')]
+            return
+
+        if hasattr(i, '__len__'):
+            if len(i) == 2:
+                x, y = i
+                if x < 0 or y < 0:
+                    raise IndexError('Only positive indices are supported')
+                elif x >= d or y >= d:
+                    raise IndexError('Index cannot be greater than dimension of copula')
+                elif x == y:
+                    raise IndexError('Cannot set values along the diagonal')
+
+                for j, v in enumerate(zip(*tri_indices(d, 1, 'upper' if x < y else 'lower'))):
+                    if i == v:
+                        self._rhos[j] = value
+                        return
+                else:
+                    raise IndexError(f"Unable to find index {i}")
+            else:
+                raise IndexError('only 2-dimensional indices supported')
+        raise IndexError("only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean "
+                         "arrays are valid indices")
+
+    def __delitem__(self, i):
+        d = self.dim
+        if type(i) is int:
+            self._rhos[i] = 0
+            return
+
+        if type(i) is slice:
+            self._rhos = np.zeros(len(self._rhos))
+            return
+
+        if hasattr(i, '__len__'):
+            if len(i) == 2:
+                x, y = i
+                if x < 0 or y < 0:
+                    raise IndexError('Only positive indices are supported')
+                elif x >= d or y >= d:
+                    raise IndexError('Index cannot be greater than dimension of copula')
+                elif x == y:
+                    raise IndexError('Cannot set values along the diagonal')
+
+                for j, v in enumerate(zip(*tri_indices(d, 1, 'upper' if x < y else 'lower'))):
+                    if i == v:
+                        self._rhos[j] = 0
+                        return
+                else:
+                    raise IndexError(f"Unable to find index {i}")
+            else:
+                raise IndexError('only 2-dimensional indices supported')
+        raise IndexError("only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean "
+                         "arrays are valid indices")
