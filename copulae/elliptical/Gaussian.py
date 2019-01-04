@@ -4,6 +4,7 @@ import numpy as np
 from scipy.stats import multivariate_normal as mvn, norm
 
 from .abstract import AbstractEllipticalCopula
+from .decorators import quantile
 from copulae.types import Array
 
 
@@ -36,7 +37,7 @@ class GaussianCopula(AbstractEllipticalCopula):
         """
         if type(params) in {float, int}:
             params = np.repeat(params, len(self._rhos))
-        self._rhos = np.array(params)
+        self._rhos = np.asarray(params)
 
     @property
     def tau(self):
@@ -57,23 +58,16 @@ class GaussianCopula(AbstractEllipticalCopula):
     def irho(self, rho: Array):
         return np.sin(np.array(rho) * np.pi / 6) * 2
 
+    @quantile
     def cdf(self, x: np.ndarray, log=False):
-        # self._check_dimension(x)
         sigma = self.sigma
         return mvn.logcdf(x, cov=sigma) if log else mvn.cdf(x, cov=sigma)
 
-    def ppf(self, x: np.ndarray):
-        # self._check_dimension(x)
-        return norm.ppf(x)
-
+    @quantile
     def pdf(self, x: np.ndarray, log=False):
-        # self._check_dimension(x)
         sigma = self.sigma
-
-        q = norm.ppf(x)
-        r = mvn.logpdf(q, cov=sigma) - norm.logpdf(q).sum(1)
-
-        return r if log else np.exp(r)
+        d = mvn.logpdf(x, cov=sigma) - norm.logpdf(x).sum(1)
+        return d if log else np.exp(d)
 
     def __random__(self, n: int, seed: int = None):
         r = mvn.rvs(cov=self.sigma, size=n, random_state=seed)

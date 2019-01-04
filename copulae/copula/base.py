@@ -128,13 +128,15 @@ class BaseCopula(AbstractCopula, ABC):
 
     def cdf(self, x: Array, log=False) -> np.ndarray:
         """
-        Returns the cumulative distribution function (CDF) of the copulae. The CDF is also the probability of a RV being
-        less or equal to the value specified
+        Returns the cumulative distribution function (CDF) of the copulae.
+
+        The CDF is also the probability of a RV being less or equal to the value specified. Equivalent to the 'p'
+        generic function in R.
 
         :param x: numpy array of size (n x d)
             Vector or matrix of observed data
         :param log: bool
-            If True, the density of d are given as log(p)
+            If True, the probability 'p' is given as log(p)
         :return: numpy array
             The probability (CDF) of the RV
         """
@@ -142,28 +144,17 @@ class BaseCopula(AbstractCopula, ABC):
 
     def pdf(self, x: Array, log=False) -> np.ndarray:
         """
-        Returns the probability distribution function (PDF) of the copulae. The PDF is also the density of the RV at for
-        the particular distribution
+        Returns the probability distribution function (PDF) of the copulae.
+
+        The PDF is also the density of the RV at for the particular distribution. Equivalent to the 'd' generic function
+        in R.
 
         :param x: numpy array of size (n x d)
             Vector or matrix of observed data
         :param log: bool
-            If True, the density of d are given as log(d)
+            If True, the density 'd' is given as log(d)
         :return: numpy array
             The density (PDF) of the RV
-        """
-        raise NotImplementedError
-
-    def ppf(self, x: Array) -> np.ndarray:
-        """
-        Returns the percent point function (inverse of cdf) of the given RV. The ppf is also the quantile that the
-        RV belongs to.
-
-        :param x: numpy array (of size d)
-            Values to compute ppf
-
-        :return: numpy array
-            The ppf of the RV
         """
         raise NotImplementedError
 
@@ -181,30 +172,24 @@ class BaseCopula(AbstractCopula, ABC):
     def params(self, params: Array):
         """
         Sets the parameter which describes the copula
+
         :param params: numpy array:
             parameters of the copulae
         """
         raise NotImplementedError
 
-    def log_lik(self, data: np.ndarray = None) -> float:
+    def log_lik(self, data: np.ndarray) -> float:
         """
-        Returns the log likelihood (NLL) of the copula.
+        Returns the log likelihood (LL) of the copula.
 
-        The greater the NLL (closer to 0 from -inf) the better. If copula is fitted and data is not supplied, return
-        the fitted NLL. If data is given, calculate NLL given data. Otherwise error.
+        The greater the LL (closer to inf) the better.
 
         :param data: numpy array
-            Calculate NLL given new data set
+            Data set used to calculate the log likelihood
         :return: float
-            NLL
+            Log likelihood
         """
-        if data is not None:
-            return self.pdf(data, log=True).sum()
-
-        if self.fit_stats is None:
-            raise AttributeError("Unable to give log likelihood of fitted copula as copula is not fitted yet")
-
-        return self.fit_stats.log_lik
+        return self.pdf(data, log=True).sum()
 
     def concentration_down(self, x):
         """
@@ -263,6 +248,8 @@ class BaseCopula(AbstractCopula, ABC):
     def random(self, n: int, seed: int = None):
         """
         Generate random observations for the copula
+
+        Equivalent to the 'r' generic function in R.
 
         :param n: int
             number of observations to be generated

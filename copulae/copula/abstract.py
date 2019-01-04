@@ -60,10 +60,6 @@ class AbstractCopula(ABC):
     def pdf(self, x: Array, log=False) -> np.ndarray:
         pass
 
-    @abstractmethod
-    def ppf(self, x: Array) -> np.ndarray:
-        pass
-
     @staticmethod
     @abstractmethod
     def pobs(data: Array, ties='average') -> np.ndarray:
@@ -80,7 +76,7 @@ class AbstractCopula(ABC):
         pass
 
     @abstractmethod
-    def log_lik(self, data: Array = None) -> float:
+    def log_lik(self, data: Array) -> float:
         pass
 
     @abstractmethod
