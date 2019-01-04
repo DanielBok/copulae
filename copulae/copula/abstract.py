@@ -147,7 +147,7 @@ Data Pts.       : {self.nsample}
         skip_keys = {'final_simplex'}
         for title, dic in [('Optim Options', self.setup), ('Results', self.results)]:
             if dic is not None:
-                string = "\n".join(f'\t{k}    : {v}' for k, v in dic.items() if k not in skip_keys)
+                string = "\n".join(f'\t{k:15s}: {v}' for k, v in dic.items() if k not in skip_keys)
                 msg += f"\n\n{title}\n{string}"
 
         return msg

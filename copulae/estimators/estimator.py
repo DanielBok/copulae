@@ -141,6 +141,10 @@ class CopulaEstimator:
             self.copula.params = param
             return -self.copula.log_lik(self.data)
         except ValueError:
+            # Sometimes, we need to constrain the parameters so that they do not become invalid. Example: elliptical
+            # copula parameters need to have PSD covariance. However, since it is not explicitly stated in the
+            # constraints, we would hit a ValueError when determining the log likelihood. In this case, we revert to
+            # the previous parameter and stop the optimization
             self.copula.params = old_params
             raise RuntimeError
 
@@ -223,8 +227,8 @@ class CopulaEstimator:
         max_iter = min(len(data) * 250, 20000)
         disp = verbose >= 2
 
-        method = options.get('method', 'Nelder-Mead').lower()
-        if method == 'nelder-mead':
+        method_is = _method_is(options.get('method', 'Nelder-Mead'))
+        if method_is('Nelder-Mead'):
             return merge_dict({
                 'method': 'Nelder-Mead',
                 'options': {
@@ -234,7 +238,7 @@ class CopulaEstimator:
                     'fatol': 1e-4,
                 },
             }, options)
-        elif method == 'bfgs':
+        elif method_is('BFGS'):
             return merge_dict({
                 'options': {
                     'maxiter': max_iter,
@@ -245,6 +249,13 @@ class CopulaEstimator:
         else:
             # TODO set other defaults for other optimizers like BFGS (supposedly faster) and SLSQP (constrained)
             return options
+
+
+def _method_is(method: str):
+    def compare(b: str):
+        return method.casefold() == b.casefold()
+
+    return compare
 
 
 def _warn_no_convergence():
