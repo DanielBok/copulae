@@ -4,7 +4,7 @@ from typing import Optional
 import numpy as np
 
 from copulae.copula.base import BaseCopula
-from copulae.math_tools import tri_indices
+from copulae.math_tools import is_PSD, tri_indices
 from copulae.types import Array
 from .utils import create_cov_matrix
 
@@ -18,6 +18,11 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
         super().__init__(dim, name)
         self._rhos = np.zeros(sum(range(dim)))
         self.is_elliptical = True
+
+    def log_lik(self, data: np.ndarray):
+        if not is_PSD(self.sigma):
+            return -np.inf
+        return super().log_lik(data)
 
     @property
     def sigma(self):
