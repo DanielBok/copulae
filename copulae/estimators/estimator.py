@@ -52,7 +52,7 @@ class CopulaEstimator:
         # default optim options is the first dictionary. We have set the default options for Nelder-Mead
         self.__optim_options = optim_options or {}
 
-        self.copula.params = 0 if x0 is None else x0
+        self._x0 = x0
         self._verbose = verbose
 
         self.fit()  # fit the copula
@@ -137,17 +137,8 @@ class CopulaEstimator:
         :return: float
             negative log likelihood
         """
-        old_params = self.copula.params
-        try:
-            self.copula.params = param
-            return -self.copula.log_lik(self.data)
-        except ValueError:
-            # Sometimes, we need to constrain the parameters so that they do not become invalid. Example: elliptical
-            # copula parameters need to have PSD covariance. However, since it is not explicitly stated in the
-            # constraints, we would hit a ValueError when determining the log likelihood. In this case, we revert to
-            # the previous parameter and stop the optimization
-            self.copula.params = old_params
-            raise RuntimeError
+        self.copula.params = param
+        return -self.copula.log_lik(self.data)
 
     def _est_copula_cor(self, method: str):
         """
@@ -179,29 +170,22 @@ class CopulaEstimator:
         return M[ii]
 
     def _optimize(self) -> OptimizeResult:
-        # TODO convert to constrained optimization for Elliptical Copulas where cov matrix is constrained to be PSD
-        try:
-            return minimize(self._est_copula_log_lik, self.initial_params, **self.optim_options)
-        except RuntimeError:
-            return OptimizeResult({
-                'x': self.copula.params,
-                'fun': self.copula.log_lik(self.data),
-                'success': True,
-                'message': 'termination due to runtime errors. If elliptical copulas, it is likely because optimizer '
-                           'descended to a non-positive semi-definite region.'
-            })
+        return minimize(self._est_copula_log_lik, self.initial_params, **self.optim_options)
 
     @property
     def initial_params(self):
-        if self.copula.is_elliptical and not hasattr(self.copula, 'df'):
-            # Gaussian
+        if self._x0 is not None:
+            return self._x0
+
+        if self.copula.is_elliptical:
             corr = pearson_rho(self.data)
-            return corr[tri_indices(self.copula.dim, 1, 'lower')]
-
-        params = self.copula.params
-
-        if not np.allclose(params, 0):
-            return params
+            rhos = corr[tri_indices(self.copula.dim, 1, 'lower')]
+            if hasattr(self.copula, '_df'):
+                # T-distribution
+                return np.array([4.669, *rhos])  # set df as Feigenbaum's constant
+            else:
+                # Gaussian
+                return rhos
 
         try:
             start = self._fit_icor('tau')
@@ -228,10 +212,11 @@ class CopulaEstimator:
         max_iter = min(len(data) * 250, 20000)
         disp = verbose >= 2
 
-        method_is = _method_is(options.get('method', 'Nelder-Mead'))
+        options.setdefault('method', 'SLSQP')
+        method_is = _method_is(options['method'])
+        bounds = [(l, u) for l, u in zip(*self.copula.params_bounds)]
         if method_is('Nelder-Mead'):
             return merge_dict({
-                'method': 'Nelder-Mead',
                 'options': {
                     'maxiter': max_iter,
                     'disp': disp,
@@ -247,8 +232,34 @@ class CopulaEstimator:
                     'gtol': 1e-4,
                 }
             }, options)
+        elif method_is('SLSQP'):
+            return merge_dict({
+                'bounds': bounds,
+                'options': {
+                    'maxiter': max_iter,
+                    'ftol': 1e-06,
+                    'iprint': 1,
+                    'disp': disp,
+                    'eps': 1.5e-8
+                }
+            }, options)
+        elif method_is('COBYLA'):
+            return merge_dict({
+                'bounds': bounds,
+                'options': {
+                    'maxiter': max_iter,
+                    'rhobeg': 1.0,
+                    'disp': disp,
+                    'catol': 0.0002
+                }
+            }, options)
+        elif method_is('trust-constr'):
+            return merge_dict({
+                'maxiter': max_iter,
+                'disp': disp,
+                'bounds': bounds
+            }, options)
         else:
-            # TODO set other defaults for other optimizers like BFGS (supposedly faster) and SLSQP (constrained)
             return options
 
 
