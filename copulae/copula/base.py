@@ -159,6 +159,7 @@ class BaseCopula(AbstractCopula, ABC):
         raise NotImplementedError
 
     @property
+    @abstractmethod
     def params(self):
         """
         The parameter set which describes the copula
@@ -169,6 +170,7 @@ class BaseCopula(AbstractCopula, ABC):
         raise NotImplementedError
 
     @params.setter
+    @abstractmethod
     def params(self, params: Array):
         """
         Sets the parameter which describes the copula

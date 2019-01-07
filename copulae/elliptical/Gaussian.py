@@ -40,30 +40,19 @@ class GaussianCopula(AbstractEllipticalCopula):
         self._rhos = np.asarray(params)
 
     @property
-    def tau(self):
-        return np.arcsin(self.params) * 2 / np.pi
-
-    @property
-    def rho(self):
-        return np.arcsin(self.params / 2) * 6 / np.pi
-
-    @property
     def __lambda__(self):
-        i01 = (self.params == 1).astype(float)
-        return i01, i01
-
-    def itau(self, tau: Array):
-        return np.sin(tau * np.pi / 2)
+        res = (self._rhos == 1).astype(float)
+        return res, res
 
     def irho(self, rho: Array):
         return np.sin(np.array(rho) * np.pi / 6) * 2
 
-    @quantile
+    @quantile('normal')
     def cdf(self, x: np.ndarray, log=False):
         sigma = self.sigma
         return mvn.logcdf(x, cov=sigma) if log else mvn.cdf(x, cov=sigma)
 
-    @quantile
+    @quantile('normal')
     def pdf(self, x: np.ndarray, log=False):
         sigma = self.sigma
         d = mvn.logpdf(x, cov=sigma) - norm.logpdf(x).sum(1)

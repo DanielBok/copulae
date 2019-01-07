@@ -2,9 +2,11 @@ from abc import ABC
 from typing import Optional
 
 import numpy as np
+
 from copulae.copula.base import BaseCopula
 from copulae.math_tools import tri_indices
 from copulae.types import Array
+from .utils import create_cov_matrix
 
 
 class AbstractEllipticalCopula(BaseCopula, ABC):
@@ -19,10 +21,21 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
 
     @property
     def sigma(self):
-        d = self.dim
-        sigma = np.identity(d)
-        sigma[tri_indices(d, 1)] = np.tile(self._rhos, 2)
-        return sigma
+        """
+        The covariance matrix for the elliptical copula
+
+        :return: numpy array
+            Covariance matrix for elliptical copula
+        """
+        return create_cov_matrix(self._rhos)
+
+    @property
+    def tau(self):
+        return 2 * np.arcsin(self._rhos) / np.pi
+
+    @property
+    def rho(self):
+        return np.arcsin(self._rhos / 2) * 6 / np.pi
 
     def drho(self, x: Optional[np.ndarray] = None):
         if x is None:
@@ -33,6 +46,9 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
         if x is None:
             x = self._rhos
         return 2 / (np.pi * np.sqrt(1 - x ** 2))
+
+    def itau(self, tau: Array):
+        return np.sin(tau * np.pi / 2)
 
     def __getitem__(self, i):
         if type(i) is int:
