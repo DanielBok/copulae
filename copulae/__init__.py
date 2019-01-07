@@ -1,1 +1,1 @@
-from copulae.elliptical import GaussianCopula
+from copulae.elliptical import *

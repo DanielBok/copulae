@@ -50,6 +50,19 @@ def rank_data(X: np.ndarray, ties='average'):
 
 
 def tri_indices(n: int, m=0, side='both'):
+    """
+    Return the indices for the triangle of an (n, n) array
+
+    :param n: int
+        dimension of square matrix
+    :param m: int
+        offset
+    :param side: str, default 'both'
+        Side of triangle to return. Supported values are 'lower', 'upper', 'both'
+    :return: Tuple[numpy array, numpy array]
+        Tuple of row indices and column indices
+    """
+
     side = side.lower()
 
     if side not in {'lower', 'upper', 'both'}:
