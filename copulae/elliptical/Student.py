@@ -101,7 +101,7 @@ class StudentCopula(AbstractEllipticalCopula):
 
     def __random__(self, n: int, seed: int = None):
         r = mvt.rvs(cov=self.sigma, df=self._df, size=n, random_state=seed)
-        return t.cdf(r)
+        return t.cdf(r, self._df)
 
     def __str__(self):
         msg = f"""
@@ -110,7 +110,7 @@ Student T Copulas with {self.dim} dimensions
 Degrees of Freedom: {self._df}
 
 Correlation Matrix (P):
-    {self.sigma}\
+    {self.sigma}
 """.strip()
 
         if self.fit_stats is not None:
