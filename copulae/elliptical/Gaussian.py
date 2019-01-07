@@ -1,11 +1,11 @@
 from typing import Union
 
 import numpy as np
-from scipy.stats import multivariate_normal as mvn, norm
 
+from copulae.stats import multivariate_normal as mvn, norm
+from copulae.types import Array
 from .abstract import AbstractEllipticalCopula
 from .decorators import quantile
-from copulae.types import Array
 
 
 class GaussianCopula(AbstractEllipticalCopula):

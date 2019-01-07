@@ -5,7 +5,8 @@ from scipy.optimize import OptimizeResult, minimize
 from statsmodels.stats.correlation_tools import corr_nearest
 
 from copulae.copula.abstract import AbstractCopula as Copula, FitStats
-from copulae.math_tools import kendall_tau, pearson_rho, spearman_rho, tri_indices
+from copulae.math_tools import tri_indices
+from copulae.stats import kendall_tau, pearson_rho, spearman_rho
 from copulae.utils import format_docstring, merge_dict
 
 __estimator_params_docs__ = """
