@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
+from typing import Optional, Tuple
 
 import numpy as np
 
 from copulae.types import Array
-from typing import Optional
 
 
 class AbstractCopula(ABC):
@@ -14,6 +14,7 @@ class AbstractCopula(ABC):
         self.name = name
         self.fit_stats: FitStats = None
         self.is_elliptical = False
+        self._bounds: Tuple[np.ndarray, np.ndarray] = ()
 
         if dim < 2 or int(dim) != dim:
             raise ValueError("Copula dimension must be an integer greater than 1.")
@@ -73,6 +74,15 @@ class AbstractCopula(ABC):
     @params.setter
     @abstractmethod
     def params(self, data: Array):
+        pass
+
+    @property
+    @abstractmethod
+    def params_bounds(self):
+        pass
+
+    @params_bounds.setter
+    def params_bounds(self, bounds: Tuple[Array, Array]):
         pass
 
     @abstractmethod

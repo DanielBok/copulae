@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections import namedtuple
-from typing import NamedTuple, Optional
+from typing import NamedTuple, Optional, Tuple
 
 import numpy as np
 
@@ -179,6 +179,28 @@ class BaseCopula(AbstractCopula, ABC):
             parameters of the copulae
         """
         raise NotImplementedError
+
+    @property
+    def params_bounds(self) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Gets the bounds for the parameters
+        :return: Tuple[Array, Array]
+            tuple containing the upper and lower bounds for the parameters
+        """
+        return tuple(self._bounds)
+
+    @params_bounds.setter
+    def params_bounds(self, bounds: Tuple[Array, Array]):
+        """
+        Sets the lower and upper bound for the parameters
+
+        :param bounds: Tuple[Array, Array]
+            tuple containing the upper and lower bounds for the parameters
+        """
+        if len(bounds) != 2:
+            raise ValueError('Bounds must be a tuple of length 2. (lower, upper)')
+
+        self._bounds = np.asarray(bounds[0], float), np.asarray(bounds[1], float),
 
     def log_lik(self, data: np.ndarray) -> float:
         """

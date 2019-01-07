@@ -20,7 +20,10 @@ class GaussianCopula(AbstractEllipticalCopula):
 
     def __init__(self, dim=2):
         super().__init__(dim, "Gaussian")
-        self._rhos = np.zeros(sum(range(dim)))
+        n = sum(range(dim))
+        self._rhos = np.zeros(n)
+
+        self.params_bounds = np.repeat(-1., n), np.repeat(1., n)
 
     @property
     def params(self):
@@ -62,6 +65,9 @@ class GaussianCopula(AbstractEllipticalCopula):
         r = mvn.rvs(cov=self.sigma, size=n, random_state=seed)
         return norm.cdf(r)
 
+    def summary(self):
+        print(self)
+
     def __str__(self):
         msg = f"""
 Gaussian Copulas with {self.dim} dimensions
@@ -74,6 +80,3 @@ Correlation Matrix (P):
             msg += f'\n\n{self.fit_stats}'
 
         return msg
-
-    def summary(self):
-        print(self)
