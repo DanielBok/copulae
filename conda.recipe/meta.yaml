@@ -1,0 +1,28 @@
+{% set data = load_setup_py_data() %}
+
+package:
+  name: copulae
+  version: {{ data['version'] }}
+
+source:
+  path: ..
+
+build:
+  number: 0
+  string: py{{ CONDA_PY }}
+  script: python setup.py install --single-version-externally-managed --record=record.txt
+
+requirements:
+  build:
+    - python >=3.5,<3.7
+    - setuptools
+  run:
+    - python >=3.5,<3.7
+    {% for dep in data['install_requires'] %}
+    - {{ dep.lower() }}
+    {% endfor %}
+
+about:
+  home: https://eisr
+  summary: {{ data['description'] }}
+  license: MIT

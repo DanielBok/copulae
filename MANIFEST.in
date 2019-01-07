@@ -1,0 +1,4 @@
+global-exclude *.py[co]
+global-exclude *.p
+
+prune .pytest_cache
