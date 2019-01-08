@@ -12,6 +12,11 @@ requirements = [
     'statsmodels >=0.9.0'
 ]
 
+setup_requirements = [
+    'pytest',
+    'pandas',
+]
+
 setup(
     name='copulae',
     author='Daniel Bok',
@@ -27,6 +32,7 @@ setup(
     url='https://eisr',
     keywords=['copulae'],
     install_requires=requirements,
+    setup_requires=setup_requirements,
     python_requires='>=3.5',
     platform='any',
     zip_safe=False,
