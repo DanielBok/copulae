@@ -1,13 +1,11 @@
 from typing import NamedTuple, Union
 
 import numpy as np
-import numpy.linalg as la
 
 from copulae.stats import multivariate_t as mvt, t
 from copulae.types import Array
 from .abstract import AbstractEllipticalCopula
 from .decorators import quantile
-from .utils import create_cov_matrix
 
 
 class StudentParams(NamedTuple):
@@ -95,7 +93,7 @@ class StudentCopula(AbstractEllipticalCopula):
 
     def __str__(self):
         msg = f"""
-Student T Copulas with {self.dim} dimensions
+Student T Copula with {self.dim} dimensions
 
 Degrees of Freedom: {self._df}
 

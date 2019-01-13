@@ -23,6 +23,8 @@ def quantile(dist):
         def decorator(func):
             @wraps(func)
             def with_quantile(self, x: np.ndarray, log=False):
+                self._check_data_dimension(x)
+
                 q = norm.ppf(x)
                 if q.ndim == 1:
                     q = q.reshape(1, -1)
@@ -48,6 +50,8 @@ def quantile(dist):
         def decorator(func):
             @wraps(func)
             def with_quantile(self, x: np.ndarray, log=False):
+                self._check_data_dimension(x)
+
                 q = t.ppf(x, self.params.df)
                 if q.ndim == 1:
                     q = q.reshape(1, -1)

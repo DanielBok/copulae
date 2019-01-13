@@ -1,5 +1,5 @@
-from .Gaussian import GaussianCopula
-from .Student import StudentCopula
+from .gaussian import GaussianCopula
+from .student import StudentCopula
 
 NormalCopula = GaussianCopula
 TCopula = StudentCopula

@@ -106,7 +106,6 @@ class BaseCopula(AbstractCopula, ABC):
         """
         raise NotImplementedError
 
-    @property
     def dtau(self, x: Optional[np.ndarray] = None):
         """
         Computes derivative of Kendall's Tau
@@ -118,7 +117,6 @@ class BaseCopula(AbstractCopula, ABC):
         """
         raise NotImplementedError
 
-    @property
     def drho(self, x: Optional[np.ndarray] = None):
         """
         Computes derivative of Spearman's Rho
@@ -302,3 +300,7 @@ class BaseCopula(AbstractCopula, ABC):
         Prints information about the copula
         """
         raise NotImplementedError
+
+    def _check_data_dimension(self, x: Array):
+        if x.shape[1] != self.dim:
+            raise ValueError('number of columns in input data does not match copula dimension')

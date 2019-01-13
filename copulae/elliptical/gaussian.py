@@ -69,7 +69,7 @@ class GaussianCopula(AbstractEllipticalCopula):
 
     def __str__(self):
         msg = f"""
-Gaussian Copulas with {self.dim} dimensions
+Gaussian Copula with {self.dim} dimensions
 
 Correlation Matrix (P):
 {self.sigma}
