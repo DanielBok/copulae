@@ -137,8 +137,11 @@ class CopulaEstimator:
         :return: float
             negative log likelihood
         """
-        self.copula.params = param
-        return -self.copula.log_lik(self.data)
+        try:
+            self.copula.params = param
+            return -self.copula.log_lik(self.data)
+        except ValueError:  # error encountered when setting invalid parameters
+            return np.inf
 
     def _est_copula_cor(self, method: str):
         """

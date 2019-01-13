@@ -64,16 +64,6 @@ class StudentCopula(AbstractEllipticalCopula):
 
     def fit(self, data: np.ndarray, x0: np.ndarray = None, method='mpl', fix_df=False, est_var=False, verbose=1,
             optim_options: dict = None):
-
-        if optim_options is None:
-            optim_options = {
-                'method': 'SLSQP',
-                'constraints': [
-                    {'type': 'ineq', 'fun': lambda x: -1 if (la.eigvalsh(create_cov_matrix(x[1:])) < 0).any() else 1},
-                    {'type': 'ineq', 'fun': lambda x: 1 if x[0] > 0 else -1}
-                ]
-            }
-
         if fix_df:
             optim_options['constraints'].append({'type': 'eq', 'fun': lambda x: x[0] - self._df})  # df doesn't change
 

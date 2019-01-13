@@ -22,7 +22,6 @@ class GaussianCopula(AbstractEllipticalCopula):
         super().__init__(dim, "Gaussian")
         n = sum(range(dim))
         self._rhos = np.zeros(n)
-
         self.params_bounds = np.repeat(-1., n), np.repeat(1., n)
 
     @property

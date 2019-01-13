@@ -22,6 +22,10 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
     def log_lik(self, data: np.ndarray):
         if not is_PSD(self.sigma):
             return -np.inf
+
+        if hasattr(self, '_df') and self._df <= 0:  # t copula
+            return -np.inf
+
         return super().log_lik(data)
 
     @property

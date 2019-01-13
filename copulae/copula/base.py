@@ -35,6 +35,10 @@ class BaseCopula(AbstractCopula, ABC):
             Tuple containing parameters of the Gaussian Copula
         """
         data = self.pobs(data)
+        if data.ndim != 2:
+            raise ValueError('Data must be a matrix of dimension (n x d)')
+        elif self.dim != data.shape[1]:
+            raise ValueError('Dimension of data does not match copula')
 
         CopulaEstimator(self, data, x0=x0, method=method, est_var=est_var, verbose=verbose, optim_options=optim_options)
 
