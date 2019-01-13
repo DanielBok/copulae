@@ -9,6 +9,7 @@ from copulae.types import Array
 class IndepCopula(BaseCopula):
     def __init__(self, dim=2):
         super().__init__(dim, 'Independence')
+        self.fit_stats = 'Unavailable'
 
     @property
     def tau(self):
@@ -37,7 +38,7 @@ class IndepCopula(BaseCopula):
     def cdf(self, x: Array, log=False) -> np.ndarray:
         self._check_data_dimension(x)
         x = np.asarray(x)
-        return np.log(x).sum(1) if log else x.sum(1)
+        return np.log(x).sum(1) if log else x.prod(1)
 
     def pdf(self, x: Array, log=False) -> np.ndarray:
         self._check_data_dimension(x)
@@ -55,3 +56,12 @@ class IndepCopula(BaseCopula):
 
     def __str__(self):
         return f"Independence Copula with {self.dim} dimensions"
+
+    def log_lik(self, data: np.ndarray):
+        print('Log Likelihood not available for indepedence copula')
+        return
+
+    def fit(self, data: np.ndarray, x0: np.ndarray = None, method='mpl', est_var=False, verbose=1,
+            optim_options: dict = None):
+        print('Fitting not required for independence copula')
+        return
