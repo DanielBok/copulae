@@ -1,4 +1,14 @@
+include MANIFEST.in
+include LICENSE
+include README.md
+include setup.py
+
 global-exclude *.py[co]
 global-exclude *.p
 
 prune .pytest_cache
+
+graft foggy
+
+include versioneer.py
+include foggy/_version.py
