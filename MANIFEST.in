@@ -8,7 +8,7 @@ global-exclude *.p
 
 prune .pytest_cache
 
-graft foggy
+graft copulae
 
 include versioneer.py
-include foggy/_version.py
+include copulae/_version.py
