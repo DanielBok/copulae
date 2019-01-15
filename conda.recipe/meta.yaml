@@ -16,6 +16,9 @@ requirements:
   build:
     - python >=3.5,<3.7
     - setuptools
+    {% for dep in data['setup_requires'] %}
+    - {{ dep.lower() }}
+    {% endfor %}
   run:
     - python >=3.5,<3.7
     {% for dep in data['install_requires'] %}
