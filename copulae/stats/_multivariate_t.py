@@ -133,7 +133,7 @@ class multivariate_t:
         return np.log(cls.cdf(x, mean, cov, df))
 
     @classmethod
-    def rvs(cls, mean: Numeric = None, cov: Numeric = 1, size: Numeric = 1, df: float = None, type_='shifted',
+    def rvs(cls, mean: Numeric = None, cov: Numeric = 1, df: float = None, size: Numeric = 1, type_='shifted',
             random_state: int = None):
         """
         Draw random samples from a multivariate student T distribution
@@ -142,10 +142,10 @@ class multivariate_t:
             Mean of the distribution (default zero)
         :param cov: float, matrix
             Covariance matrix of the distribution (default one)
-        :param size: int, array
-            Number of samples to draw (default 1).
         :param df: float
             Degrees of freedom
+        :param size: int, array
+            Number of samples to draw (default 1).
         :param type_: str, default 'shifted'
             Type of non-central multivariate t distribution. 'Kshirsagar' is the non-central t-distribution needed for
             calculating the power of multiple contrast tests under a normality assumption. 'Shifted' is a location
@@ -158,10 +158,12 @@ class multivariate_t:
         :return: numpy array
             simulated random variates
         """
-        if df <= 0:
-            raise ValueError("Degrees of freedom 'df' must be greater than 0")
 
-        if df > cls._T_LIMIT:
+        if df is None:
+            raise ValueError("Degrees of freedom 'df' must be a scalar float and greater than 0")
+        elif df <= 0:
+            raise ValueError("Degrees of freedom 'df' must be greater than 0")
+        elif df > cls._T_LIMIT:
             return np.asarray(mvn.rvs(mean, cov, size, random_state), dtype=float)
 
         d = np.sqrt(np.random.chisquare(df, size) / df).reshape(-1, 1)
@@ -175,26 +177,3 @@ class multivariate_t:
             raise ValueError(f"Unknown centrality type {type_}. Use one of 'Kshirsagar', 'shifted'")
 
         return np.asarray(r / d, dtype=float)
-
-# multivariate_normal.rvs()
-# multivariate_normal.pdf()
-# o = np.array([
-#     [0.7746835, 0.7291139, 0.61518987, 0.9265823, 0.4810127, 0.8987342, 0.6025316],
-#     [0.9746835, 0.1164557, 0.01518987, 0.6481013, 0.4405063, 0.6126582, 0.2835443]
-# ])
-#
-# sigma = np.array([
-#     [1., 0.17744184, -0.37436649, 0.09228916, 0.11114309, 0.07197019, 0.2650227],
-#     [0.17744184, 1., 0.52527897, -0.05499694, -0.0773855, -0.06585167, 0.18124078],
-#     [-0.37436649, 0.52527897, 1., 0.05795289, 0.01324174, 0.06096022, 0.01836235],
-#     [0.09228916, -0.05499694, 0.05795289, 1., 0.63010478, 0.93983371, 0.57962059],
-#     [0.11114309, -0.0773855, 0.01324174, 0.63010478, 1., 0.71667641, 0.41154285],
-#     [0.07197019, -0.06585167, 0.06096022, 0.93983371, 0.71667641, 1., 0.5589378],
-#     [0.2650227, 0.18124078, 0.01836235, 0.57962059, 0.41154285, 0.5589378, 1.]
-# ])
-
-# print(multivariate_t.cdf(o, cov=sigma, df=10))
-
-# dim, mean, cov, df = multivariate_t._process_parameters(None, None, sigma, 10)
-# x = multivariate_t._process_input(o, dim)
-# mvn.pdf(o, cov=sigma)
