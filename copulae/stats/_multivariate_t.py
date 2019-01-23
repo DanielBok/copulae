@@ -176,4 +176,4 @@ class multivariate_t:
         else:
             raise ValueError(f"Unknown centrality type {type_}. Use one of 'Kshirsagar', 'shifted'")
 
-        return np.asarray(r / d, dtype=float)
+        return np.asarray(r, dtype=float)
