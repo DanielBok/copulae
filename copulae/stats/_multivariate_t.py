@@ -144,7 +144,7 @@ class multivariate_t:
             Covariance matrix of the distribution (default one)
         :param df: float
             Degrees of freedom
-        :param size: int, array
+        :param size: int, array of int
             Number of samples to draw (default 1).
         :param type_: str, default 'shifted'
             Type of non-central multivariate t distribution. 'Kshirsagar' is the non-central t-distribution needed for
@@ -158,6 +158,8 @@ class multivariate_t:
         :return: numpy array
             simulated random variates
         """
+        if not (type(size) is int or all(type(s) is int for s in size)):
+            raise ValueError('size argument must be integer or iterable of integers')
 
         if df is None:
             raise ValueError("Degrees of freedom 'df' must be a scalar float and greater than 0")
@@ -166,7 +168,13 @@ class multivariate_t:
         elif df > cls._T_LIMIT:
             return np.asarray(mvn.rvs(mean, cov, size, random_state), dtype=float)
 
-        d = np.sqrt(np.random.chisquare(df, size) / df).reshape(-1, 1)
+        d = np.sqrt(np.random.chisquare(df, size) / df)
+
+        if type(size) is int:
+            d = d.reshape(size, 1)
+        else:
+            d = d.reshape(*size, 1)
+
         if type_.casefold() == 'kshirsagar':
             r = mvn.rvs(mean, cov, size, random_state) / d
         elif type_.casefold() == 'shifted':
