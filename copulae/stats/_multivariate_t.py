@@ -171,14 +171,28 @@ class multivariate_t:
         d = np.sqrt(np.random.chisquare(df, size) / df)
 
         if type(size) is int:
-            d = d.reshape(size, 1)
+            if size > 1:
+                d = d.reshape(size, -1)
+            size_is_iterable = False
         else:
-            d = d.reshape(*size, 1)
+            d = d.reshape(*size, -1)
+            size_is_iterable = True
+
+        # size and dim used to reshape generated tensor correctly before dividing by chi-square rvs
+        dim = 1 if not hasattr(cov, '__len__') else len(cov)
 
         if type_.casefold() == 'kshirsagar':
-            r = mvn.rvs(mean, cov, size, random_state) / d
+            r = mvn.rvs(mean, cov, size, random_state)
+            if size_is_iterable:
+                r = r.reshape(*size, dim)
+            r /= d
+
         elif type_.casefold() == 'shifted':
-            r = mvn.rvs(np.zeros(len(cov)), cov, size, random_state) / d
+            r = mvn.rvs(np.zeros(len(cov)), cov, size, random_state)
+            if size_is_iterable:
+                r = r.reshape(*size, dim)
+            r /= d
+
             if mean is not None:
                 r += mean  # location shifting
         else:
