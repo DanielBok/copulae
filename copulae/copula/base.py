@@ -284,10 +284,6 @@ class BaseCopula(AbstractCopula, ABC):
         :return: numpy array (n x d)
             array of generated observations
         """
-
-        if self.fit_stats is None:
-            raise RuntimeError("Copula must be fitted before it can generate random numbers")
-
         return self.__random__(n, seed)
 
     @abstractmethod

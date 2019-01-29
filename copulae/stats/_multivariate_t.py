@@ -22,7 +22,6 @@ def _is_psd(M: Numeric):
     return True
 
 
-# noinspection PyPep8Naming
 class multivariate_t:
     _T_LIMIT = 10000  # beyond this limit, we assume normal distribution
 
@@ -133,8 +132,8 @@ class multivariate_t:
         return np.log(cls.cdf(x, mean, cov, df))
 
     @classmethod
-    def rvs(cls, mean: Numeric = None, cov: Numeric = 1, df: float = None, size: Numeric = 1, type_='shifted',
-            random_state: int = None):
+    def rvs(cls, mean: OptNumeric = None, cov: Numeric = 1, df: float = None, size: Numeric = 1, type_='shifted',
+            random_state: Optional[int] = None):
         """
         Draw random samples from a multivariate student T distribution
 
