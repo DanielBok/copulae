@@ -1,10 +1,10 @@
 from abc import ABC
-from typing import Optional
+from typing import Optional, Tuple
 
 import numpy as np
 
 from copulae.copula.base import BaseCopula
-from copulae.math_tools import is_PSD, tri_indices
+from copulae.matrices import is_psd, near_psd, tri_indices
 from copulae.types import Array
 from .utils import create_cov_matrix
 
@@ -20,7 +20,7 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
         self.is_elliptical = True
 
     def log_lik(self, data: np.ndarray):
-        if not is_PSD(self.sigma):
+        if not is_psd(self.sigma):
             return -np.inf
 
         if hasattr(self, '_df') and self._df <= 0:  # t copula
@@ -72,65 +72,66 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
 
     def __setitem__(self, i, value):
         d = self.dim
-        if type(i) is int:
-            self._rhos[i] = value
-            return
 
         if type(i) is slice:
-            value = np.asarray(value)
+            value = near_psd(value)
             if value.shape != (d, d):
-                return IndexError(f"The value being set shoud be a matrix of dimension ({d}, {d})")
+                return IndexError(f"The value being set should be a matrix of dimension ({d}, {d})")
             self._rhos = value[tri_indices(d, 1, 'lower')]
             return
 
-        if hasattr(i, '__len__'):
-            if len(i) == 2:
-                x, y = i
-                if x < 0 or y < 0:
-                    raise IndexError('Only positive indices are supported')
-                elif x >= d or y >= d:
-                    raise IndexError('Index cannot be greater than dimension of copula')
-                elif x == y:
-                    raise IndexError('Cannot set values along the diagonal')
+        if type(i) is int:
+            self._rhos[i] = value
 
-                for j, v in enumerate(zip(*tri_indices(d, 1, 'upper' if x < y else 'lower'))):
-                    if i == v:
-                        self._rhos[j] = value
-                        return
-                else:
-                    raise IndexError(f"Unable to find index {i}")
-            else:
-                raise IndexError('only 2-dimensional indices supported')
-        raise IndexError("only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean "
-                         "arrays are valid indices")
+        else:
+            i = _get_rho_index(d, i)
+            self._rhos[i] = value
+
+        self._force_psd()
 
     def __delitem__(self, i):
         d = self.dim
-        if type(i) is int:
-            self._rhos[i] = 0
-            return
 
         if type(i) is slice:
             self._rhos = np.zeros(len(self._rhos))
-            return
 
-        if hasattr(i, '__len__'):
-            if len(i) == 2:
-                x, y = i
-                if x < 0 or y < 0:
-                    raise IndexError('Only positive indices are supported')
-                elif x >= d or y >= d:
-                    raise IndexError('Index cannot be greater than dimension of copula')
-                elif x == y:
-                    raise IndexError('Cannot set values along the diagonal')
+        elif type(i) is int:
+            self._rhos[i] = 0
 
-                for j, v in enumerate(zip(*tri_indices(d, 1, 'upper' if x < y else 'lower'))):
-                    if i == v:
-                        self._rhos[j] = 0
-                        return
-                else:
-                    raise IndexError(f"Unable to find index {i}")
-            else:
-                raise IndexError('only 2-dimensional indices supported')
+        else:
+            i = _get_rho_index(d, i)
+            self._rhos[i] = 0
+
+        self._force_psd()
+
+    def _force_psd(self):
+        """
+        Forces covariance matrix to be positive semi-definite. This is useful when user is overwriting covariance
+        parameters
+        """
+        cov = near_psd(self.sigma)
+        self._rhos = cov[tri_indices(self.dim, 1, 'lower')]
+
+
+def _get_rho_index(d: int, i: Tuple[int, int]) -> int:
+    i = tuple(i)
+    if type(i) is not tuple:
         raise IndexError("only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean "
                          "arrays are valid indices")
+
+    if len(i) != 2:
+        raise IndexError('only 2-dimensional indices supported')
+
+    x, y = i
+    if x < 0 or y < 0:
+        raise IndexError('Only positive indices are supported')
+    elif x >= d or y >= d:
+        raise IndexError('Index cannot be greater than dimension of copula')
+    elif x == y:
+        raise IndexError('Cannot set values along the diagonal')
+
+    for j, v in enumerate(zip(*tri_indices(d, 1, 'upper' if x < y else 'lower'))):
+        if i == v:
+            return j
+
+    raise IndexError(f"Unable to find index {i}")
