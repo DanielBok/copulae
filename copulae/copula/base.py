@@ -6,7 +6,7 @@ import numpy as np
 
 from copulae.copula.abstract import AbstractCopula
 from copulae.estimators import CopulaEstimator, __estimator_params_docs__
-from copulae.math_tools.misc import pseudo_obs
+from copulae.matrices.misc import pseudo_obs
 from copulae.types import Array
 from copulae.utils import format_docstring
 
