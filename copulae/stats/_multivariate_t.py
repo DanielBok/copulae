@@ -168,6 +168,8 @@ class multivariate_t:
         elif df > cls._T_LIMIT:
             return np.asarray(mvn.rvs(mean, cov, size, random_state), dtype=float)
 
+        if random_state is not None:
+            np.random.seed(random_state)
         d = np.sqrt(np.random.chisquare(df, size) / df)
 
         if type(size) is int:
