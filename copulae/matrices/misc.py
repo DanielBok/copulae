@@ -12,7 +12,8 @@ def pseudo_obs(data: np.ndarray, ties='average'):
         n x d-matrix (or d-vector) of random variates to be converted to pseudo-observations
 
     :param ties: str
-        string specifying how ranks should be computed if there are ties in any of the coordinate samples                    The options are 'average', 'min', 'max', 'dense' and 'ordinal'. Passed to scipy.stats.rankdata
+        string specifying how ranks should be computed if there are ties in any of the coordinate samples
+        The options are 'average', 'min', 'max', 'dense' and 'ordinal'. Passed to scipy.stats.rankdata
 
     :return: numpy array
         matrix or vector of the same dimension as X containing the pseudo observations
@@ -20,33 +21,36 @@ def pseudo_obs(data: np.ndarray, ties='average'):
     return rank_data(data, ties) / (len(data) + 1)
 
 
-def rank_data(X: np.ndarray, ties='average'):
+def rank_data(obs: np.ndarray, ties='average'):
     """
     Assign ranks to data, dealing with ties appropriately. This function works on matrices as well as vectors
 
-    :param X: numpy array
+    :param obs: numpy array
         n x d-matrix (or d-vector) of random variates to be converted to pseudo-observations
 
-    :param ties: str
+    :param ties: str, default 'average'
         The method used to assign ranks to tied elements. The options are 'average', 'min', 'max', 'dense' and
         'ordinal'.
         'average': The average of the ranks that would have been assigned to all the tied values is assigned to each
-                    value.
+            value.
         'min': The minimum of the ranks that would have been assigned to all the tied values is assigned to each
-                    value. (This is also referred to as "competition" ranking.)
+            value. (This is also referred to as "competition" ranking.)
         'max': The maximum of the ranks that would have been assigned to all the tied values is assigned to each value.
         'dense': Like 'min', but the rank of the next highest element is assigned the rank immediately after those
-                    assigned to the tied elements. 'ordinal': All values are given a distinct rank, corresponding to
-                    the order that the values occur in `a`.
-        The default is 'average'.
+            assigned to the tied elements. 'ordinal': All values are given a distinct rank, corresponding to
+            the order that the values occur in `a`.
 
     :return: numpy array
         matrix or vector of the same dimension as X containing the pseudo observations
     """
-    if len(X.shape) == 1:
-        return np.array([stats.rankdata(X, ties)])
+    obs = np.asarray(obs)
 
-    return np.array([stats.rankdata(X[:, i], ties) for i in range(X.shape[1])]).T
+    if obs.ndim == 1:
+        return stats.rankdata(obs, ties)
+    elif obs.ndim == 2:
+        return np.array([stats.rankdata(obs[:, i], ties) for i in range(obs.shape[1])]).T
+    else:
+        raise ValueError('Can only rank data which is 1 or 2 dimensions')
 
 
 def tri_indices(n: int, m=0, side='both'):

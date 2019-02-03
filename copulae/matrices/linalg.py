@@ -1,9 +1,60 @@
+from typing import Tuple, Union
+
 import numpy as np
 import numpy.linalg as la
 from statsmodels.stats.correlation_tools import cov_nearest
-from statsmodels.stats.moment_helpers import corr2cov, cov2corr
 
 __all__ = ["corr2cov", "cov2corr", "is_psd", "is_symmetric", "near_psd"]
+
+
+def corr2cov(corr, std) -> np.ndarray:
+    """
+    Convert correlation matrix to covariance matrix given standard deviation
+
+    This function does not convert subclasses of ndarrays. This requires
+    that multiplication is defined elementwise. np.ma.array are allowed, but
+    not matrices.
+
+    :param corr: array_like, 2d
+        correlation matrix
+    :param std: array_like, 1d
+        standard deviation
+    :return:
+        cov: ndarray (subclass)
+            covariance matrix
+    """
+
+    corr = np.asanyarray(corr)
+    std_ = np.asanyarray(std)
+    cov = corr * np.outer(std_, std_)
+    return cov
+
+
+def cov2corr(cov, return_std=False) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+    """
+    Convert covariance matrix to correlation matrix
+
+    This function does not convert subclasses of ndarrays. This requires
+    that division is defined elementwise. np.ma.array and np.matrix are allowed.
+
+    :param cov: array_like, 2d
+        covariance matrix, see Notes
+    :param return_std: bool, default False
+        If this is true then the standard deviation is also returned. By default only the correlation matrix is returned.
+
+    :return:
+        corr: ndarray (subclass)
+            correlation matrix
+        std: ndarray [optional]
+            standard deviation
+    """
+    cov = np.asanyarray(cov)
+    std_ = np.sqrt(np.diag(cov))
+    corr = cov / np.outer(std_, std_)
+    if return_std:
+        return corr, std_
+    else:
+        return corr
 
 
 def is_psd(M: np.ndarray, tol=1e-8) -> bool:

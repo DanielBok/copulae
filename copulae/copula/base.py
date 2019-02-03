@@ -56,6 +56,7 @@ class BaseCopula(AbstractCopula, ABC):
     def rho(self):
         """
         Computes the Spearman's Rho for bivariate copulas
+
         :return: numpy array
             Spearman's Rho
         """
@@ -65,6 +66,7 @@ class BaseCopula(AbstractCopula, ABC):
     def lambda_(self) -> TailDep:
         """
         Computes the tail dependence index for bivariate copulas
+
         :return: named tuple
             Tail dependence index (lambda) with keys
                 lower: numpy array
@@ -186,6 +188,7 @@ class BaseCopula(AbstractCopula, ABC):
     def params_bounds(self) -> Tuple[np.ndarray, np.ndarray]:
         """
         Gets the bounds for the parameters
+
         :return: Tuple[Array, Array]
             tuple containing the upper and lower bounds for the parameters
         """
@@ -217,44 +220,6 @@ class BaseCopula(AbstractCopula, ABC):
         """
         return self.pdf(data, log=True).sum()
 
-    def concentration_down(self, x):
-        """
-        Returns the theoretical lower concentration function.
-
-        Parameters
-        ----------
-        x : float (between 0 and 0.5)
-        """
-        if x > 0.5 or x < 0:
-            raise ValueError("The argument must be included between 0 and 0.5.")
-        return self.cdf([x, x]) / x
-
-    def concentration_up(self, x):
-        """
-        Returns the theoretical upper concentration function.
-
-        Parameters
-        ----------
-        x : float (between 0.5 and 1)
-        """
-        if x < 0.5 or x > 1:
-            raise ValueError("The argument must be included between 0.5 and 1.")
-        return (1. - 2 * x + self.cdf([x, x])) / (1. - x)
-
-    def concentration_function(self, x):
-        """
-        Returns the theoretical concentration function.
-
-        Parameters
-        ----------
-        x : float (between 0 and 1)
-        """
-        if x < 0 or x > 1:
-            raise ValueError("The argument must be included between 0 and 1.")
-        if x < 0.5:
-            return self.concentration_down(x)
-        return self.concentration_up(x)
-
     @staticmethod
     def pobs(data: np.ndarray, ties='average'):
         """
@@ -264,7 +229,8 @@ class BaseCopula(AbstractCopula, ABC):
             n x d-matrix (or d-vector) of random variates to be converted to pseudo-observations
 
         :param ties: str
-            string specifying how ranks should be computed if there are ties in any of the coordinate samples                    The options are 'average', 'min', 'max', 'dense' and 'ordinal'. Passed to scipy.stats.rankdata
+            string specifying how ranks should be computed if there are ties in any of the coordinate samples
+            The options are 'average', 'min', 'max', 'dense' and 'ordinal'. Passed to scipy.stats.rankdata
 
         :return: numpy array
             matrix or vector of the same dimension as X containing the pseudo observations

@@ -1,6 +1,6 @@
 OUTPUT_DIR := dist
 
-.PHONY: dev dev-r build build-all upload
+.PHONY: dev dev-r docs build build-all upload
 
 all: build-all
 
@@ -9,6 +9,9 @@ dev:
 
 dev-r:
 	python setup.py develop --uninstall
+
+docs:
+	$(MAKE) -C docs html
 
 upload:
 	@echo "Uploading packages"
