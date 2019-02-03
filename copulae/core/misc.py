@@ -23,7 +23,7 @@ def pseudo_obs(data: np.ndarray, ties='average'):
 
 def rank_data(obs: np.ndarray, ties='average'):
     """
-    Assign ranks to data, dealing with ties appropriately. This function works on matrices as well as vectors
+    Assign ranks to data, dealing with ties appropriately. This function works on core as well as vectors
 
     :param obs: numpy array
         n x d-matrix (or d-vector) of random variates to be converted to pseudo-observations

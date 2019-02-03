@@ -13,7 +13,7 @@ def corr2cov(corr, std) -> np.ndarray:
 
     This function does not convert subclasses of ndarrays. This requires
     that multiplication is defined elementwise. np.ma.array are allowed, but
-    not matrices.
+    not core.
 
     :param corr: array_like, 2d
         correlation matrix

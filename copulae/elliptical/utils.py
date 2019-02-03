@@ -1,5 +1,5 @@
 import numpy as np
-from copulae.matrices import tri_indices
+from copulae.core import tri_indices
 
 
 def create_cov_matrix(params: np.ndarray):
