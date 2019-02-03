@@ -8,6 +8,7 @@ from copulae.copula.abstract import AbstractCopula as Copula, FitStats
 from copulae.matrices import tri_indices
 from copulae.stats import kendall_tau, pearson_rho, spearman_rho
 from copulae.utils import format_docstring, merge_dict
+from .max_likelihood import MaxLikelihoodEstimator
 
 __estimator_params_docs__ = """
         :param copula: copula
@@ -42,7 +43,7 @@ class CopulaEstimator:
         """
         self.copula = copula
         self.data = data
-        self.est_var = est_var
+        self._est_var = est_var
 
         self._method = method.lower()
 
@@ -60,45 +61,10 @@ class CopulaEstimator:
     def fit(self):
         m = self._method
         if m in {'ml', 'mpl'}:
-            self._fit_ml(m)
+            MaxLikelihoodEstimator(self.copula, self.data, self.initial_params, self.optim_options, self._est_var,
+                                   self._verbose).fit(m)
         else:
             raise NotImplementedError
-
-    def _fit_ml(self, method):
-        """
-        Maximum Likelihood Estimator for Copulas
-
-        :param method: str
-            'ml' or 'mpl'. This will determine the variance estimate
-        :return: numpy array
-            estimates for the copula
-        """
-
-        res = self._optimize()
-
-        if not res['success']:
-            if self._verbose >= 1:
-                _warn_no_convergence()
-            return
-
-        estimate = res['x']
-        self.copula.params = estimate
-
-        d = self.copula.dim
-
-        var_est = np.full((d, d), np.nan)
-        if self.est_var:
-            # TODO calculate variance estimate [ml]
-            if method == 'ml':
-                pass
-            else:  # method == 'mpl'
-                pass
-
-        method = f"Maximum {'pseudo-' if method == 'mpl' else ''}likelihood"
-        self.copula.fit_stats = FitStats(estimate, var_est, method, res['fun'], len(self.data), self.optim_options,
-                                         res)
-
-        return estimate
 
     def _fit_icor(self, method: str):
         """
@@ -119,7 +85,7 @@ class CopulaEstimator:
 
         d = self.copula.dim
         var_est = np.full((d, d), np.nan)
-        if self.est_var:
+        if self._est_var:
             # TODO calculate estimate variance [icor]
             pass
 
@@ -127,21 +93,6 @@ class CopulaEstimator:
         self.copula.fit_stats = FitStats(estimate, var_est, method, np.nan, len(self.data))
 
         return estimate
-
-    def _est_copula_log_lik(self, param: np.ndarray) -> float:
-        """
-        Calculates the log likelihood after setting the new parameters (inserted from the optimizer) of the copula
-
-        :param param: numpy array
-            parameters of the copula
-        :return: float
-            negative log likelihood
-        """
-        try:
-            self.copula.params = param
-            return -self.copula.log_lik(self.data)
-        except ValueError:  # error encountered when setting invalid parameters
-            return np.inf
 
     def _est_copula_cor(self, method: str):
         """
@@ -271,7 +222,3 @@ def _method_is(method: str):
         return method.casefold() == b.casefold()
 
     return compare
-
-
-def _warn_no_convergence():
-    print("Warning: Possible convergence problem with copula fitting")
