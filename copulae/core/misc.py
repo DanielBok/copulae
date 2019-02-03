@@ -1,7 +1,10 @@
 import numpy as np
 from scipy import stats
+import warnings
 
-__all__ = ['pseudo_obs', 'rank_data', 'tri_indices']
+__all__ = ['EPS', 'valid_rows_in_u', 'pseudo_obs', 'rank_data', 'tri_indices']
+
+EPS = 6.06e-6
 
 
 def pseudo_obs(data: np.ndarray, ties='average'):
@@ -92,3 +95,17 @@ def tri_indices(n: int, m=0, side='both'):
             return tuple(np.array(x) for x in u_i)
 
     return tuple(np.array([*u_i[i], *l_i[i]]) for i in range(2))
+
+
+def valid_rows_in_u(U: np.ndarray) -> np.ndarray:
+    """
+    Checks that the matrix U supplied has elements between 0 and 1 inclusive.
+
+    :param U: ndarray, matrix
+        matrix where rows is the number of data points and columns is the dimension
+    :return: ndarray
+        a boolean vector that indicates which rows are okay
+    """
+
+    warnings.filterwarnings("ignore", category=RuntimeWarning)
+    return (~np.isnan(U) & (0 <= U) & (U <= 1)).all(1)

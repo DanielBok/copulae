@@ -5,8 +5,8 @@ from typing import NamedTuple, Optional, Tuple
 import numpy as np
 
 from copulae.copula.abstract import AbstractCopula
+from copulae.core import pseudo_obs
 from copulae.estimators import CopulaEstimator, __estimator_params_docs__
-from copulae.core.misc import pseudo_obs
 from copulae.types import Array
 from copulae.utils import format_docstring
 
