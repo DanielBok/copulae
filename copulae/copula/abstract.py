@@ -16,7 +16,7 @@ class AbstractCopula(ABC):
         self.is_elliptical = False
         self._bounds: Tuple[np.ndarray, np.ndarray] = ()
 
-        if dim < 2 or int(dim) != dim:
+        if dim < 1 or int(dim) != dim:
             raise ValueError("Copula dimension must be an integer greater than 1.")
 
     @abstractmethod
@@ -87,18 +87,6 @@ class AbstractCopula(ABC):
 
     @abstractmethod
     def log_lik(self, data: Array) -> float:
-        pass
-
-    @abstractmethod
-    def concentration_down(self, x: Array):
-        pass
-
-    @abstractmethod
-    def concentration_up(self, x: Array):
-        pass
-
-    @abstractmethod
-    def concentration_function(self, x: Array):
         pass
 
     @abstractmethod
