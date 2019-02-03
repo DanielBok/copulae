@@ -4,6 +4,7 @@ import numpy as np
 
 from copulae.copula import BaseCopula
 from copulae.types import Array
+from .utils import random_uniform
 
 
 class IndepCopula(BaseCopula):
@@ -49,9 +50,7 @@ class IndepCopula(BaseCopula):
         return self.dim
 
     def random(self, n: int, seed: int = None) -> np.ndarray:
-        if seed is not None:
-            np.random.seed(seed)
-        return np.random.uniform(size=(n, self.dim))
+        return random_uniform(n, self.dim, seed)
 
     def summary(self):
         print(self)
