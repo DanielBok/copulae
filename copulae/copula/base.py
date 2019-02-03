@@ -237,6 +237,7 @@ class BaseCopula(AbstractCopula, ABC):
         """
         return pseudo_obs(data, ties)
 
+    @abstractmethod
     def random(self, n: int, seed: int = None):
         """
         Generate random observations for the copula
@@ -250,10 +251,6 @@ class BaseCopula(AbstractCopula, ABC):
         :return: numpy array (n x d)
             array of generated observations
         """
-        return self.__random__(n, seed)
-
-    @abstractmethod
-    def __random__(self, n: int, seed: int = None):
         raise NotImplementedError
 
     @abstractmethod

@@ -87,7 +87,7 @@ class StudentCopula(AbstractEllipticalCopula):
 
         return res, res
 
-    def __random__(self, n: int, seed: int = None):
+    def random(self, n: int, seed: int = None):
         r = mvt.rvs(cov=self.sigma, df=self._df, size=n, random_state=seed)
         return t.cdf(r, self._df)
 

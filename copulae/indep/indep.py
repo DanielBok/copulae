@@ -48,7 +48,9 @@ class IndepCopula(BaseCopula):
     def params(self):
         return self.dim
 
-    def __random__(self, n: int, seed: int = None) -> np.ndarray:
+    def random(self, n: int, seed: int = None) -> np.ndarray:
+        if seed is not None:
+            np.random.seed(seed)
         return np.random.uniform(size=(n, self.dim))
 
     def summary(self):

@@ -60,7 +60,7 @@ class GaussianCopula(AbstractEllipticalCopula):
         d = mvn.logpdf(x, cov=sigma) - norm.logpdf(x).sum(1)
         return d if log else np.exp(d)
 
-    def __random__(self, n: int, seed: int = None):
+    def random(self, n: int, seed: int = None):
         r = mvn.rvs(cov=self.sigma, size=n, random_state=seed)
         return norm.cdf(r)
 
