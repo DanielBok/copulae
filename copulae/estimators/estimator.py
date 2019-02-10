@@ -4,7 +4,6 @@ import numpy as np
 from scipy.optimize import OptimizeResult, minimize
 from statsmodels.stats.correlation_tools import corr_nearest
 
-from copulae import AbstractEllipticalCopula
 from copulae.copula.abstract import AbstractCopula as Copula, FitStats
 from copulae.core import tri_indices
 from copulae.stats import kendall_tau, pearson_rho, spearman_rho
@@ -42,6 +41,8 @@ class CopulaEstimator:
 
         {params_doc}
         """
+        from copulae import AbstractEllipticalCopula
+
         self.copula = copula
         self._is_elliptical = isinstance(copula, AbstractEllipticalCopula)
         self.data = data
@@ -51,6 +52,8 @@ class CopulaEstimator:
 
         if np.any(data) < 0 or np.any(data) > 1:
             raise ValueError("data must be in [0, 1] -- you probably forgot to convert data to pseudo-observations")
+        elif len(data) < self.copula.dim:
+            raise ValueError("number of data (rows) must be greater than its dimension")
 
         # default optim options is the first dictionary. We have set the default options for Nelder-Mead
         self.__optim_options = optim_options or {}
@@ -65,6 +68,10 @@ class CopulaEstimator:
         if m in {'ml', 'mpl'}:
             MaxLikelihoodEstimator(self.copula, self.data, self.initial_params, self.optim_options, self._est_var,
                                    self._verbose).fit(m)
+        elif m == 'itau':
+            raise NotImplementedError
+        elif m == 'irho':
+            raise NotImplementedError
         else:
             raise NotImplementedError
 

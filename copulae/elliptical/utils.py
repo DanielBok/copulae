@@ -15,7 +15,7 @@ def create_cov_matrix(params: np.ndarray):
     """
 
     c = len(params)
-    d = int(1 + (1 + 4 * 2 * c) ** 0.5) // 2
+    d = int(1 + (1 + 4 * 2 * c) ** 0.5) // 2  # dimension of matrix, determine this from the length of params
 
     sigma = np.identity(d)
     sigma[tri_indices(d, 1)] = np.tile(params, 2)

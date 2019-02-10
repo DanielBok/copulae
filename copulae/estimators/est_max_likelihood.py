@@ -2,11 +2,11 @@ import numpy as np
 from scipy.optimize import OptimizeResult, minimize
 
 from copulae.copula.abstract import AbstractCopula as Copula, FitStats
-from .utils import warn_no_convergence
+from .utils import warn_no_convergence, InitialParam
 
 
 class MaxLikelihoodEstimator:
-    def __init__(self, copula: Copula, data: np.ndarray, initial_params: np.ndarray, optim_options, est_var: bool,
+    def __init__(self, copula: Copula, data: np.ndarray, initial_params: InitialParam, optim_options, est_var: bool,
                  verbose: int):
         """
         Maximum Likelihood Estimator for Copulas
@@ -15,7 +15,7 @@ class MaxLikelihoodEstimator:
             copula to be inverted
         :param data: ndarray
             data to fit copula with
-        :param initial_params: ndarray
+        :param initial_params: float or ndarray
             initial parameters for copula
         :param optim_options: dict
             optimizer options
@@ -34,11 +34,12 @@ class MaxLikelihoodEstimator:
 
     def fit(self, method):
         """
-        Maximum Likelihood Estimator for Copulas
+        Fits the copula with the Maximum Likelihood Estimator
 
         :param method: str
             'ml' or 'mpl'. This will determine the variance estimate
-        :return: numpy array
+
+        :return: ndarray
             estimates for the copula
         """
 

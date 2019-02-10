@@ -68,6 +68,18 @@ def tri_indices(n: int, m=0, side='both'):
         Side of triangle to return. Supported values are 'lower', 'upper', 'both'
     :return: Tuple[numpy array, numpy array]
         Tuple of row indices and column indices
+
+    Examples
+    --------
+    >>> from copulae.core import tri_indices
+    >>> x = np.arange(9).reshape(3, 3)
+
+    To get lower indices of matrix
+    >>> x[tri_indices(3, 1, 'lower')]
+
+    # To form covariance matrix
+    >>> c = np.eye(3)
+    >>> c[tri_indices(3, 1)] = np.tile([0.1, 0.2, 0.3], 2)
     """
 
     side = side.lower()
