@@ -9,7 +9,7 @@ from copulae.copula.abstract import AbstractCopula as Copula, FitStats
 from copulae.core import tri_indices
 from copulae.stats import kendall_tau, pearson_rho, spearman_rho
 from copulae.utils import format_docstring, merge_dict
-from .max_likelihood import MaxLikelihoodEstimator
+from .est_max_likelihood import MaxLikelihoodEstimator
 
 __estimator_params_docs__ = """
         :param copula: copula

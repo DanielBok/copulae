@@ -8,6 +8,23 @@ from .utils import warn_no_convergence
 class MaxLikelihoodEstimator:
     def __init__(self, copula: Copula, data: np.ndarray, initial_params: np.ndarray, optim_options, est_var: bool,
                  verbose: int):
+        """
+        Maximum Likelihood Estimator for Copulas
+
+        :param copula: BaseCopula
+            copula to be inverted
+        :param data: ndarray
+            data to fit copula with
+        :param initial_params: ndarray
+            initial parameters for copula
+        :param optim_options: dict
+            optimizer options
+        :param est_var: bool
+            If true, calculates variance estimates
+        :param verbose: int
+            verbosity level for optimizer
+        """
+
         self.copula = copula
         self.data = data
         self.initial_params = initial_params
