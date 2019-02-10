@@ -1,6 +1,3 @@
-from functools import wraps
-
-
 def merge_dict(a: dict, b: dict) -> dict:
     """
     Merge 2 dictionaries.
