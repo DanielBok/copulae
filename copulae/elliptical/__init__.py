@@ -1,5 +1,6 @@
 from .gaussian import GaussianCopula
 from .student import StudentCopula
+from .abstract import AbstractEllipticalCopula
 
 
 class NormalCopula(GaussianCopula):
@@ -10,4 +11,4 @@ class TCopula(StudentCopula):
     pass
 
 
-__all__ = ['NormalCopula', 'GaussianCopula', 'TCopula', 'StudentCopula']
+__all__ = ['AbstractEllipticalCopula', 'NormalCopula', 'GaussianCopula', 'TCopula', 'StudentCopula']

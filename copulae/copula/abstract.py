@@ -13,7 +13,6 @@ class AbstractCopula(ABC):
         self.dim = dim
         self.name = name
         self.fit_stats: FitStats = None
-        self.is_elliptical = False
         self._bounds: Tuple[np.ndarray, np.ndarray] = ()
 
         if dim < 1 or int(dim) != dim:

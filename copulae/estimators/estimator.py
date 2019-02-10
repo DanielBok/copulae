@@ -4,6 +4,7 @@ import numpy as np
 from scipy.optimize import OptimizeResult, minimize
 from statsmodels.stats.correlation_tools import corr_nearest
 
+from copulae import AbstractEllipticalCopula
 from copulae.copula.abstract import AbstractCopula as Copula, FitStats
 from copulae.core import tri_indices
 from copulae.stats import kendall_tau, pearson_rho, spearman_rho
@@ -42,6 +43,7 @@ class CopulaEstimator:
         {params_doc}
         """
         self.copula = copula
+        self._is_elliptical = isinstance(copula, AbstractEllipticalCopula)
         self.data = data
         self._est_var = est_var
 
@@ -76,7 +78,7 @@ class CopulaEstimator:
             estimates for the copula
         """
 
-        if self.copula.is_elliptical and hasattr(self.copula, 'df'):
+        if self._is_elliptical and hasattr(self.copula, 'df'):
             # T copula
             pass
 
@@ -115,7 +117,7 @@ class CopulaEstimator:
         else:
             raise ValueError("method should be one of 'tau', 'rho'")
 
-        if not cop.is_elliptical:
+        if not self._is_elliptical:
             return theta
 
         M = np.identity(cop.dim)
@@ -131,7 +133,7 @@ class CopulaEstimator:
         if self._x0 is not None:
             return self._x0
 
-        if self.copula.is_elliptical:
+        if self._is_elliptical:
             corr = pearson_rho(self.data)
             rhos = corr[tri_indices(self.copula.dim, 1, 'lower')]
             if hasattr(self.copula, '_df'):

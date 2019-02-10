@@ -17,7 +17,6 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
     def __init__(self, dim: int, name: str):
         super().__init__(dim, name)
         self._rhos = np.zeros(sum(range(dim)))
-        self.is_elliptical = True
 
     def log_lik(self, data: np.ndarray):
         if not is_psd(self.sigma):
