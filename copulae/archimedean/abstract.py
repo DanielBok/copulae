@@ -67,7 +67,3 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
             derivative of psi
         """
         raise NotImplementedError
-
-    def pdf(self, x: Array, log=False):
-        pdf = self.psi(self.ipsi(x).sum(1))
-        return np.log(pdf) if log else pdf
