@@ -1,8 +1,15 @@
 OUTPUT_DIR := dist
 
-.PHONY: dev dev-r docs build build-all upload
+.PHONY: bdist dev dev-r docs build build-all test upload
 
 all: build-all
+
+bdist: clean
+	python setup.py sdist
+	python setup.py bdist_wheel
+
+clean:
+	python scripts/clean.py
 
 dev:
 	python setup.py develop

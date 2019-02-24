@@ -1,74 +1,32 @@
 #!/usr/bin/env python
-import os
-from setuptools import Extension, find_packages, setup
-import versioneer
+from setuptools import find_packages, setup
 
-from Cython.Build import cythonize
-from Cython.Compiler import Options
+import versioneer
 
 with open('README.md') as f:
     long_description = f.read()
 
 requirements = [
-    'numpy >=1.15.0',
-    'scipy >=1.1.0',
-    'statsmodels >=0.9.0'
+    'numpy >=1.15',
+    'scipy >=1.1',
+    'pandas >=0.23',
+    'statsmodels >=0.9'
 ]
 
 setup_requirements = [
     'pytest',
     'pandas',
-    'cython >=0.29',
 ]
 
 
-def build_extensions():
-    extensions = [
-        Extension('copulae.stats.cdf.beta',
-                  ['copulae/stats/cdf/beta.pyx'])
-    ]
-
-    # for path, _, files in os.walk('copulae'):
-    #     for file in files:
-    #         file_path, ext = os.path.splitext(file)
-    #         if ext.endswith('.pyx'):
-    #             sources = [os.path.join(path, file)]
-    #             e = Extension()
-
-    directives = {'language_level': '3'}
-    Options.annotate = True
-
-    return cythonize(extensions, compiler_directives=directives)
-
-
-# def _build_ext(folder: str, file: str):
-#     file = file.casefold()
-#     file_path, ext = os.path.splitext(file)
+# def build_extensions():
+#     directives = {'language_level': '3'}
+#     Options.annotate = True
 #
-#     if ext != '.pyx':
-#         return None
-#
-#     folder = folder.casefold()
-#     file_path = os.path.join(folder, file)
-#
-#     with open(file_path) as f:
-#         contents = f.read()
-#
-#     include_numpy = False
-#     for line in contents.split('\n'):
-#         line = line.strip()
-#         if line.startswith('cimport numpy'):
-#             include_numpy = True
-#
-#         if line.startswith('cdef extern from'):
-#
-#
-#     return Extension
+#     return cythonize(extensions, compiler_directives=directives)
 
 
 def run_setup():
-    ext_modules = build_extensions()
-
     setup(
         name='copulae',
         author='Daniel Bok',
@@ -84,8 +42,8 @@ def run_setup():
         url='https://eisr',
         keywords=['copulae'],
         install_requires=requirements,
-        ext_modules=ext_modules,
         setup_requires=setup_requirements,
+        include_package_data=True,
         python_requires='>=3.5',
         zip_safe=False,
     )
