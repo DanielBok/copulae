@@ -1,7 +1,10 @@
 import numpy as np
 import pytest
+from numpy.testing import assert_array_almost_equal
 
 from copulae import IndepCopula
+
+DP = 3
 
 
 @pytest.fixture(scope='module')
@@ -15,21 +18,21 @@ def copula(residual_data: np.ndarray):
 def test_copula_pdf(copula, residual_data):
     U = copula.pobs(residual_data)[:5]
     log_pdf = copula.pdf(U, log=True)
-    expected_pdf = np.zeros(5)
-    assert np.allclose(log_pdf, expected_pdf, atol=2e-4)  # tolerance is a little to tight, maybe should increase
+    expected_log_pdf = np.zeros(5)
+    assert_array_almost_equal(log_pdf, expected_log_pdf, DP)
 
     pdf = copula.pdf(U)
-    assert np.allclose(pdf, np.exp(log_pdf), atol=2e-4)
+    assert_array_almost_equal(pdf, np.exp(expected_log_pdf), DP)
 
 
 def test_copula_cdf(copula, residual_data):
     U = copula.pobs(residual_data)[:5]
     log_cdf = copula.cdf(U, log=True)
-    expected_cdf = -2.478547, -9.366887, -8.695993, -5.701305, -1.599828
-    assert np.allclose(log_cdf, expected_cdf, atol=2e-4)  # tolerance is a little to tight, maybe should increase
+    expected_log_cdf = -2.478547, -9.366887, -8.695993, -5.701305, -1.599828
+    assert_array_almost_equal(log_cdf, expected_log_cdf, DP)
 
     cdf = copula.cdf(U)
-    assert np.allclose(cdf, np.exp(log_cdf), atol=2e-4)
+    assert_array_almost_equal(cdf, np.exp(expected_log_cdf), DP)
 
 
 def test_copula_random_generates_correctly(copula):
