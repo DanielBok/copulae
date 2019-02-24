@@ -1,4 +1,5 @@
 import pickle
+import os
 from os.path import join as pjoin, dirname, exists
 from typing import Optional, Iterable, Callable
 
@@ -8,13 +9,14 @@ from scipy.interpolate import UnivariateSpline
 from copulae.copula import BaseCopula
 from copulae.stats import corr
 
-__all__ = ['_DataMixin']
+__all__ = ['_Ext']
+__module__ = dirname(__file__)
 
 
-class _DataMixin:
+class _Ext:
     def __init__(self, copula: BaseCopula, ss: float, seed: Optional[int] = None):
         self.copula = copula
-        self.file_path = pjoin(dirname(__file__), 'data_funcs.p')
+        self.file_path = pjoin(__module__, f'{copula.name}.p')
         self.nsim = 50000  # estimated number of trials for correlations to somewhat converge
         self.ss = ss  # tuning parameter
 
@@ -143,3 +145,16 @@ def tau_rho_sample(copula: BaseCopula, nsim: int, method="spearman") -> float:
     u = u[~np.isnan(u).any(1)]
 
     return corr(u, method=method)[0, 1]
+
+
+def generate_extension():
+    meta_files = [f.lower()[:-2] for f in os.listdir(__module__) if f.endswith('.p')]
+
+    if 'clayton' not in meta_files:
+        print('Building Clayton meta')
+        from copulae import ClaytonCopula
+        ClaytonCopula(2)
+
+
+if __name__ == '__main__':
+    generate_extension()
