@@ -45,7 +45,7 @@ class BaseCopula(AbstractCopula, ABC):
     @property
     def tau(self):
         """
-        Computes the Kendall's Tau for bivariate copulas
+        Computes the Kendall's Tau for bivariate copulae
 
         :return: numpy array
             Kendall's Tau
@@ -55,7 +55,7 @@ class BaseCopula(AbstractCopula, ABC):
     @property
     def rho(self):
         """
-        Computes the Spearman's Rho for bivariate copulas
+        Computes the Spearman's Rho for bivariate copulae
 
         :return: numpy array
             Spearman's Rho
@@ -65,12 +65,10 @@ class BaseCopula(AbstractCopula, ABC):
     @property
     def lambda_(self) -> TailDep:
         """
-        Computes the tail dependence index for bivariate copulas
+        Computes the tail dependence index for bivariate copulae
 
         :return: named tuple
-            Tail dependence index (lambda) with keys
-                lower: numpy array
-                upper: numpy array
+            Tail dependence index (lambda) with keys lower and upper. Both of which contains ndarray
         """
         Lambda = namedtuple('lambda', ['lower', 'upper'])
         return Lambda(*self.__lambda__)
@@ -113,7 +111,7 @@ class BaseCopula(AbstractCopula, ABC):
         Computes derivative of Kendall's Tau
 
         :param x: numpy array, optional
-            1d vector to compute derivative of Kendall's Tau. If not supplied, will default to copulas parameters
+            1d vector to compute derivative of Kendall's Tau. If not supplied, will default to copulae parameters
         :return: numpy array
             Derivative of Kendall's Tau
         """
@@ -124,7 +122,7 @@ class BaseCopula(AbstractCopula, ABC):
         Computes derivative of Spearman's Rho
 
         :param x: numpy array optional
-            1d vector to compute derivative of Spearman's Rho. If not supplied, will default to copulas parameters
+            1d vector to compute derivative of Spearman's Rho. If not supplied, will default to copulae parameters
         :return: numpy array
             Derivative of Spearman's Rho
         """

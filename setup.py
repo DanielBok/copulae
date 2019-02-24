@@ -78,7 +78,7 @@ def run_setup():
         packages=find_packages(include=['copulae', 'copulae.*']),
         license="MIT",
         version=versioneer.get_version(),
-        description='Python copulas library for dependency modelling',
+        description='Python copulae library for dependency modelling',
         long_description=long_description,
         long_description_content_type='text/markdown',
         url='https://eisr',

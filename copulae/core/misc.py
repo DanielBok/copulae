@@ -11,7 +11,7 @@ def create_cov_matrix(params: np.ndarray):
     """
     Creates a matrix from a given vector of parameters.
 
-    Useful for elliptical copulas where we translate the rhos to the covariance matrix
+    Useful for elliptical copulae where we translate the rhos to the covariance matrix
 
     :param params: numpy array, 1d
         Vector of parameters

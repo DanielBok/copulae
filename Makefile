@@ -11,6 +11,7 @@ dev-r:
 	python setup.py develop --uninstall
 
 docs:
+	rm -rf docs/build
 	$(MAKE) -C docs html
 
 upload:

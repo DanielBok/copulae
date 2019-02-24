@@ -27,7 +27,7 @@ import numpy as np
 np.random.seed(8)
 data = np.random.normal(size=(300, 8))
 cop = NormalCopula(8)
-cop.fit(data)  # fitting copulas
+cop.fit(data)  copulae
 
 cop.random(10)  # simulate random number
 

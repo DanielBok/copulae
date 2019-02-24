@@ -29,7 +29,7 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
     @abstractmethod
     def psi(self, s: Array) -> np.ndarray:
         """
-        Generator function for Archimedean copulas.
+        Generator function for Archimedean copulae.
 
         :param s: ndarray
             numerical vector at which these functions are to be evaluated.
@@ -41,7 +41,7 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
     @abstractmethod
     def ipsi(self, u: Array) -> np.ndarray:
         """
-        The inverse generator function for Archimedean copulas
+        The inverse generator function for Archimedean copulae
 
         Currently only computes the first two derivatives of iPsi()
 
@@ -55,7 +55,7 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
     @abstractmethod
     def dipsi(self, u, degree=1, log=False) -> np.ndarray:
         """
-        Derivative of the inverse of the generator function for Archimedean copulas
+        Derivative of the inverse of the generator function for Archimedean copulae
 
         :param u: ndarray
             numerical vector at which these functions are to be evaluated.
