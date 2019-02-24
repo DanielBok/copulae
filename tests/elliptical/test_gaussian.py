@@ -31,12 +31,22 @@ def test_fitted_log_likelihood_match_target(copula, residual_data):
 
 def test_copula_pdf(copula, residual_data):
     U = copula.pobs(residual_data)[:5]
-    pdf = copula.pdf(U, log=True)
-    expected_pdf = 1.815716, 2.774213, 2.121641, 1.656497, 3.713634
+    pdf = copula.pdf(U)
+    expected_pdf = 6.145473, 16.026015, 8.344821, 5.240921, 41.002535
     assert np.allclose(pdf, expected_pdf, atol=2e-4)  # tolerance is a little to tight, maybe should increase
 
-    log_pdf = copula.pdf(U)
-    assert np.allclose(log_pdf, np.exp(pdf), atol=2e-4)
+    log_pdf = copula.pdf(U, log=True)
+    assert np.allclose(log_pdf, np.log(pdf), atol=2e-4)
+
+
+def test_copula_cdf(copula, residual_data):
+    U = copula.pobs(residual_data)[:5]
+    cdf = copula.cdf(U)
+    expected_cdf = 0.153405034, 0.001607509, 0.002487501, 0.039130689, 0.245082925
+    assert np.allclose(cdf, expected_cdf, atol=2e-4)
+
+    log_cdf = copula.cdf(U, log=True)
+    assert np.allclose(log_cdf, np.log(cdf), atol=2e-4)
 
 
 def test_copula_random_generates_correctly(copula):
