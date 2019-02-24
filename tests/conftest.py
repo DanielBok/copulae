@@ -1,8 +1,8 @@
 import pytest
-import pandas as pd
+
+from copulae.datasets import load_residuals
 
 
 @pytest.fixture(scope='session')
 def residual_data():
-    df = pd.read_csv('data/residuals.csv')
-    return df.values
+    return load_residuals().values

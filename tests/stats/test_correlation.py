@@ -22,11 +22,13 @@ def test_corr_pearson(data: np.array):
 
     data[-1, 0] = np.nan
 
-    assert_array_almost_equal(pearson_rho(data),
-                              np.array([[1.0000000, np.nan, np.nan],
-                                        [np.nan, 1.00000000, 0.05121912],
-                                        [np.nan, 0.05121912, 1.00000000]]),
-                              DP)
+    with np.errstate(invalid='ignore'):
+        # Adding ignore because comparing nans raise invalid runtime warning
+        assert_array_almost_equal(pearson_rho(data),
+                                  np.array([[1.0000000, np.nan, np.nan],
+                                            [np.nan, 1.00000000, 0.05121912],
+                                            [np.nan, 0.05121912, 1.00000000]]),
+                                  DP)
 
     assert_array_almost_equal(pearson_rho(data, use='complete'),
                               np.array([[1.0000000, -0.16634284, -0.30256565],
@@ -101,7 +103,10 @@ def test_2_vector_api(data: np.ndarray):
     assert np.isclose(corr(data[:, 0], data[:, 1])[0, 1], -0.1687177, atol=DP)
 
     data[-1, 0] = np.nan
-    assert np.isnan(corr(data[:, 0], data[:, 1])[0, 1])
+
+    with np.errstate(invalid='ignore'):
+        # Adding ignore because comparing nans raise invalid runtime warning
+        assert np.isnan(corr(data[:, 0], data[:, 1])[0, 1])
     assert np.isclose(corr(data[:, 0], data[:, 1], use='complete')[0, 1], -0.16634284, atol=DP)
     assert np.isclose(corr(data[:, 0], data[:, 1], use='complete')[0, 1], -0.16634284, atol=DP)
 
