@@ -4,9 +4,8 @@ from typing import Optional, Tuple
 import numpy as np
 
 from copulae.copula.base import BaseCopula
-from copulae.core import is_psd, near_psd, tri_indices
+from copulae.core import create_cov_matrix, is_psd, near_psd, tri_indices
 from copulae.types import Array
-from .utils import create_cov_matrix
 
 
 class AbstractEllipticalCopula(BaseCopula, ABC):
