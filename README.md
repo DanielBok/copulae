@@ -4,10 +4,12 @@ A python package for building Copulas.
 
 ## Background
 
-Implemented this package because I couldn't find a suitable package that couldn't find 
-something suitable during work. This package is part of a larger piece in my work that 
-I found convenient to extract as its own piece. You may find it convenient to use this 
-package if you run similar AR-GARCH-Copula simulations for finance.
+Implemented this package because I couldn't find a suitable package during work. 
+This package is part of a larger piece in my work that  I found ot convenient to 
+extract as its own piece. 
+
+In particular, I use it as part of an AR-GARCH-Copula risk-modelling in finance. 
+If you have any feedback, love to hear from you. Just ping me ;).
 
 ## Acknowledgements
 
@@ -42,7 +44,8 @@ I'll work on the docs and other copulas as soon as I can!
 ## TODOS
 
 [ ] Set up package for pip and conda installation
-[ ] More documentation on usage and post docs on rtf
+[ ] More documentation on usage and post docs on rtd
 [ ] Implement in Gumbel, Joe, Frank and AMH (Archmedeans) copulas
 [ ] Implement goodness of fit
 [ ] Implement mixed copulas
+[ ] Implement convenient graphing functions
