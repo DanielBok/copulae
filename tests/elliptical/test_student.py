@@ -3,6 +3,8 @@ import pytest
 
 from copulae import StudentCopula
 
+ATOL = 5e-3
+
 
 @pytest.fixture(scope='module')
 def copula(residual_data: np.ndarray):
@@ -37,10 +39,10 @@ def test_copula_pdf(copula, residual_data):
     U = copula.pobs(residual_data)[:5]
     pdf = copula.pdf(U)
     expected_pdf = 5.058462, 15.835262, 4.774393, 7.380350, 21.954320
-    assert np.allclose(pdf, expected_pdf, atol=2e-4)  # tolerance is a little to tight, maybe should increase
+    assert np.allclose(pdf, expected_pdf, atol=ATOL)  # tolerance is a little to tight, maybe should increase
 
     log_pdf = copula.pdf(U, log=True)
-    assert np.allclose(log_pdf, np.log(pdf), atol=2e-4)
+    assert np.allclose(log_pdf, np.log(pdf), atol=ATOL)
 
 
 def test_copula_random_generates_correctly(copula):

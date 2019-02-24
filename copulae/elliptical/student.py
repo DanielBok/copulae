@@ -4,8 +4,8 @@ import numpy as np
 
 from copulae.stats import multivariate_t as mvt, t
 from copulae.types import Array
+from copulae.utils import reshape_data
 from .abstract import AbstractEllipticalCopula
-from .decorators import quantile
 
 
 class StudentParams(NamedTuple):
@@ -26,17 +26,19 @@ class StudentCopula(AbstractEllipticalCopula):
         lower[0], upper[0] = 0, np.inf  # bounds for df, the rest are correlation
         self.params_bounds = lower, upper
 
-    @quantile('student')
+    @reshape_data
     def cdf(self, x: np.ndarray, log=False):
         sigma = self.sigma
         df = self._df
-        return mvt.logcdf(x, cov=sigma, df=df) if log else mvt.cdf(x, cov=sigma, df=df)
+        q = t.ppf(x, df)
+        return mvt.logcdf(q, cov=sigma, df=df) if log else mvt.cdf(q, cov=sigma, df=df)
 
-    @quantile('student')
+    @reshape_data
     def pdf(self, x: np.ndarray, log=False):
         sigma = self.sigma
         df = self._df
-        d = mvt.logpdf(x, cov=sigma, df=df) - t.logpdf(x, df=df).sum(1)
+        q = t.ppf(x, df)
+        d = mvt.logpdf(q, cov=sigma, df=df) - t.logpdf(q, df=df).sum(1)
         return d if log else np.exp(d)
 
     @property

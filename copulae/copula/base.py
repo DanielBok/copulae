@@ -259,7 +259,3 @@ class BaseCopula(AbstractCopula, ABC):
         Prints information about the copula
         """
         raise NotImplementedError
-
-    def _check_data_dimension(self, x: Array):
-        if x.shape[1] != self.dim:
-            raise ValueError('number of columns in input data does not match copula dimension')

@@ -4,8 +4,8 @@ import numpy as np
 
 from copulae.stats import multivariate_normal as mvn, norm
 from copulae.types import Array
+from copulae.utils import reshape_data
 from .abstract import AbstractEllipticalCopula
-from .decorators import quantile
 
 
 class GaussianCopula(AbstractEllipticalCopula):
@@ -24,6 +24,15 @@ class GaussianCopula(AbstractEllipticalCopula):
         self._rhos = np.zeros(n)
         self.params_bounds = np.repeat(-1., n), np.repeat(1., n)
 
+    @reshape_data
+    def cdf(self, x: np.ndarray, log=False):
+        q = norm.ppf(x)
+        sigma = self.sigma
+        return mvn.logcdf(q, cov=sigma) if log else mvn.cdf(q, cov=sigma)
+
+    def irho(self, rho: Array):
+        return np.sin(np.array(rho) * np.pi / 6) * 2
+
     @property
     def params(self):
         return self._rhos
@@ -41,23 +50,11 @@ class GaussianCopula(AbstractEllipticalCopula):
             params = np.repeat(params, len(self._rhos))
         self._rhos = np.asarray(params)
 
-    @property
-    def __lambda__(self):
-        res = (self._rhos == 1).astype(float)
-        return res, res
-
-    def irho(self, rho: Array):
-        return np.sin(np.array(rho) * np.pi / 6) * 2
-
-    @quantile('normal')
-    def cdf(self, x: np.ndarray, log=False):
-        sigma = self.sigma
-        return mvn.logcdf(x, cov=sigma) if log else mvn.cdf(x, cov=sigma)
-
-    @quantile('normal')
+    @reshape_data
     def pdf(self, x: np.ndarray, log=False):
         sigma = self.sigma
-        d = mvn.logpdf(x, cov=sigma) - norm.logpdf(x).sum(1)
+        q = norm.ppf(x)
+        d = mvn.logpdf(q, cov=sigma) - norm.logpdf(q).sum(1)
         return d if log else np.exp(d)
 
     def random(self, n: int, seed: int = None):
@@ -66,6 +63,11 @@ class GaussianCopula(AbstractEllipticalCopula):
 
     def summary(self):
         print(self)
+
+    @property
+    def __lambda__(self):
+        res = (self._rhos == 1).astype(float)
+        return res, res
 
     def __str__(self):
         msg = f"""

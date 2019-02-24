@@ -70,6 +70,9 @@ def reshape_data(func):
         if x.ndim != 2:
             raise ValueError("input array must be a vector or matrix")
 
+        if x.shape[1] != cls.dim:
+            raise ValueError('number of columns in input data does not match copula dimension')
+
         res = np.asarray(func(cls, x, *args, **kwargs))
 
         if res.ndim == 1 and len(res) == 1:

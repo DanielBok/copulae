@@ -4,6 +4,7 @@ import numpy as np
 
 from copulae.copula import BaseCopula
 from copulae.types import Array
+from copulae.utils import reshape_data
 from .utils import random_uniform
 
 
@@ -36,13 +37,12 @@ class IndepCopula(BaseCopula):
     def drho(self, x: Optional[np.ndarray] = None):
         return 0
 
+    @reshape_data
     def cdf(self, x: Array, log=False) -> np.ndarray:
-        self._check_data_dimension(x)
-        x = np.asarray(x)
         return np.log(x).sum(1) if log else x.prod(1)
 
+    @reshape_data
     def pdf(self, x: Array, log=False) -> np.ndarray:
-        self._check_data_dimension(x)
         return np.repeat(0 if log else 1, len(x))
 
     @property
