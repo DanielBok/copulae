@@ -21,15 +21,18 @@ def pseudo_obs(data: np.ndarray, ties='average'):
     :return: numpy array
         matrix or vector of the same dimension as X containing the pseudo observations
     """
-    return rank_data(data, ties) / (len(data) + 1)
+    return rank_data(data, 1, ties) / (len(data) + 1)
 
 
-def rank_data(obs: np.ndarray, ties='average'):
+def rank_data(obs: np.ndarray, axis=0, ties='average'):
     """
     Assign ranks to data, dealing with ties appropriately. This function works on core as well as vectors
 
     :param obs: numpy array
         n x d-matrix (or d-vector) of random variates to be converted to pseudo-observations
+
+    :param axis: int, default 0
+        The axis to perform the ranking. 0 means row, 1 means column.
 
     :param ties: str, default 'average'
         The method used to assign ranks to tied elements. The options are 'average', 'min', 'max', 'dense' and
@@ -51,6 +54,8 @@ def rank_data(obs: np.ndarray, ties='average'):
     if obs.ndim == 1:
         return stats.rankdata(obs, ties)
     elif obs.ndim == 2:
+        if axis == 0:
+            return np.array([stats.rankdata(obs[i, :], ties) for i in range(obs.shape[0])])
         return np.array([stats.rankdata(obs[:, i], ties) for i in range(obs.shape[1])]).T
     else:
         raise ValueError('Can only rank data which is 1 or 2 dimensions')
