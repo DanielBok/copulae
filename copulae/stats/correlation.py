@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import numpy as np
 from scipy import stats
 
@@ -122,7 +124,7 @@ def kendall_tau(x: np.ndarray, y: np.ndarray = None, use='everything'):
 
 
 @format_docstring(corr_doc=__corr_doc__)
-def spearman_rho(x: np.ndarray, y: np.ndarray, use='everything'):
+def spearman_rho(x: np.ndarray, y: np.ndarray = None, use='everything'):
     """
     Calculates the Spearman Rho correlation
 
@@ -141,6 +143,15 @@ def spearman_rho(x: np.ndarray, y: np.ndarray, use='everything'):
 
 
 def _get_corr_func(method: str):
+    """
+    Returns the correlation
+
+    :param method: str
+        correlation function name
+    :return: callable
+        A correlation function
+    """
+
     method = method.lower()
     valid_methods = {'pearson', 'kendall', 'spearman', 'tau', 'rho'}
 
@@ -156,6 +167,9 @@ def _get_corr_func(method: str):
 
 
 def _validate_use(use: str):
+    """
+    Validates the 'use' argument. If invalid, raises an error
+    """
     use = use.lower()
     valid_use_keywords = {'everything', 'pairwise.complete', 'complete'}
 
@@ -166,6 +180,15 @@ def _validate_use(use: str):
 
 
 def _form_corr_matrix(x: np.ndarray):
+    """
+    Creates an identity matrix
+
+    :param x: ndarray
+        data array. The number of columns in this array will be used to determine the shape of the identity matrix
+    :return: ndarray
+        identity matrix
+    """
+
     if len(x.shape) != 2:
         raise ValueError('x must be a matrix with dimension 2')
 
@@ -173,6 +196,16 @@ def _form_corr_matrix(x: np.ndarray):
 
 
 def _yield_vectors(x: np.ndarray, use: str):
+    """
+    Yields valid column vectors depending on 'use' argument from the data provided
+
+    :param x: ndarray
+        data array
+    :param use: str
+        determines how missing values are handled. 'everything' will propagate NA values resultinng in NA for the
+        correlation. 'complete' will remove rows where NA exists. 'pairwise.complete' will remove rows for the pairwise
+        columns being compared where NA exists.
+    """
     mask = ~np.isnan(x)
     if use == 'complete':
         x = x[mask.all(1)]
@@ -187,7 +220,21 @@ def _yield_vectors(x: np.ndarray, use: str):
                 yield (i, j), (x[:, i], x[:, j])
 
 
-def _form_xy_vector(x: np.ndarray, y: np.ndarray, use: str):
+def _form_xy_vector(x: np.ndarray, y: np.ndarray, use: str) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Yields valid data vectors based on the 'use' argument
+
+    :param x: ndarray
+        data vector
+    :param y: ndarray
+        data vector
+    :param use: str
+        determines how missing values are handled. 'everything' will propagate NA values resultinng in NA for the
+        correlation. 'complete' will remove rows where NA exists. 'pairwise.complete' will remove rows for the pairwise
+        columns being compared where NA exists.
+    :return: Tuple[ndarray, ndarray]
+        2 column vectors
+    """
     if len(x.shape) != 1 or len(y.shape) != 1:
         raise ValueError('x and y must be 1 dimension vector for correlation function')
     if len(x) != len(y):
