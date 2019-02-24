@@ -78,7 +78,9 @@ def corr(x: np.ndarray, y: np.ndarray = None, method='pearson', use='everything'
         c[0, 1] = c[1, 0] = corr_func(x, y)[0]
 
     else:
-        c = _form_corr_matrix(x)
+        if len(x.shape) != 2:
+            raise ValueError('x must be a matrix with dimension 2')
+        c = np.identity(x.shape[1])
         for (i, j), (c1, c2) in _yield_vectors(x, use):
             c[i, j] = c[j, i] = corr_func(c1, c2)[0]
 
@@ -160,7 +162,7 @@ def _get_corr_func(method: str):
 
     if method in {'kendall', 'tau'}:
         return stats.kendalltau
-    elif method == {'spearman', 'rho'}:
+    elif method in {'spearman', 'rho'}:
         return stats.spearmanr
     else:
         return stats.pearsonr
@@ -177,22 +179,6 @@ def _validate_use(use: str):
         raise ValueError(f"use must be one of {', '.join(valid_use_keywords)}")
 
     return use
-
-
-def _form_corr_matrix(x: np.ndarray):
-    """
-    Creates an identity matrix
-
-    :param x: ndarray
-        data array. The number of columns in this array will be used to determine the shape of the identity matrix
-    :return: ndarray
-        identity matrix
-    """
-
-    if len(x.shape) != 2:
-        raise ValueError('x must be a matrix with dimension 2')
-
-    return np.identity(x.shape[1])
 
 
 def _yield_vectors(x: np.ndarray, use: str):
@@ -235,7 +221,7 @@ def _form_xy_vector(x: np.ndarray, y: np.ndarray, use: str) -> Tuple[np.ndarray,
     :return: Tuple[ndarray, ndarray]
         2 column vectors
     """
-    if len(x.shape) != 1 or len(y.shape) != 1:
+    if x.ndim != 1 or y.ndim != 1:
         raise ValueError('x and y must be 1 dimension vector for correlation function')
     if len(x) != len(y):
         raise ValueError('x and y must be similar in length')
