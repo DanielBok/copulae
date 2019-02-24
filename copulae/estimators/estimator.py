@@ -1,14 +1,14 @@
 from typing import Optional
 
 import numpy as np
-from scipy.optimize import OptimizeResult, minimize
-from statsmodels.stats.correlation_tools import corr_nearest
 
-from copulae.copula.abstract import AbstractCopula as Copula, FitStats
+from copulae.copula.abstract import AbstractCopula as Copula
 from copulae.core import tri_indices
-from copulae.stats import kendall_tau, pearson_rho, spearman_rho
+from copulae.estimators.est_cor_inversion import CorrInversionEstimator
+from copulae.estimators.est_max_likelihood import MaxLikelihoodEstimator
+from copulae.estimators.utils import is_elliptical
+from copulae.stats import pearson_rho
 from copulae.utils import format_docstring, merge_dict
-from .est_max_likelihood import MaxLikelihoodEstimator
 
 __estimator_params_docs__ = """
         :param copula: copula
@@ -41,10 +41,8 @@ class CopulaEstimator:
 
         {params_doc}
         """
-        from copulae import AbstractEllipticalCopula
 
         self.copula = copula
-        self._is_elliptical = isinstance(copula, AbstractEllipticalCopula)
         self.data = data
         self._est_var = est_var
 
@@ -68,79 +66,17 @@ class CopulaEstimator:
         if m in {'ml', 'mpl'}:
             MaxLikelihoodEstimator(self.copula, self.data, self.initial_params, self.optim_options, self._est_var,
                                    self._verbose).fit(m)
-        elif m == 'itau':
-            raise NotImplementedError
-        elif m == 'irho':
-            raise NotImplementedError
+        elif m in ('itau', 'irho'):
+            CorrInversionEstimator(self.copula, self.data, self._est_var, self._verbose).fit(m)
         else:
             raise NotImplementedError
-
-    def _fit_icor(self, method: str):
-        """
-        Inversion of Spearman's rho or Kendall's tau Estimator
-
-        :param method: str
-            Indicates whether Spearman's rho or Kendall's tau shall be used
-        :return: numpy array
-            estimates for the copula
-        """
-
-        if self._is_elliptical and hasattr(self.copula, 'df'):
-            # T copula
-            pass
-
-        estimate = self._est_copula_cor(method)
-        self.copula.params = estimate
-
-        d = self.copula.dim
-        var_est = np.full((d, d), np.nan)
-        if self._est_var:
-            # TODO calculate estimate variance [icor]
-            pass
-
-        method = 'Inversion of ' + "Kendall's Tau" if method == 'tau' else "Spearman's Rho"
-        self.copula.fit_stats = FitStats(estimate, var_est, method, np.nan, len(self.data))
-
-        return estimate
-
-    def _est_copula_cor(self, method: str):
-        """
-        Estimates Parameter Matrix from Matrix of Kendall's Taus / Spearman's Rhos
-
-        :param method: str
-            the rank correlation used, one of 'tau' or 'rho' representing Kendall and Spearman respectively
-        :return:
-        """
-        cop = self.copula
-        data = self.data
-
-        ii = tri_indices(cop.dim, 1, 'lower')
-        if method == 'tau':
-            tau = kendall_tau(data)[ii]
-            theta = cop.itau(tau)
-        elif method == 'rho':
-            rho = spearman_rho(data)[ii]
-            theta = cop.irho(rho)
-        else:
-            raise ValueError("method should be one of 'tau', 'rho'")
-
-        if not self._is_elliptical:
-            return theta
-
-        M = np.identity(cop.dim)
-        M[tri_indices(cop.dim, 1)] = np.tile(theta, 2)
-        M = corr_nearest(M)
-        return M[ii]
-
-    def _optimize(self) -> OptimizeResult:
-        return minimize(self._est_copula_log_lik, self.initial_params, **self.optim_options)
 
     @property
     def initial_params(self):
         if self._x0 is not None:
             return self._x0
 
-        if self._is_elliptical:
+        if is_elliptical(self.copula):
             corr = pearson_rho(self.data)
             rhos = corr[tri_indices(self.copula.dim, 1, 'lower')]
             if hasattr(self.copula, '_df'):
@@ -151,13 +87,21 @@ class CopulaEstimator:
                 return rhos
 
         try:
-            start = self._fit_icor('tau')
-            ll = self._est_copula_log_lik(start)
+            start = (CorrInversionEstimator(self.copula, self.data, False, self._verbose).fit('itau'))
+
+            ll = self.copula.log_lik(self.data)
 
             if np.isfinite(ll):
                 return start
             else:
-                # TODO implement custom start for Clayton Copula
+                if self.copula.name.lower() == 'clayton' and self.copula.dim == 2:
+                    # The support of bivariate claytonCopula with negative parameter is not
+                    # the full unit square; the further from 0, the more restricted.
+                    while start < 0:
+                        start += .2
+                        self.copula.params = start
+                        if np.isfinite(self.copula.log_lik(self.data)):
+                            break
 
                 if not np.isnan(ll) and np.isinf(ll):
                     # for perfectly correlated data
