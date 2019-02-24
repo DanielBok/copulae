@@ -1,3 +1,7 @@
+from functools import wraps
+import numpy as np
+
+
 def merge_dict(a: dict, b: dict) -> dict:
     """
     Merge 2 dictionaries.
@@ -47,5 +51,30 @@ def format_docstring(*args, **kwargs):
     def decorator(func):
         func.__doc__ = func.__doc__.format(*args, **kwargs)
         return func
+
+    return decorator
+
+
+def reshape_data(func):
+    """
+    Helper that ensures that inputs of pdf and cdf function gets converted to a 2D array and output if a single
+    value gets converted to a scalar
+    """
+
+    @wraps(func)
+    def decorator(cls, x, *args, **kwargs):
+        x = np.asarray(x)
+        if x.ndim == 1:
+            x = x.reshape(1, -1)
+
+        if x.ndim != 2:
+            raise ValueError("input array must be a vector or matrix")
+
+        res = np.asarray(func(cls, x, *args, **kwargs))
+
+        if res.ndim == 1 and len(res) == 1:
+            res = res[0]
+
+        return res
 
     return decorator
