@@ -22,6 +22,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         cdf = self.psi(self.ipsi(u).sum(1))
         return np.log(cdf) if log else cdf
 
+    @reshape_output
     def dipsi(self, u, degree=1, log=False):
         s = 1 if log or degree % 2 == 0 else -1
         t = self._theta
@@ -44,6 +45,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
 
         return s * a
 
+    @reshape_output
     def dtau(self, x: OptNumeric = None):
         if x is None:
             x = self._theta
@@ -61,11 +63,13 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         return NotImplemented
         # return self._ext.irho(rho)
 
-    def ipsi(self, u: Array):
+    @reshape_output
+    def ipsi(self, u: Array, log=False):
         u = np.asarray(u)
         v = np.sign(self._theta) * (u ** -self._theta - 1)
         return np.log(v) if log else v
 
+    @reshape_output
     def itau(self, tau: Array):
         tau = np.asarray(tau)
         return 2 * tau / (1 - tau)
@@ -102,6 +106,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
 
         return log_pdf if log else np.exp(log_pdf)
 
+    @reshape_output
     def psi(self, s: Array):
         s = np.asarray(s)
         return np.maximum(1 + np.sign(self._theta) * s, np.zeros_like(s)) ** (-1 / self._theta)
