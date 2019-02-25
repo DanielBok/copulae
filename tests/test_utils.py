@@ -1,4 +1,4 @@
-from copulae.utils import merge_dicts, reshape_data
+from copulae.utility import merge_dicts, reshape_data
 import numpy as np
 import pytest
 

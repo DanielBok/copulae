@@ -3,7 +3,7 @@ from typing import Tuple
 import numpy as np
 from scipy import stats
 
-from copulae.utils import format_docstring
+from copulae.utility import format_docstring
 
 __all__ = ['corr', 'kendall_tau', 'pearson_rho', 'spearman_rho']
 

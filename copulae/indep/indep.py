@@ -4,7 +4,7 @@ import numpy as np
 
 from copulae.copula import BaseCopula
 from copulae.types import Array
-from copulae.utils import reshape_data
+from copulae.utility import reshape_data
 from .utils import random_uniform
 
 
