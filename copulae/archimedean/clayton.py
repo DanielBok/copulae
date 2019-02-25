@@ -7,7 +7,7 @@ from scipy.interpolate import UnivariateSpline, interp1d
 from copulae.core import EPS, valid_rows_in_u
 from copulae.indep.utils import random_uniform
 from copulae.types import Array, OptNumeric, Numeric
-from copulae.utils import reshape_data
+from copulae.utils import reshape_data, reshape_output
 from ._data_ext import _Ext
 from .abstract import AbstractArchimedeanCopula
 
@@ -50,37 +50,25 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         return 2 / (x + 2) ** 2
 
     def drho(self, x: OptNumeric = None):
-        if x is None:
-            x = self._theta
-        if np.isnan(x):
-            return np.nan
-        return self._ext.drho(x)
+        # if x is None:
+        #     x = self._theta
+        # if np.isnan(x):
+        #     return np.nan
+        # return self._ext.drho(x)
+        return NotImplemented
 
     def irho(self, rho: Numeric):
-        return self._ext.irho(rho)
+        return NotImplemented
+        # return self._ext.irho(rho)
 
     def ipsi(self, u: Array):
         u = np.asarray(u)
-        return np.sign(self._theta) * (u ** -self._theta - 1)
+        v = np.sign(self._theta) * (u ** -self._theta - 1)
+        return np.log(v) if log else v
 
     def itau(self, tau: Array):
         tau = np.asarray(tau)
         return 2 * tau / (1 - tau)
-
-    @property
-    def params(self):
-        return self._theta
-
-    @params.setter
-    def params(self, theta: float):
-        theta = float(theta)
-
-        if self.dim == 2 and theta < -1:
-            raise ValueError('theta must be greater than -1 in 2 dimensional clayton copulae')
-        elif self.dim > 2 and theta < 0:
-            raise ValueError('theta must be positive when dim > 2')
-
-        self._theta = theta
 
     @reshape_data
     def pdf(self, x: Array, log=False):
@@ -136,13 +124,14 @@ class ClaytonCopula(AbstractArchimedeanCopula):
             return self.psi(r)
 
     def summary(self):
-        pass
+        return NotImplemented
 
     @property
     def rho(self):
-        if np.isnan(self._theta):
-            return np.nan
-        return self._ext.rho(self._theta)
+        # if np.isnan(self._theta):
+        #     return np.nan
+        # return self._ext.rho(self._theta)
+        return NotImplemented
 
     @property
     def tau(self):
