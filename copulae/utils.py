@@ -1,4 +1,5 @@
 from functools import wraps
+
 import numpy as np
 
 
@@ -75,9 +76,26 @@ def reshape_data(func):
 
         res = np.asarray(func(cls, x, *args, **kwargs))
 
-        if res.ndim == 1 and len(res) == 1:
-            res = res[0]
+        if res.size == 1:
+            res = float(res)
 
+        return res
+
+    return decorator
+
+
+def reshape_output(func):
+    """
+    Helpers function that converts the output to a float if the size of the output is 1
+    """
+
+    @wraps(func)
+    def decorator(cls, x, *args, **kwargs):
+        x = np.asarray(x)
+        res = np.asarray(func(cls, x, *args, **kwargs))
+
+        if res.size == 1:
+            res = float(res)
         return res
 
     return decorator
