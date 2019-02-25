@@ -2,6 +2,8 @@ from functools import wraps
 
 import numpy as np
 
+__all__ = ['merge_dict', 'merge_dicts', 'format_docstring', 'reshape_data', 'reshape_output']
+
 
 def merge_dict(a: dict, b: dict) -> dict:
     """

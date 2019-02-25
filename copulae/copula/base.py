@@ -8,7 +8,7 @@ from copulae.copula.abstract import AbstractCopula
 from copulae.core import pseudo_obs
 from copulae.estimators import CopulaEstimator, __estimator_params_docs__
 from copulae.types import Array
-from copulae.utils import format_docstring
+from copulae.utility import format_docstring
 
 TailDep = NamedTuple('Lambda', lower=np.ndarray, upper=np.ndarray)
 

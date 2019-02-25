@@ -7,7 +7,7 @@ from scipy.interpolate import UnivariateSpline, interp1d
 from copulae.core import EPS, valid_rows_in_u
 from copulae.indep.utils import random_uniform
 from copulae.types import Array, OptNumeric, Numeric
-from copulae.utils import reshape_data, reshape_output
+from copulae.utility import reshape_data, reshape_output
 from ._data_ext import _Ext
 from .abstract import AbstractArchimedeanCopula
 
@@ -16,11 +16,6 @@ class ClaytonCopula(AbstractArchimedeanCopula):
     def __init__(self, theta=np.nan, dim=2):
         super().__init__(dim, theta, 'clayton')
         self._ext = ClaytonExt(self)
-
-    @reshape_data
-    def cdf(self, u: Array, log=False) -> np.ndarray:
-        cdf = self.psi(self.ipsi(u).sum(1))
-        return np.log(cdf) if log else cdf
 
     @reshape_output
     def dipsi(self, u, degree=1, log=False):

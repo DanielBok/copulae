@@ -8,7 +8,7 @@ from copulae.estimators.est_cor_inversion import CorrInversionEstimator
 from copulae.estimators.est_max_likelihood import MaxLikelihoodEstimator
 from copulae.estimators.utils import is_elliptical
 from copulae.stats import pearson_rho
-from copulae.utils import format_docstring, merge_dict
+from copulae.utility import format_docstring, merge_dict
 
 __estimator_params_docs__ = """
         :param copula: copula

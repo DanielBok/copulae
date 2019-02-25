@@ -4,7 +4,7 @@ import numpy as np
 
 from copulae.stats import multivariate_t as mvt, t
 from copulae.types import Array
-from copulae.utils import reshape_data
+from copulae.utility import reshape_data
 from .abstract import AbstractEllipticalCopula
 
 
