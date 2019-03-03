@@ -1,10 +1,10 @@
-from typing import Union
+from typing import Union, Iterable
 
 import numpy as np
 
 from copulae.types import Numeric
 
-__all__ = ['polyn_eval', 'stirling_first', 'stirling_first_all', 'stirling_second', 'stirling_second_all']
+__all__ = ['polyn_eval', 'sign_ff', 'stirling_first', 'stirling_first_all', 'stirling_second', 'stirling_second_all']
 
 
 def polyn_eval(coef: Numeric, x: Numeric) -> Union[float, np.ndarray]:
@@ -42,19 +42,56 @@ def polyn_eval(coef: Numeric, x: Numeric) -> Union[float, np.ndarray]:
     return float(res) if res.size == 1 else res
 
 
+def sign_ff(alpha: float, j: Iterable[int], d: int):
+    """
+    The sign of choose(alpha*j,d)*(-1)^(d-j)
+
+    :param alpha: float
+        parameter in (0, 1]
+    :param j: int
+        integer in [0, d]
+    :param d: int
+        integer scalar >= 0
+    :return: ndarray, int
+        signs
+    """
+    if not (0 < alpha <= 1):
+        raise ValueError("<alpha> must be between (0, 1]")
+
+    d, j = int(d), np.asarray(j, int)
+    if not d >= 0:
+        raise ValueError("<d> must be >= 0")
+    if not np.all(j >= 0):
+        raise ValueError("all elements in <j> must be >= 0")
+
+    res = np.zeros(len(j))
+    if alpha == 1:
+        res[j == d] = 1
+        res[j > d] = (-1) ** (d - j)
+    else:
+        res[j > d] = np.nan
+        x = alpha * j
+        ind = x != np.floor(x)
+        res[ind] = (-1) ** (j[ind] - np.ceil(x[ind]))
+
+    return int(res) if np.size == 1 else res.astype(int)
+
+
 def stirling_first(n: int, k: int):
     """
     Computes Stirling number of the first kind
 
     :param n: int
+        If non-integer passed in, will attempt to cast as integer
     :param k: int
+        If non-integer passed in, will attempt to cast as integer
 
     :return: int
         Stirling number of the first kind
     """
     try:
         k, n = int(k), int(n)
-    except ValueError:
+    except (ValueError, TypeError):
         raise TypeError("<k> and <n> must both be integers")
 
     if k < 0 or k > n:
@@ -72,7 +109,7 @@ def stirling_first(n: int, k: int):
         for j in range(1, k):
             s[j] = last_row[j - 1] - i * last_row[j]
 
-    return abs(s[-1])
+    return s[-1]
 
 
 def stirling_first_all(n: int):
@@ -80,7 +117,7 @@ def stirling_first_all(n: int):
     Computes all the Stirling number of the first kind for a given <n>
 
     :param n: int
-
+        If non-integer passed in, will attempt to cast as integer
     :return: List[int]
         a list of all the Stirling number of the first kind
     """
@@ -92,14 +129,16 @@ def stirling_second(n: int, k: int):
     Computes Stirling number of the second kind
 
     :param n: int
+        If non-integer passed in, will attempt to cast as integer
     :param k: int
+        If non-integer passed in, will attempt to cast as integer
 
     :return: int
         Stirling number of the first kind
     """
     try:
         k, n = int(k), int(n)
-    except ValueError:
+    except (ValueError, TypeError):
         raise TypeError("<k> and <n> must both be integers")
 
     if k < 0 or k > n:
@@ -125,8 +164,8 @@ def stirling_second_all(n: int):
    Computes all the Stirling number of the second kind for a given <n>
 
    :param n: int
-
+        If non-integer passed in, will attempt to cast as integer
    :return: List[int]
-       a list of all the Stirling number of the second kind
+        a list of all the Stirling number of the second kind
    """
     return [stirling_second(n, k + 1) for k in range(n)]

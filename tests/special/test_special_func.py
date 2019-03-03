@@ -1,6 +1,7 @@
-from numpy.testing import assert_almost_equal
-from copulae.utility.special_func import *
 import pytest
+from numpy.testing import assert_almost_equal
+
+from copulae.special.special_func import *
 
 
 @pytest.mark.parametrize('coef, x, exp', [
@@ -15,8 +16,8 @@ def test_polyn_eval(coef, x, exp):
 @pytest.mark.parametrize('n, k, exp', [
     (5, 3, 35),
     (8, 4, 6769),
-    (8, 5, 1960),
-    (7, 2, 1764),
+    (8, 5, -1960),
+    (7, 2, -1764),
 ])
 def test_stirling_first(n, k, exp):
     assert stirling_first(n, k) == exp
@@ -33,8 +34,8 @@ def test_stirling_second(n, k, exp):
 
 
 @pytest.mark.parametrize('n, exp', [
-    (7, [720, 1764, 1624, 735, 175, 21, 1]),
-    (8, [5040, 13068, 13132, 6769, 1960, 322, 28, 1])
+    (7, [720, -1764, 1624, -735, 175, -21, 1]),
+    (8, [-5040, 13068, -13132, 6769, -1960, 322, -28, 1])
 ])
 def test_stirling_first_all(n, exp):
     assert stirling_first_all(n) == exp
@@ -50,15 +51,14 @@ def test_stirling_second_all(n, exp):
 
 # noinspection PyTypeChecker
 @pytest.mark.parametrize('n, k', [
-    (5.5, 0.4),
     ([1, 2, 3], [4, 5, 6])
 ])
 def test_raises_type_error(n, k):
     match = '<k> and <n> must both be integers'
     with pytest.raises(TypeError, match=match):
-        stirling_second(n, k)
-    with pytest.raises(TypeError, match=match):
         stirling_first(n, k)
+    with pytest.raises(TypeError, match=match):
+        stirling_second(n, k)
 
 
 @pytest.mark.parametrize('n, k', [
@@ -68,7 +68,7 @@ def test_raises_type_error(n, k):
 def test_raises_value_error(n, k):
     match = r'<k> must be in the range of \[0, <n>\]'
     with pytest.raises(ValueError, match=match):
-        stirling_second(n, k)
+        stirling_first(n, k)
 
     with pytest.raises(ValueError, match=match):
-        stirling_first(n, k)
+        stirling_second(n, k)
