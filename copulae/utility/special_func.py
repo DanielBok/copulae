@@ -52,7 +52,9 @@ def stirling_first(n: int, k: int):
     :return: int
         Stirling number of the first kind
     """
-    if (type(k), type(n)) != (int, int):
+    try:
+        k, n = int(k), int(n)
+    except ValueError:
         raise TypeError("<k> and <n> must both be integers")
 
     if k < 0 or k > n:
@@ -95,7 +97,9 @@ def stirling_second(n: int, k: int):
     :return: int
         Stirling number of the first kind
     """
-    if (type(k), type(n)) != (int, int):
+    try:
+        k, n = int(k), int(n)
+    except ValueError:
         raise TypeError("<k> and <n> must both be integers")
 
     if k < 0 or k > n:
