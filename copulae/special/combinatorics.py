@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.special import gammaln
+from scipy.special import gammaln, gamma
 
 from copulae.types import Numeric
 
@@ -20,8 +20,9 @@ def comb(n: Numeric, r: Numeric, log=False):
     """
     n, r = np.asarray(n), np.asarray(r)
 
-    ncr = gammaln(n + 1) - gammaln(n + 1 - r) - gammaln(r + 1)
-    return ncr if log else np.exp(ncr)
+    if log:
+        return gammaln(n + 1) - gammaln(n + 1 - r) - gammaln(r + 1)
+    return gamma(n + 1) / (gamma(n + 1 - r) * gamma(r + 1))
 
 
 def perm(n: Numeric, r: Numeric, log=False):
@@ -38,5 +39,6 @@ def perm(n: Numeric, r: Numeric, log=False):
     """
     n, r = np.asarray(n), np.asarray(r)
 
-    npr = gammaln(n + 1) - gammaln(n + 1 - r)
-    return npr if log else np.exp(npr)
+    if log:
+        return gammaln(n + 1) - gammaln(n + 1 - r)
+    return gamma(n + 1) / gamma(n + 1 - r)
