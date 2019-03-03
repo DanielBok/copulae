@@ -1,4 +1,45 @@
-__all__ = ['stirling_first', 'stirling_first_all', 'stirling_second', 'stirling_second_all']
+from typing import Union
+
+import numpy as np
+
+from copulae.types import Numeric
+
+__all__ = ['polyn_eval', 'stirling_first', 'stirling_first_all', 'stirling_second', 'stirling_second_all']
+
+
+def polyn_eval(coef: Numeric, x: Numeric) -> Union[float, np.ndarray]:
+    """
+    Polynomial evaluation via Horner scheme
+
+    Evaluate a univariate polynomial at x (typically a vector). For a given vector of coefficients <coef>,
+    the polynomial coef[1] + coef[2]*x + ... + coef[p+1]*x^p.
+
+    :param coef: numeric vector or scalar
+        coefficients
+    :param x: numeric vector or scalar
+        evaluation point
+    :return: numeric vector or scalar
+        numeric vector or scalar, with the same dimensions as x, containing the polynomial values
+    """
+    if type(coef) in {int, float}:
+        coef = [coef]
+    if type(x) in {int, float}:
+        x = [x]
+
+    m = len(coef)
+
+    res = np.zeros(len(x))
+    for i, xi in enumerate(x):
+        if m == 1:
+            r = coef[0]
+        else:
+            r = coef[-1]
+            for j in coef[:-1][::-1]:
+                r = j + r * xi
+
+        res[i] = r
+
+    return float(res) if res.size == 1 else res
 
 
 def stirling_first(n: int, k: int):

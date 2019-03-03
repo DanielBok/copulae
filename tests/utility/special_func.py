@@ -1,5 +1,15 @@
+from numpy.testing import assert_almost_equal
 from copulae.utility.special_func import *
 import pytest
+
+
+@pytest.mark.parametrize('coef, x, exp', [
+    ([0.5, 4, 3, -1.5], 0.4, 2.484),
+    ([0.3, -0.9, 5], [-0.5, 1.2], (2, 6.42)),
+    (50, -5, 50)
+])
+def test_polyn_eval(coef, x, exp):
+    assert_almost_equal(polyn_eval(coef, x), exp)
 
 
 @pytest.mark.parametrize('n, k, exp', [
