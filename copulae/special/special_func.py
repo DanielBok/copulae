@@ -66,16 +66,17 @@ def sign_ff(alpha: float, j: Iterable[int], d: int):
 
     min_len = min(len(j), len(d))
     max_len = max(len(j), len(d))
-    res = np.repeat(np.nan, max_len)
+    res = np.zeros(max_len)
     d, j = d[:min_len], j[:min_len]
 
     if alpha == 1:
         res[j == d] = 1
         res[j > d] = (-1) ** (d - j)
     else:
+        res[j > d] = np.nan
         x = alpha * j
         ind = x != np.floor(x)
-        res[:min_len] = (-1) ** (j[ind] - np.ceil(x[ind]))
+        res[:min_len][ind] = (-1) ** (j[ind] - np.ceil(x[ind]))
 
     # filling in the blanks due, this is very hackish
     for i in range(min_len, max_len):
