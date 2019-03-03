@@ -58,23 +58,30 @@ def sign_ff(alpha: float, j: Iterable[int], d: int):
     if not (0 < alpha <= 1):
         raise ValueError("<alpha> must be between (0, 1]")
 
-    d, j = int(d), np.asarray(j, int)
-    if not d >= 0:
+    d, j = np.asarray(d, int), np.asarray(j, int)
+    if not np.all(d >= 0):
         raise ValueError("<d> must be >= 0")
     if not np.all(j >= 0):
         raise ValueError("all elements in <j> must be >= 0")
 
-    res = np.zeros(len(j))
+    min_len = min(len(j), len(d))
+    max_len = max(len(j), len(d))
+    res = np.repeat(np.nan, max_len)
+    d, j = d[:min_len], j[:min_len]
+
     if alpha == 1:
         res[j == d] = 1
         res[j > d] = (-1) ** (d - j)
     else:
-        res[j > d] = np.nan
         x = alpha * j
         ind = x != np.floor(x)
-        res[ind] = (-1) ** (j[ind] - np.ceil(x[ind]))
+        res[:min_len] = (-1) ** (j[ind] - np.ceil(x[ind]))
 
-    return int(res) if np.size == 1 else res.astype(int)
+    # filling in the blanks due, this is very hackish
+    for i in range(min_len, max_len):
+        res[i] = res[i % min_len]
+
+    return int(res) if np.size == 1 else res
 
 
 def stirling_first(n: int, k: int):
