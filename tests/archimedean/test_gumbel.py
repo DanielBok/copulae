@@ -1,7 +1,8 @@
+import numpy as np
 import pytest
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_array_almost_equal, assert_allclose
 
-from copulae.archimedean.gumbel import gumbel_coef
+from copulae.archimedean.gumbel import gumbel_coef, gumbel_poly
 
 
 @pytest.mark.parametrize('d, alpha, expected', [
@@ -32,3 +33,19 @@ def test_gumbel_coef(d, alpha, method, expected):
 def test_gumbel_coef_raises_error(d, alpha):
     with pytest.raises(ValueError):
         gumbel_coef(d, alpha)
+
+
+@pytest.mark.parametrize('log_x, alpha, d, log, expected', [
+    ([3.204613, 2.253136, 3.422148, 2.106722, 2.11856, 3.716989], 0.4, 4, False,
+     [13397.4244, 489.5018, 29942.3549, 306.3865, 318.0584, 90751.3460]),
+    ([3.204613, 2.253136, 3.422148, 2.106722, 2.11856, 3.716989], 0.4, 4, True,
+     [9.502818, 6.193388, 10.307029, 5.724847, 5.762235, 11.415879]),
+    ([1.0051537, 1.0049213, 0.7952184, 1.1184151], 0.7, 3, False,
+     [11.034945, 11.028364, 6.495272, 14.792584]),
+    ([1.0051537, 1.0049213, 0.7952184, 1.1184151], 0.7, 3, True,
+     [2.401067, 2.400470, 1.871074, 2.694126])
+])
+@pytest.mark.parametrize('method', ['default', 'pois', 'direct', 'log', 'sort'])
+def test_gumbel_poly(log_x, alpha, d, method, log, expected):
+    log_x = np.asarray(log_x)
+    assert_allclose(gumbel_poly(log_x, alpha, d, method, log), expected, rtol=1e-4)
