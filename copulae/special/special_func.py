@@ -42,7 +42,7 @@ def polyn_eval(coef: Numeric, x: Numeric) -> Union[float, np.ndarray]:
     return float(res) if res.size == 1 else res
 
 
-def sign_ff(alpha: float, j: Iterable[int], d: int):
+def sign_ff(alpha: float, j: Union[Iterable[int], int], d: Union[Iterable[int], int]):
     """
     The sign of choose(alpha*j,d)*(-1)^(d-j)
 
@@ -64,10 +64,21 @@ def sign_ff(alpha: float, j: Iterable[int], d: int):
     if not np.all(j >= 0):
         raise ValueError("all elements in <j> must be >= 0")
 
-    min_len = min(len(j), len(d))
-    max_len = max(len(j), len(d))
+    if d.ndim == 0 and j.ndim == 0:
+        min_len, max_len = 1, 1
+        d, j = int(d), int(j)
+    elif d.ndim == 0 and j.ndim > 0:
+        min_len, max_len = len(j), len(j)
+        d = int(d)
+    elif j.ndim == 0 and d.ndim > 0:
+        min_len, max_len = len(d), len(d)
+        j = int(j)
+    else:
+        min_len = min(len(j), len(d))
+        max_len = max(len(j), len(d))
+        d, j = d[:min_len], j[:min_len]
+
     res = np.zeros(max_len)
-    d, j = d[:min_len], j[:min_len]
 
     if alpha == 1:
         res[j == d] = 1
