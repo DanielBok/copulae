@@ -1,9 +1,11 @@
+from collections import abc
 from typing import Optional
 
 import numpy as np
 import numpy.random as rng
 from scipy.interpolate import UnivariateSpline, interp1d
 
+from copulae.copula import TailDep
 from copulae.core import EPS, valid_rows_in_u
 from copulae.indep.utils import random_uniform
 from copulae.types import Array, OptNumeric, Numeric
@@ -40,12 +42,6 @@ class ClaytonCopula(AbstractArchimedeanCopula):
 
         return s * a
 
-    @reshape_output
-    def dtau(self, x: OptNumeric = None):
-        if x is None:
-            x = self._theta
-        return 2 / (x + 2) ** 2
-
     def drho(self, x: OptNumeric = None):
         # if x is None:
         #     x = self._theta
@@ -54,9 +50,11 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         # return self._ext.drho(x)
         return NotImplemented
 
-    def irho(self, rho: Numeric):
-        return NotImplemented
-        # return self._ext.irho(rho)
+    @reshape_output
+    def dtau(self, x: OptNumeric = None):
+        if x is None:
+            x = self._theta
+        return 2 / (x + 2) ** 2
 
     @reshape_output
     def ipsi(self, u: Array, log=False):
@@ -64,10 +62,21 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         v = np.sign(self._theta) * (u ** -self._theta - 1)
         return np.log(v) if log else v
 
+    def irho(self, rho: Numeric):
+        return NotImplemented
+        # return self._ext.irho(rho)
+
     @reshape_output
     def itau(self, tau: Array):
         tau = np.asarray(tau)
         return 2 * tau / (1 - tau)
+
+    @property
+    def lambda_(self):
+        if np.isnan(self._theta):
+            return TailDep(self._theta, self._theta)
+
+        return TailDep(2 ** (-1 / self._theta) if self._theta > 0 else 0, 0)
 
     @reshape_data
     def pdf(self, x: Array, log=False):
@@ -123,9 +132,6 @@ class ClaytonCopula(AbstractArchimedeanCopula):
             r = -np.log(r) / gam
             return self.psi(r)
 
-    def summary(self):
-        return NotImplemented
-
     @property
     def rho(self):
         # if np.isnan(self._theta):
@@ -133,16 +139,12 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         # return self._ext.rho(self._theta)
         return NotImplemented
 
+    def summary(self):
+        return NotImplemented
+
     @property
     def tau(self):
         return self._theta / (self._theta + 2)
-
-    @property
-    def __lambda__(self):
-        if np.isnan(self._theta):
-            return self._theta, self._theta
-
-        return 2 ** (-1 / self._theta) if self._theta > 0 else 0, 0
 
 
 class ClaytonExt(_Ext):
@@ -199,7 +201,7 @@ class ClaytonExt(_Ext):
         self._pos_irho = interp1d(y_pos_smth, x_pos)
 
     def irho(self, rho: Numeric):
-        if hasattr(rho, '__iter__'):
+        if isinstance(rho, abc.Iterable):
             rho = np.asarray(rho)
             shape = rho.shape
 

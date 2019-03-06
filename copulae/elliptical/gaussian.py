@@ -2,6 +2,7 @@ from typing import Union
 
 import numpy as np
 
+from copulae.copula import TailDep
 from copulae.stats import multivariate_normal as mvn, norm
 from copulae.types import Array
 from copulae.utility import reshape_data
@@ -33,6 +34,10 @@ class GaussianCopula(AbstractEllipticalCopula):
     def irho(self, rho: Array):
         return np.sin(np.array(rho) * np.pi / 6) * 2
 
+    def lambda_(self):
+        res = (self._rhos == 1).astype(float)
+        return TailDep(res, res)
+
     @property
     def params(self):
         return self._rhos
@@ -46,7 +51,7 @@ class GaussianCopula(AbstractEllipticalCopula):
             Covariance parameters. If it is a single float number, function will broadcast it to an array of similar
             length as the rhos
         """
-        if type(params) in {float, int}:
+        if isinstance(params, (float, int)):
             params = np.repeat(params, len(self._rhos))
         self._rhos = np.asarray(params)
 
@@ -62,12 +67,7 @@ class GaussianCopula(AbstractEllipticalCopula):
         return norm.cdf(r)
 
     def summary(self):
-        print(self)
-
-    @property
-    def __lambda__(self):
-        res = (self._rhos == 1).astype(float)
-        return res, res
+        return str(self)
 
     def __str__(self):
         msg = f"""

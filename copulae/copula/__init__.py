@@ -1,2 +1,2 @@
 from .abstract import AbstractCopula
-from .base import BaseCopula
+from .base import BaseCopula, TailDep
