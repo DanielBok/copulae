@@ -1,3 +1,4 @@
+from collections import abc
 from typing import Optional
 
 import numpy as np
@@ -9,7 +10,7 @@ from copulae.types import Numeric, OptNumeric
 
 
 def _is_psd(M: Numeric):
-    if type(M) in {float, int}:
+    if isinstance(M, (float, int)):
         M = np.asarray([[M]], float)
 
     if M.ndim != 2 or M.shape[0] != M.shape[1]:
@@ -32,7 +33,7 @@ class multivariate_t:
                 dim = 1
                 cov = np.array([[1.]], dtype=float)
             else:
-                if type(cov) in {float, int}:
+                if isinstance(cov, (float, int)):
                     cov = np.array([[cov]], dtype=float)
 
                 dim = len(cov)
@@ -43,7 +44,7 @@ class multivariate_t:
 
         if mean is None:
             mean = np.zeros(dim)
-        elif type(mean) in {float, int}:
+        elif isinstance(mean, (float, int)):
             mean = np.repeat(mean, dim)
         else:
             mean = np.asarray(mean, dtype=float)
@@ -171,7 +172,7 @@ class multivariate_t:
             np.random.seed(random_state)
         d = np.sqrt(np.random.chisquare(df, size) / df)
 
-        if type(size) is int:
+        if isinstance(size, int):
             if size > 1:
                 d = d.reshape(size, -1)
             size_is_iterable = False
@@ -180,7 +181,7 @@ class multivariate_t:
             size_is_iterable = True
 
         # size and dim used to reshape generated tensor correctly before dividing by chi-square rvs
-        dim = 1 if not hasattr(cov, '__len__') else len(cov)
+        dim = 1 if not isinstance(cov, abc.Sized) else len(cov)
 
         if type_.casefold() == 'kshirsagar':
             r = mvn.rvs(mean, cov, size, random_state)

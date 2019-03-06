@@ -1,5 +1,5 @@
 import warnings
-from collections import defaultdict
+from collections import defaultdict, abc
 from typing import Optional
 
 import numpy as np
@@ -47,7 +47,7 @@ class GumbelCopula(AbstractArchimedeanCopula):
         hess = expr4 * expr7 * expr8 * expr2 ** (expr4 - 1) + \
                alpha * expr3 * expr5 * expr6 * (w ** expr9 + expr1 ** expr9)
 
-        if type(grad) is float and type(hess) is float:
+        if isinstance(grad, float) and isinstance(hess, float):
             return grad, hess
         else:
             res = np.zeros((len(grad), 2))
@@ -90,13 +90,14 @@ class GumbelCopula(AbstractArchimedeanCopula):
     @reshape_output
     def itau(self, tau: Array):
         warning_message = "For the Gumbel copula, tau must be >= 0. Replacing negative values by 0."
-        if hasattr(tau, '__iter__'):
+        if isinstance(tau, abc.Iterable):
             tau = np.asarray(tau)
             neg = tau < 0
             if np.any(neg):
                 warnings.warn(warning_message)
                 tau[neg] = 0
         else:
+            # noinspection PyTypeChecker
             if tau < 0:
                 warnings.warn(warning_message)
                 tau = 0.0
@@ -176,7 +177,7 @@ def gumbel_coef(d: int, alpha: float, method='sort', log=False) -> np.ndarray:
     if not (0 < alpha <= 1):
         raise ValueError("<alpha> used in calculating the gumbel polynomial must be (0, 1]")
 
-    if type(d) is not int or d < 1:
+    if not isinstance(d, int) or d < 1:
         raise ValueError("dimension of copula must be an integer and >= 1")
 
     method = method.lower()
@@ -255,7 +256,7 @@ def gumbel_poly(log_x: np.ndarray, alpha: float, d: int, method='default', log=F
     if not (0 < alpha <= 1):
         raise ValueError("<alpha> used in calculating the gumbel polynomial must be (0, 1]")
 
-    if type(d) is not int or d < 1:
+    if not isinstance(d, int) or d < 1:
         raise ValueError("dimension of copula must be an integer and >= 1")
 
     log_x = np.ravel(log_x)

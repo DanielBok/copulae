@@ -21,9 +21,9 @@ def polyn_eval(coef: Numeric, x: Numeric) -> Union[float, np.ndarray]:
     :return: numeric vector or scalar
         numeric vector or scalar, with the same dimensions as x, containing the polynomial values
     """
-    if type(coef) in {int, float}:
+    if isinstance(coef, (float, int)):
         coef = [coef]
-    if type(x) in {int, float}:
+    if isinstance(x, (float, int)):
         x = [x]
 
     m = len(coef)
@@ -65,33 +65,24 @@ def sign_ff(alpha: float, j: Union[Iterable[int], int], d: Union[Iterable[int], 
         raise ValueError("all elements in <j> must be >= 0")
 
     if d.ndim == 0 and j.ndim == 0:
-        min_len, max_len = 1, 1
         d, j = int(d), int(j)
     elif d.ndim == 0 and j.ndim > 0:
-        min_len, max_len = len(j), len(j)
-        d = int(d)
+        d = np.repeat(d, len(j))
     elif j.ndim == 0 and d.ndim > 0:
-        min_len, max_len = len(d), len(d)
-        j = int(j)
+        j = np.repeat(j, len(d))
     else:
-        min_len = min(len(j), len(d))
-        max_len = max(len(j), len(d))
-        d, j = d[:min_len], j[:min_len]
-
-    res = np.zeros(max_len)
+        if len(d) > len(j):
+            j = np.asarray([j[i % len(j)] for i in range(len(d))])
+        elif len(j) > len(d):
+            d = np.asarray([d[i % len(d)] for i in range(len(j))])
 
     if alpha == 1:
-        res[j == d] = 1
-        res[j > d] = (-1) ** (d - j)
+        res = (j > d) * (-1) ** (d - j) + (j == d)
     else:
-        res[j > d] = np.nan
+        res = np.where(j > d, np.nan, 0)
         x = alpha * j
         ind = x != np.floor(x)
-        res[:min_len][ind] = (-1) ** (j[ind] - np.ceil(x[ind]))
-
-    # filling in the blanks due, this is very hackish
-    for i in range(min_len, max_len):
-        res[i] = res[i % min_len]
+        res[ind] = (-1) ** (j[ind] - np.ceil(x[ind]))
 
     return int(res) if np.size == 1 else res
 

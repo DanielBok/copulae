@@ -58,9 +58,9 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
         return np.sin(tau * np.pi / 2)
 
     def __getitem__(self, i):
-        if type(i) is int:
+        if isinstance(i, int):
             return self._rhos[i]
-        elif hasattr(i, '__len__'):
+        elif isinstance(i, (slice, tuple, list, np.ndarray)):
             if len(i) == 2:
                 return self.sigma[i]
             else:
@@ -71,14 +71,14 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
     def __setitem__(self, i, value):
         d = self.dim
 
-        if type(i) is slice:
+        if isinstance(i, slice):
             value = near_psd(value)
             if value.shape != (d, d):
                 return IndexError(f"The value being set should be a matrix of dimension ({d}, {d})")
             self._rhos = value[tri_indices(d, 1, 'lower')]
             return
 
-        if type(i) is int:
+        if isinstance(i, int):
             self._rhos[i] = value
 
         else:
@@ -90,10 +90,10 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
     def __delitem__(self, i):
         d = self.dim
 
-        if type(i) is slice:
+        if isinstance(i, slice):
             self._rhos = np.zeros(len(self._rhos))
 
-        elif type(i) is int:
+        elif isinstance(i, int):
             self._rhos[i] = 0
 
         else:
@@ -113,7 +113,7 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
 
 def _get_rho_index(d: int, i: Tuple[int, int]) -> int:
     i = tuple(i)
-    if type(i) is not tuple:
+    if not isinstance(i, tuple):
         raise IndexError("only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean "
                          "arrays are valid indices")
 

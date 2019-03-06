@@ -1,3 +1,4 @@
+from collections import abc
 from typing import Optional
 
 # noinspection PyProtectedMember
@@ -11,8 +12,8 @@ class multivariate_normal_gen(mng):
     def rvs(self, mean: OptNumeric = None, cov: Numeric = 1, size: Numeric = 1, random_state: Optional[int] = None):
         r = super().rvs(mean, cov, size, random_state)
 
-        if type(size) is not int:
-            dim = 1 if not hasattr(cov, '__len__') else len(cov)
+        if not isinstance(size, int):
+            dim = 1 if not isinstance(cov, abc.Sized) else len(cov)
             r = r.reshape(*size, dim)
 
         return r
