@@ -18,6 +18,9 @@ from .auxiliary import dsum_sibuya
 
 class GumbelCopula(AbstractArchimedeanCopula):
     def __init__(self, theta=np.nan, dim=2):
+        if not np.isnan(theta) and theta < 1:
+            raise ValueError('<theta> for Gumbel Copulae must be >= 1')
+
         super().__init__(dim, theta, 'clayton')
         self._ext = GumbelExt(self)
 
@@ -154,6 +157,12 @@ class GumbelCopula(AbstractArchimedeanCopula):
         alpha = 1 / self.params
         lx = alpha * ln
 
+        ls = gumbel_poly(lx, alpha, d, log=True) - d * lx / alpha
+        lnc = -np.exp(lx)
+        log_pdf = lnc + d * np.log(theta) + ((theta - 1) * lnlu + nlu).sum(1) + ls
+
+        return log_pdf if log else np.exp(log_pdf)
+
     @reshape_output
     def psi(self, s: Array) -> np.ndarray:
         return np.exp(-s ** (1 / self.params))
@@ -288,7 +297,10 @@ def gumbel_poly(log_x: np.ndarray, alpha: float, d: int, method='default', log=F
     if not isinstance(d, int) or d < 1:
         raise ValueError("dimension of copula must be an integer and >= 1")
 
+    log_x = np.asarray(log_x)
+    shape = log_x.shape
     log_x = np.ravel(log_x)
+
     method = method.lower()
     if method == 'default':
         _methods = defaultdict(list)
@@ -299,9 +311,10 @@ def gumbel_poly(log_x: np.ndarray, alpha: float, d: int, method='default', log=F
         for meth, indices in _methods.items():
             res[indices] = _calculate_gumbel_poly(log_x[indices], alpha, d, meth, log)
 
-        return res
+    else:
+        res = _calculate_gumbel_poly(log_x, alpha, d, method, log)
 
-    return _calculate_gumbel_poly(log_x, alpha, d, method, log)
+    return res.reshape(shape)
 
 
 def _calculate_gumbel_poly(lx: np.ndarray, alpha: float, d: int, method: str, log: bool):
