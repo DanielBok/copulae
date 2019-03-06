@@ -43,6 +43,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         return s * a
 
     def drho(self, x: OptNumeric = None):
+        # TODO CLayton: add rho derivative function
         # if x is None:
         #     x = self._theta
         # if np.isnan(x):
@@ -63,6 +64,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         return np.log(v) if log else v
 
     def irho(self, rho: Numeric):
+        # TODO Clayton: add inverse rho function
         return NotImplemented
         # return self._ext.irho(rho)
 
@@ -77,6 +79,21 @@ class ClaytonCopula(AbstractArchimedeanCopula):
             return TailDep(self._theta, self._theta)
 
         return TailDep(2 ** (-1 / self._theta) if self._theta > 0 else 0, 0)
+
+    @property
+    def params(self):
+        return self._theta
+
+    @params.setter
+    def params(self, theta: float):
+        theta = float(theta)
+
+        if self.dim == 2 and theta < -1:
+            raise ValueError('theta must be greater than -1 in 2 dimensional clayton copulae')
+        elif self.dim > 2 and theta < 0:
+            raise ValueError('theta must be positive when dim > 2')
+
+        self._theta = theta
 
     @reshape_data
     def pdf(self, x: Array, log=False):
@@ -134,12 +151,14 @@ class ClaytonCopula(AbstractArchimedeanCopula):
 
     @property
     def rho(self):
+        # TODO Clayton: add rho function
         # if np.isnan(self._theta):
         #     return np.nan
         # return self._ext.rho(self._theta)
         return NotImplemented
 
     def summary(self):
+        # TODO Clayton: add summary
         return NotImplemented
 
     @property
@@ -147,6 +166,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         return self._theta / (self._theta + 2)
 
 
+# TODO Clayton: write extension
 class ClaytonExt(_Ext):
     """
     Clayton Extension class is used to derive values that have no analytical solutions. The values are derived
