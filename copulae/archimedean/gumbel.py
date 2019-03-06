@@ -5,6 +5,7 @@ from typing import Optional
 import numpy as np
 from scipy.special import gammaln
 
+from copulae.copula import TailDep
 from copulae.core import valid_rows_in_u
 from copulae.special.special_func import polyn_eval, sign_ff, stirling_second_all, stirling_first_all
 from copulae.stats import poisson
@@ -73,6 +74,7 @@ class GumbelCopula(AbstractArchimedeanCopula):
         return s * v
 
     def drho(self, x: Optional[np.ndarray] = None):
+        # TODO Gumbel: add rho derivative function
         return NotImplemented
 
     @reshape_data
@@ -80,12 +82,16 @@ class GumbelCopula(AbstractArchimedeanCopula):
         return self.params ** -2
 
     def irho(self, rho: Array):
+        # TODO Gumbel: add inverse rho function
         return NotImplemented
 
     @reshape_output
     def ipsi(self, u: Array, log=False):
         v = (-np.log(u)) ** self.params
         return np.log(v) if log else v
+
+    def lambda_(self):
+        return TailDep(0, 2 * 2 ** (1 / self.params))
 
     @reshape_output
     def itau(self, tau: Array):
@@ -104,6 +110,19 @@ class GumbelCopula(AbstractArchimedeanCopula):
 
         return 1 / (1 - tau)
 
+    @property
+    def params(self):
+        return self._theta
+
+    @params.setter
+    def params(self, theta: float):
+        theta = float(theta)
+
+        if theta < -1:
+            raise ValueError('<theta> must be >= 1 for Gumbel Copulae')
+
+        self._theta = theta
+
     @reshape_data
     def pdf(self, u: Array, log=False):
         n, d = u.shape
@@ -114,16 +133,23 @@ class GumbelCopula(AbstractArchimedeanCopula):
 
         theta = self.params
         ok = valid_rows_in_u(u)
-        pdf = np.repeat(np.nan, n)
 
         if theta == 1:
+            pdf = np.repeat(np.nan, n)
             pdf[ok] = 0 if log else 1
             return pdf
 
-        mlu = -np.log(u)
-        lmlu = np.log(u)
-        ip = self.ipsi(u)
-        ln = np.log(np.exp(ip).sum(1))
+        nlu = -np.log(u)  # negative log u
+        lnlu = np.log(nlu)  # log negative log u
+        lip = self.ipsi(u, log=True)  # log ipsi u
+
+        # get sum of logs
+        if u.ndim == 1:
+            offset = u.max()
+            ln = offset + np.log(np.exp(lip - offset).sum(1))
+        else:
+            offset = u.max(1)
+            ln = offset + np.log(np.exp(lip - offset[:, None]).sum(1))
 
         alpha = 1 / self.params
         lx = alpha * ln
@@ -137,9 +163,11 @@ class GumbelCopula(AbstractArchimedeanCopula):
 
     @property
     def rho(self):
+        # TODO Gumbel: add rho function
         return NotImplemented
 
     def summary(self):
+        # TODO Gumbel: add summary
         return NotImplemented
 
     @property
@@ -151,6 +179,7 @@ class GumbelCopula(AbstractArchimedeanCopula):
         return 0, 2 - 2 ** (1 / self.params)
 
 
+# TODO Gumbel: write extension
 class GumbelExt(_Ext):
     def __init__(self, copula, seed: Optional[int] = None):
         super().__init__(copula, 10, seed)
