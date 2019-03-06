@@ -45,4 +45,4 @@ build:
 	rm -rf build/ allopy.egg-info/
 
 test:
-	pytest --cov=copulae --cov-report=term-missing tests/
+	pytest tests/

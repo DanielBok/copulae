@@ -23,6 +23,14 @@ def test_stirling_first(n, k, exp):
     assert stirling_first(n, k) == exp
 
 
+@pytest.mark.parametrize('n, exp', [
+    (7, [720, -1764, 1624, -735, 175, -21, 1]),
+    (8, [-5040, 13068, -13132, 6769, -1960, 322, -28, 1])
+])
+def test_stirling_first_all(n, exp):
+    assert stirling_first_all(n) == exp
+
+
 @pytest.mark.parametrize('n, k, exp', [
     (5, 3, 25),
     (8, 4, 1701),
@@ -31,14 +39,6 @@ def test_stirling_first(n, k, exp):
 ])
 def test_stirling_second(n, k, exp):
     assert stirling_second(n, k) == exp
-
-
-@pytest.mark.parametrize('n, exp', [
-    (7, [720, -1764, 1624, -735, 175, -21, 1]),
-    (8, [-5040, 13068, -13132, 6769, -1960, 322, -28, 1])
-])
-def test_stirling_first_all(n, exp):
-    assert stirling_first_all(n) == exp
 
 
 @pytest.mark.parametrize('n, exp', [
@@ -53,7 +53,7 @@ def test_stirling_second_all(n, exp):
 @pytest.mark.parametrize('n, k', [
     ([1, 2, 3], [4, 5, 6])
 ])
-def test_raises_type_error(n, k):
+def test_stirling_raises_type_error(n, k):
     match = '<k> and <n> must both be integers'
     with pytest.raises(TypeError, match=match):
         stirling_first(n, k)
@@ -65,7 +65,7 @@ def test_raises_type_error(n, k):
     (4, 6),
     (4, -1)
 ])
-def test_raises_value_error(n, k):
+def test_stirling_raises_value_error(n, k):
     match = r'<k> must be in the range of \[0, <n>\]'
     with pytest.raises(ValueError, match=match):
         stirling_first(n, k)

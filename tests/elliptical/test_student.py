@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from copulae import StudentCopula
 
@@ -23,17 +23,6 @@ def copula(residual_data: np.ndarray):
     return cop
 
 
-def test_fitted_parameters_match_target(residual_data: np.ndarray):
-    dim = residual_data.shape[1]
-    cop = StudentCopula(dim)
-
-    cop.fit(residual_data)
-    params = cop.params
-
-    assert_array_almost_equal(target_rho, params.rho, DP)
-    assert np.isclose(target_df, params.df, atol=1e-3)
-
-
 def test_fitted_log_likelihood_match_target(copula, residual_data):
     target_log_lik = 838.7959
     U = copula.pobs(residual_data)
@@ -42,7 +31,22 @@ def test_fitted_log_likelihood_match_target(copula, residual_data):
     assert np.isclose(log_lik, target_log_lik, atol=1e-2)
 
 
-def test_copula_pdf(copula, residual_data):
+def test_fitted_parameters_match_target(residual_data: np.ndarray):
+    dim = residual_data.shape[1]
+    cop = StudentCopula(dim)
+
+    cop.fit(residual_data)
+    params = cop.params
+
+    assert_array_almost_equal(target_rho, params.rho, DP)
+    assert_almost_equal(target_df, params.df, DP)
+
+
+def test_student_random_generates_correctly(copula):
+    assert copula.random(10).shape == (10, copula.dim)
+
+
+def test_student_pdf(copula, residual_data):
     U = copula.pobs(residual_data)[:5]
     pdf = copula.pdf(U)
     expected_pdf = 5.058462, 15.835262, 4.774393, 7.380350, 21.954320
@@ -50,7 +54,3 @@ def test_copula_pdf(copula, residual_data):
 
     log_pdf = copula.pdf(U, log=True)
     assert_array_almost_equal(log_pdf, np.log(expected_pdf), DP)
-
-
-def test_copula_random_generates_correctly(copula):
-    assert copula.random(10).shape == (10, copula.dim)

@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from copulae import ClaytonCopula
 
@@ -15,57 +15,30 @@ def copula(residual_data: np.ndarray):
     return cop
 
 
-def test_itau_fit(residual_data: np.ndarray):
-    target_param = 0.7848391
-    cop = ClaytonCopula(dim=residual_data.shape[1])
-    cop.fit(residual_data, method='itau')
-    assert np.isclose(cop.params, target_param, 1e-3)
-
-
-def test_fitted_parameters_match_target(residual_data: np.ndarray):
-    target_param = 0.3075057
-    cop = ClaytonCopula(dim=residual_data.shape[1])
-    cop.fit(residual_data)
-    assert np.allclose(cop.params, target_param, atol=1e-3)
-
-
-def test_fitted_log_likelihood_match_target(copula, residual_data):
-    target_log_lik = 147.4181
-    U = copula.pobs(residual_data)
-    log_lik = copula.log_lik(U)
-
-    assert np.isclose(log_lik, target_log_lik, atol=1e-2)
-
-
-def test_copula_pdf(copula, residual_data):
-    U = copula.pobs(residual_data)[:5]
-
-    pdf = copula.pdf(U)
-    expected_pdf = 3.5433140, 0.2732326, 0.2439287, 1.1865992, 6.8052550
-    assert_array_almost_equal(pdf, expected_pdf, DP)
-
-    log_pdf = copula.pdf(U, log=True)
-    assert_array_almost_equal(log_pdf, np.log(expected_pdf), DP)
-
-
-def test_copula_cdf(copula, residual_data):
-    U = copula.pobs(residual_data)[:5]
-
-    cdf = copula.cdf(U)
+def test_clayton_cdf(copula, U5):
+    cdf = copula.cdf(U5)
     expected_cdf = 0.141910076, 0.003616266, 0.004607600, 0.026352224, 0.251302560
     assert_array_almost_equal(cdf, expected_cdf, DP)
 
-    log_cdf = copula.cdf(U, log=True)
+    log_cdf = copula.cdf(U5, log=True)
     assert_array_almost_equal(log_cdf, np.log(expected_cdf), DP)
 
 
-def test_copula_random_generates_correctly(copula):
+def test_clayton_pdf(copula, U5):
+    pdf = copula.pdf(U5)
+    expected_pdf = 3.5433140, 0.2732326, 0.2439287, 1.1865992, 6.8052550
+    assert_array_almost_equal(pdf, expected_pdf, DP)
+
+    log_pdf = copula.pdf(U5, log=True)
+    assert_array_almost_equal(log_pdf, np.log(expected_pdf), DP)
+
+
+def test_clayton_random_generates_correctly(copula):
     assert copula.random(10).shape == (10, copula.dim)
 
 
-def test_dipsi(copula, residual_data):
-    U = copula.pobs(residual_data)[:5]
-    dp = copula.dipsi(U)
+def test_dipsi(copula, U5):
+    dp = copula.dipsi(U5)
 
     target = np.array([
         [-0.429362, -0.464782, -0.580397, -0.339745, -0.800636, -0.353574, -0.59639],
@@ -76,7 +49,7 @@ def test_dipsi(copula, residual_data):
     ])
 
     assert_array_almost_equal(dp, target, 3)
-    log_dp = copula.dipsi(U, log=True)
+    log_dp = copula.dipsi(U5, log=True)
 
     log_target = np.array([
         [-0.845455, -0.766188, -0.544044, -1.079561, -0.222348, -1.039662, -0.51686],
@@ -88,9 +61,27 @@ def test_dipsi(copula, residual_data):
     assert_array_almost_equal(log_dp, log_target, 3)
 
 
-def test_psi(copula, residual_data):
-    U = copula.pobs(residual_data)[:5]
-    psi = copula.psi(U)
+def test_fitted_parameters_match_target(residual_data: np.ndarray):
+    cop = ClaytonCopula(dim=residual_data.shape[1])
+    cop.fit(residual_data)
+    assert_almost_equal(cop.params, 0.3075057, 4)
+
+
+def test_fitted_log_likelihood_match_target(copula, U):
+    target_log_lik = 147.4181
+    log_lik = copula.log_lik(U)
+
+    assert np.isclose(log_lik, target_log_lik, atol=1e-2)
+
+
+def test_itau_fit(residual_data: np.ndarray):
+    cop = ClaytonCopula(dim=residual_data.shape[1])
+    cop.fit(residual_data, method='itau')
+    assert_almost_equal(cop.params, 0.7848391, 4)
+
+
+def test_psi(copula, U5):
+    psi = copula.psi(U5)
 
     target = np.array([
         [0.154834, 0.168502, 0.210311, 0.118544, 0.278835, 0.124292, 0.215762],
