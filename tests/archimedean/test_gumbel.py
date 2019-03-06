@@ -1,8 +1,27 @@
 import numpy as np
 import pytest
-from numpy.testing import assert_array_almost_equal, assert_allclose
+from numpy.testing import assert_almost_equal, assert_allclose, assert_array_almost_equal
 
-from copulae.archimedean.gumbel import gumbel_coef, gumbel_poly
+from copulae.archimedean.gumbel import GumbelCopula, gumbel_coef, gumbel_poly
+
+DP = 5
+
+
+@pytest.fixture(scope='module')
+def copula(residual_data: np.ndarray):
+    dim = residual_data.shape[1]
+    cop = GumbelCopula(dim=dim)
+    cop.params = 1.171789
+    return cop
+
+
+def test_gumbel_cdf(copula, U5):
+    cdf = copula.cdf(U5)
+    expected_cdf = 0.1456360421, 0.0005107288, 0.0009219520, 0.0125531052, 0.2712652274
+    assert_array_almost_equal(cdf, expected_cdf, DP)
+
+    log_cdf = copula.cdf(U5, log=True)
+    assert_array_almost_equal(log_cdf, np.log(expected_cdf), DP)
 
 
 @pytest.mark.parametrize('d, alpha, expected', [
@@ -35,6 +54,12 @@ def test_gumbel_coef_raises_error(d, alpha):
         gumbel_coef(d, alpha)
 
 
+def test_gumbel_fit(residual_data):
+    cop = GumbelCopula(dim=residual_data.shape[1])
+    cop.fit(residual_data)
+    assert_almost_equal(cop.params, 1.171789, 5)
+
+
 @pytest.mark.parametrize('log_x, alpha, d, log, expected', [
     ([3.204613, 2.253136, 3.422148, 2.106722, 2.11856, 3.716989], 0.4, 4, False,
      [13397.4244, 489.5018, 29942.3549, 306.3865, 318.0584, 90751.3460]),
@@ -49,3 +74,12 @@ def test_gumbel_coef_raises_error(d, alpha):
 def test_gumbel_poly(log_x, alpha, d, method, log, expected):
     log_x = np.asarray(log_x)
     assert_allclose(gumbel_poly(log_x, alpha, d, method, log), expected, rtol=1e-4)
+
+
+def test_gumbel_pdf(copula, U5):
+    pdf = copula.pdf(U5)
+    expected_cdf = 3.1295301, 0.5511432, 0.7869483, 1.2362505, 5.2847504
+    assert_array_almost_equal(pdf, expected_cdf, DP)
+
+    log_cdf = copula.pdf(U5, log=True)
+    assert_array_almost_equal(log_cdf, np.log(expected_cdf), DP)
