@@ -15,15 +15,9 @@ requirements = [
 
 setup_requirements = [
     'pytest',
+    'pytest-cov',
     'pandas',
 ]
-
-
-# def build_extensions():
-#     directives = {'language_level': '3'}
-#     Options.annotate = True
-#
-#     return cythonize(extensions, compiler_directives=directives)
 
 
 def run_setup():
