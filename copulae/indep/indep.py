@@ -2,11 +2,10 @@ from typing import Optional
 
 import numpy as np
 
-from copulae.copula import BaseCopula
-from copulae.copula import TailDep
+from copulae.copula import BaseCopula, TailDep
+from copulae.stats import random_uniform
 from copulae.types import Array
 from copulae.utility import reshape_data
-from .utils import random_uniform
 
 
 class IndepCopula(BaseCopula):
