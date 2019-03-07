@@ -97,7 +97,7 @@ class skew_stable:
         cls._check_parameters(alpha, beta, gamma, pm)
         delta, gamma = cls._form_parameters(alpha, delta, gamma, beta, pm)
 
-        if all(np.isclose(alpha, 1)) and all(np.isclose(alpha, 1)):
+        if np.isclose(alpha, 1) and np.isclose(beta, 0):
             z = cauchy.rvs(size=size)
         else:
             theta = np.pi * (np.random.uniform(size=size) - 0.5)

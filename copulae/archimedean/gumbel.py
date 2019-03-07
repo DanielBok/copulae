@@ -7,6 +7,8 @@ from scipy.special import gammaln
 
 from copulae.copula import TailDep
 from copulae.core import valid_rows_in_u
+from copulae.special.trig import cospi2
+from copulae.stats._stable import skew_stable
 from copulae.stats.uniform import random_uniform
 from copulae.special.special_func import polyn_eval, sign_ff, stirling_second_all, stirling_first_all
 from copulae.stats import poisson
@@ -176,10 +178,10 @@ class GumbelCopula(AbstractArchimedeanCopula):
         if np.isclose(self.params, 1):
             return u
 
-        a = 1 / self.params
-        fr = 1
+        alpha = 1 / self.params
+        fr = skew_stable.rvs(alpha, beta=1, gamma=cospi2(alpha) ** self.params, pm=1, size=n)
 
-        return self.psi(-np.log(u) / fr)
+        return self.psi(-np.log(u) / fr[:, None])
 
     @property
     def rho(self):
