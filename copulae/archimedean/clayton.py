@@ -7,17 +7,24 @@ from scipy.interpolate import UnivariateSpline, interp1d
 
 from copulae.copula import TailDep
 from copulae.core import EPS, valid_rows_in_u
-from copulae.indep.utils import random_uniform
-from copulae.types import Array, OptNumeric, Numeric
+from copulae.stats import random_uniform
+from copulae.types import Array, Numeric, OptNumeric
 from copulae.utility import reshape_data, reshape_output
 from ._data_ext import _Ext
 from .abstract import AbstractArchimedeanCopula
 
 
 class ClaytonCopula(AbstractArchimedeanCopula):
+
     def __init__(self, theta=np.nan, dim=2):
         super().__init__(dim, theta, 'clayton')
         self._ext = ClaytonExt(self)
+
+    def A(self, w: Numeric):
+        return NotImplemented
+
+    def dAdu(self, w: Numeric):
+        return NotImplemented
 
     @reshape_output
     def dipsi(self, u, degree=1, log=False):
@@ -135,7 +142,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
     def random(self, n: int, seed: int = None) -> np.ndarray:
         theta = self._theta
         if np.isnan(theta):
-            raise RuntimeError('theta cannot be nan')
+            raise RuntimeError('Clayton copula parameter cannot be nan')
 
         if abs(theta) < EPS:
             return random_uniform(n, self.dim, seed)
