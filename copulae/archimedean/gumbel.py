@@ -7,6 +7,7 @@ from scipy.special import gammaln
 
 from copulae.copula import TailDep
 from copulae.core import valid_rows_in_u
+from copulae.stats.uniform import random_uniform
 from copulae.special.special_func import polyn_eval, sign_ff, stirling_second_all, stirling_first_all
 from copulae.stats import poisson
 from copulae.types import Array, Numeric
@@ -168,7 +169,17 @@ class GumbelCopula(AbstractArchimedeanCopula):
         return np.exp(-s ** (1 / self.params))
 
     def random(self, n: int, seed: int = None):
-        pass
+        if np.isnan(self.params):
+            raise RuntimeError('Clayton copula parameter cannot be nan')
+
+        u = random_uniform(n, self.dim, seed)
+        if np.isclose(self.params, 1):
+            return u
+
+        a = 1 / self.params
+        fr = 1
+
+        return self.psi(-np.log(u) / fr)
 
     @property
     def rho(self):
@@ -182,10 +193,6 @@ class GumbelCopula(AbstractArchimedeanCopula):
     @property
     def tau(self):
         return 1 - 1 / self.params
-
-    @property
-    def __lambda__(self):
-        return 0, 2 - 2 ** (1 / self.params)
 
 
 # TODO Gumbel: write extension

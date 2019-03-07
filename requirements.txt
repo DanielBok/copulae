@@ -9,11 +9,12 @@ bleach==3.1.0
 certifi==2018.11.29
 cffi==1.11.5
 chardet==3.0.4
+Click==7.0
 cmarkgfm==0.4.2
 colorama==0.4.1
 conda==4.6.1
 conda-build==3.17.6
-copulae==0.1.1+30.ge3f15f0.dirty
+conda-verify==3.1.1
 coverage==4.5.2
 cryptography==2.4.2
 cycler==0.10.0
@@ -56,6 +57,7 @@ pyparsing==2.3.1
 PySocks==1.6.8
 pytest==4.0.2
 pytest-cov==2.6.1
+pytest-mock==1.10.0
 python-dateutil==2.7.5
 pytz==2018.7
 pywin32==223
@@ -65,6 +67,7 @@ requests==2.21.0
 requests-toolbelt==0.8.0
 ruamel-yaml==0.15.46
 scipy==1.1.0
+seaborn==0.9.0
 six==1.12.0
 snowballstemmer==1.2.1
 Sphinx==1.8.2
