@@ -1,0 +1,21 @@
+os: linux
+dist: xenial  # ubuntu 16.04
+language: python
+
+python:
+  - 3.7
+  - 3.6
+  - 3.5
+
+matrix:
+  fast_finish: true
+
+install:
+  - pip install -r requirements.txt
+
+script:
+  - make test
+
+after_success:
+  - make bdist
+  - echo "DONE!"

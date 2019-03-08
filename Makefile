@@ -1,33 +1,14 @@
 OUTPUT_DIR := dist
 
-.PHONY: bdist dev dev-r docs build build-all test upload
+.PHONY: bdist cli docs build build-all test upload
 
-all: build-all
+all: bdist
 
-bdist: clean
+
+bdist:
 	python setup.py sdist
-	python setup.py bdist_wheel
+#	python setup.py bdist_wheel
 
-clean:
-	python scripts/clean.py
-
-dev:
-	python setup.py develop
-
-dev-r:
-	python setup.py develop --uninstall
-
-docs:
-	rm -rf docs/build
-	$(MAKE) -C docs html
-
-upload:
-	@echo "Uploading packages"
-	python scripts/upload.py $(OUTPUT_DIR)
-
-build-all: build
-	@echo "Converting packages"
-	python scripts/conda_convert.py $(OUTPUT_DIR)
 
 build:
 	@echo "When building recipe, make sure your conda environment has conda-build and conda-verify installed"
@@ -43,6 +24,26 @@ build:
 	conda build purge
 # remove python build directory and egg fodler
 	rm -rf build/ allopy.egg-info/
+
+
+build-all: build
+	@echo "Converting packages"
+	python scripts/conda_convert.py $(OUTPUT_DIR)
+
+
+cli:
+	python setup_cli.py develop
+
+
+docs:
+	rm -rf docs/build
+	$(MAKE) -C docs html
+
+
+upload:
+	@echo "Uploading packages"
+	python scripts/upload.py $(OUTPUT_DIR)
+
 
 test:
 	pytest tests/

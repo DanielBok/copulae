@@ -3,6 +3,9 @@ from setuptools import find_packages, setup
 
 import versioneer
 
+AUTHOR = 'Daniel Bok'
+EMAIL = 'daniel.bok@outlook.com'
+
 with open('README.md') as f:
     long_description = f.read()
 
@@ -23,10 +26,10 @@ setup_requirements = [
 def run_setup():
     setup(
         name='copulae',
-        author='Daniel Bok',
-        author_email='danielbok@gic.com.sg',
-        maintainer='TG-EIS TPS Team',
-        maintainer_email='grptgeis@gic.com.sg',
+        author=AUTHOR,
+        author_email=EMAIL,
+        maintainer=AUTHOR,
+        maintainer_email=EMAIL,
         packages=find_packages(include=['copulae', 'copulae.*']),
         license="MIT",
         version=versioneer.get_version(),
