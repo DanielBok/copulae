@@ -12,9 +12,6 @@ chardet==3.0.4
 Click==7.0
 cmarkgfm==0.4.2
 colorama==0.4.1
-conda==4.6.7
-conda-build==3.17.8
-conda-verify==3.1.1
 coverage==4.5.2
 cryptography==2.5
 cycler==0.10.0
@@ -42,10 +39,7 @@ kiwisolver==1.0.1
 libarchive-c==2.8
 MarkupSafe==1.1.1
 matplotlib==3.0.2
-menuinst==1.4.14
 mistune==0.8.4
-mkl-fft==1.0.10
-mkl-random==1.0.2
 more-itertools==5.0.0
 nbconvert==5.3.1
 nbformat==4.4.0
@@ -73,8 +67,6 @@ pytest==4.3.0
 pytest-cov==2.6.1
 python-dateutil==2.8.0
 pytz==2018.9
-pywin32==223
-pywinpty==0.5.5
 PyYAML==3.13
 pyzmq==18.0.0
 qtconsole==4.4.3
