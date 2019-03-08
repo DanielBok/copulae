@@ -1,5 +1,6 @@
 import pathlib
 import subprocess
+from typing import Union
 
 import click
 
@@ -26,9 +27,11 @@ def echo(*msg: str, sep=' ', file=None, nl=True, err=False, color=None):
     click.echo(message, file, nl, err, color)
 
 
-def shell_run(*args, cwd: str = None, shell=True) -> str:
+def shell_run(*args, cwd: Union[str, pathlib.Path] = None, shell=True) -> str:
     if cwd is None:
         cwd = ROOT.as_posix()
+    elif isinstance(cwd, pathlib.Path):
+        cwd = cwd.as_posix()
     return subprocess.check_output(' '.join(str(a) for a in args), cwd=cwd, shell=shell).decode('utf-8')
 
 
@@ -84,11 +87,17 @@ def style(text, fg=None, bg=None, bold=None, dim=None, underline=None,
     return click.style(str(text), fg, bg, bold, dim, underline, blink, reverse, reset)
 
 
-def write_file(file: str, content: str):
-    with open(file, 'r') as f:
-        original = f.read()
+def write_file(file: Union[str, pathlib.Path], content: str):
+    if isinstance(file, pathlib.Path):
+        file = file.as_posix()
 
-    is_diff = original.strip() != content.strip()
+    try:
+        with open(file, 'r') as f:
+            original = f.read()
+
+        is_diff = original.strip() != content.strip()
+    except FileNotFoundError:
+        is_diff = True
 
     if is_diff:
         with open(file, 'w') as f:

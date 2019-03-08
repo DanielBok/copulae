@@ -51,7 +51,7 @@ def deps():
             texts.append(line)
             n_deps += 1
 
-    has_changed = write_file(ROOT.joinpath(file).as_posix(), '\n'.join(texts))
+    has_changed = write_file(ROOT.joinpath(file), '\n'.join(texts))
 
     if has_changed:
         echo(f"Wrote a total of {style(n_deps, 'red')} channels and  {style(n_deps, 'red')} dependencies "

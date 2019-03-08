@@ -5,19 +5,25 @@ from cli.utils import *
 
 @click.group()
 def cli():
-    """List of commands to setup package for travis"""
+    """List of commands to setup docs"""
     pass
 
 
 @cli.command()
+def build():
+    """Builds the docs"""
+    shell_run('make html', cwd=ROOT.joinpath('docs'))
+
+
+@cli.command()
 def deps():
-    """Builds dependency file for travis to install"""
-    file = 'requirements.txt'
+    """Builds dependency file for read the docs to install"""
+    file = 'docs_requirements.txt'
     echo("Building", style(file, 'green'))
 
     dependencies = shell_run('pip freeze').splitlines()
 
-    ignore = ['conda', 'conda-build', 'conda-verify', 'menuinst', 'mkl-fft', 'mkl-random', 'pywin32', 'pywinpty']
+    capture = ['sphinx']
 
     text = ""
     for d in dependencies:
@@ -25,13 +31,12 @@ def deps():
             # cli installation
             continue
 
-        pkg = d.split('==')[0]
-        if pkg in ignore:
-            continue
+        pkg = d.split('==')[0].lower()
+        for c in capture:
+            if c in pkg.lower():
+                text += d + '\n'
 
-        text += d + '\n'
-
-    has_changed = write_file(ROOT.joinpath(file), text)
+    has_changed = write_file(ROOT.joinpath(file).as_posix(), text)
 
     if has_changed:
         n = len(text.strip().splitlines())

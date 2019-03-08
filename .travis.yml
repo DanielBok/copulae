@@ -1,28 +1,32 @@
 os: linux
 dist: xenial  # ubuntu 16.04
+
 language: python
 
-python:
-  - 3.7
-  - 3.6
+
+env:
+  global:
+    - COVERAGE=false
+
+matrix:
+  include:
+    - python: 3.6
+      env:
+        - COVERAGE=false
+    - python: 3.7
+      env:
+        - COVERAGE=true
 
 install:
   - pip install coveralls pytest pytest-cov
   - pip install -e .
 
+
 script:
   - make test
 
 after_success:
-  - coveralls
-
-stages:
-  - test
-  - name: deploy
-    if: branch = master
-
-
-jobs:
-  include:
-    - stage: deploy
-      script: make dist
+  - |
+    if [[ "$COVERAGE" = true ]]; then
+      coveralls;
+    fi

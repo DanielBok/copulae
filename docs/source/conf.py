@@ -15,6 +15,8 @@
 import os
 import sys
 
+import guzzle_sphinx_theme
+
 sys.path.insert(0, os.path.abspath('../../copulae'))
 
 # -- Project information -----------------------------------------------------
@@ -38,9 +40,11 @@ release = '0.0.1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'guzzle_sphinx_theme',
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
     'sphinx.ext.doctest',
+    'sphinx.ext.githubpages',
     'sphinx.ext.ifconfig',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
@@ -71,20 +75,33 @@ language = None
 exclude_patterns = []
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'colorful'
+pygments_style = 'default'
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
-html_theme = 'default'
+
+html_theme_path = guzzle_sphinx_theme.html_theme_path()
+html_theme = 'guzzle_sphinx_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#
-# html_theme_options = {}
+
+html_theme_options = {
+    # Set the name of the project to appear in the sidebar
+    "project_nav_name": "Copulae",
+
+    # Visible levels of the global TOC; -1 means unlimited
+    "globaltoc_depth": 3,
+
+    # If False, expand all TOC entries
+    "globaltoc_collapse": True,
+
+    # If True, show hidden TOC entries
+    "globaltoc_includehidden": False,
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
