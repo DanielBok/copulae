@@ -1,13 +1,8 @@
 OUTPUT_DIR := dist
 
-.PHONY: bdist cli docs build build-all test upload
+.PHONY: build build-all cli dist docs test
 
 all: bdist
-
-
-bdist:
-	python setup.py sdist
-#	python setup.py bdist_wheel
 
 
 build:
@@ -35,14 +30,15 @@ cli:
 	python setup_cli.py develop
 
 
+dist:
+	python setup.py sdist
+	python setup.py bdist_wheel
+
+
+
 docs:
 	rm -rf docs/build
 	$(MAKE) -C docs html
-
-
-upload:
-	@echo "Uploading packages"
-	python scripts/upload.py $(OUTPUT_DIR)
 
 
 test:
