@@ -5,17 +5,24 @@ language: python
 python:
   - 3.7
   - 3.6
-  - 3.5
-
-matrix:
-  fast_finish: true
 
 install:
-  - pip install -r requirements.txt
+  - pip install coveralls pytest pytest-cov
+  - pip install -e .
 
 script:
   - make test
 
 after_success:
-  - make bdist
-  - echo "DONE!"
+  - coveralls
+
+stages:
+  - test
+  - name: deploy
+    if: branch = master
+
+
+jobs:
+  include:
+    - stage: deploy
+      script: make dist

@@ -41,7 +41,7 @@ def run_setup():
         install_requires=requirements,
         setup_requires=setup_requirements,
         include_package_data=True,
-        python_requires='>=3.5',
+        python_requires='>=3.6',
         zip_safe=False,
     )
 
