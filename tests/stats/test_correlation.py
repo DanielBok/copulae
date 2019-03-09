@@ -13,6 +13,15 @@ def data():
     return np.random.uniform(-10, 10, size=(30, 3))
 
 
+def test_corr(data):
+    assert_array_almost_equal(
+        corr(data),
+        np.array([[1.0000000, -0.16871767, -0.23407923],
+                  [-0.1687177, 1.00000000, 0.05121912],
+                  [-0.2340792, 0.05121912, 1.00000000]]),
+        DP)
+
+
 def test_corr_pearson(data: np.array):
     assert_array_almost_equal(pearson_rho(data),
                               np.array([[1.0000000, -0.16871767, -0.23407923],
