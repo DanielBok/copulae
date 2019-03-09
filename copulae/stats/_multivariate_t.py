@@ -6,21 +6,8 @@ import numpy.linalg as la
 from scipy.special import beta, gamma
 from scipy.stats import multivariate_normal as mvn
 
+from copulae.core import is_psd
 from copulae.types import Numeric, OptNumeric
-
-
-def _is_psd(M: Numeric):
-    if isinstance(M, (float, int)):
-        M = np.asarray([[M]], float)
-
-    if M.ndim != 2 or M.shape[0] != M.shape[1]:
-        return False
-
-    ev = la.eigvalsh(M)
-    if ev.min() < -np.finfo('f').eps or not np.allclose(M, M.T):
-        return False
-
-    return True
 
 
 class multivariate_t:
@@ -29,7 +16,7 @@ class multivariate_t:
     @classmethod
     def cdf(cls, x: Numeric, mean: Numeric = None, cov: Numeric = 1, df: float = None):
         # TODO implement CDF
-        raise NotImplementedError
+
         # dim, mean, cov, df = cls._process_parameters(None, mean, cov, df)
         # x = cls._process_input(x, dim)
         #
@@ -61,6 +48,7 @@ class multivariate_t:
         #     var_sums[xi] = var_sum
         #
         # return int_vals
+        raise NotImplementedError
 
     @classmethod
     def logcdf(cls, x: Numeric, mean: Numeric = None, cov: Numeric = 1, df: float = None):
@@ -170,7 +158,7 @@ class multivariate_t:
         rvs: ndarray or scalar
             Random variates of size (`size`, `N`), where `N` is the dimension of the random variable.
         """
-        if not (type(size) is int or all(type(s) is int for s in size)):
+        if not (isinstance(size, int) or np.asarray(size).dtype == 'int'):
             raise ValueError('size argument must be integer or iterable of integers')
 
         if df is None:
@@ -184,13 +172,13 @@ class multivariate_t:
             np.random.seed(random_state)
         d = np.sqrt(np.random.chisquare(df, size) / df)
 
-        if isinstance(size, int):
+        if isinstance(size, abc.Iterable):
+            d = d.reshape(*size, -1)
+            size_is_iterable = True
+        else:
             if size > 1:
                 d = d.reshape(size, -1)
             size_is_iterable = False
-        else:
-            d = d.reshape(*size, -1)
-            size_is_iterable = True
 
         # size and dim used to reshape generated tensor correctly before dividing by chi-square rvs
         dim = 1 if not isinstance(cov, abc.Sized) else len(cov)
@@ -212,7 +200,7 @@ class multivariate_t:
         else:
             raise ValueError(f"Unknown centrality type {type_}. Use one of 'Kshirsagar', 'shifted'")
 
-        return np.asarray(r, dtype=float)
+        return float(r) if r.size == 1 else np.asarray(r)
 
     @staticmethod
     def _process_input(x: Numeric, dim: int):
@@ -250,11 +238,11 @@ class multivariate_t:
         if mean.shape[0] != dim or mean.ndim != 1:
             raise ValueError("Array 'mean' must be a vector of length %d." % dim)
 
-        if not _is_psd(cov):
+        if not is_psd(cov):
             raise ValueError("Matrix 'cov' must be positive semi-definite")
 
-        if df <= 0:
+        if df is None:
+            df = 4.6692  # Random Feigenbaum Number
+        elif df <= 0:
             raise ValueError("Degrees of freedom 'df' must be greater than 0")
-        elif df is None:
-            df = 4.6692  # In honour of Feigenbaum
         return dim, mean, cov, df
