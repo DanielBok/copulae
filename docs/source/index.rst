@@ -1,10 +1,9 @@
 Copulae package
 ===============
 
-The Copulae toolbox contains commonly used elliptical and Archimedean copulas
+The Copulae toolbox contains commonly used elliptical and Archimedean copulas.
 
-Future plans are to add more Archimedean and other form of copulas along with goodness-of-fit
-tests and plots.
+Future plans are to add more Archimedean and other form of copulas along with goodness-of-fit tests and plots. It's my hope that this package will not only serve as a modeling toolbox, but a pedagogical tool too!
 
 Contents
 ========
@@ -12,7 +11,8 @@ Contents
 .. toctree::
     :maxdepth: 3
 
-    Copulas <copulae/index>
+    Getting Started <getting-started>
+    Copulae <copulae/index>
 
 
 Indices and tables

@@ -6,7 +6,7 @@ import click
 
 __all__ = ['ROOT', 'echo', 'shell_run', 'style', 'write_file']
 
-ROOT: pathlib.Path = pathlib.Path(__file__).cwd()
+ROOT: pathlib.Path = pathlib.Path(__file__).parent.parent
 
 
 def echo(*msg: str, sep=' ', file=None, nl=True, err=False, color=None):
