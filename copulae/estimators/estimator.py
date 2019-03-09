@@ -8,30 +8,11 @@ from copulae.estimators.est_cor_inversion import CorrInversionEstimator
 from copulae.estimators.est_max_likelihood import MaxLikelihoodEstimator
 from copulae.estimators.utils import is_elliptical
 from copulae.stats import pearson_rho
-from copulae.utility import format_docstring, merge_dict
-
-__estimator_params_docs__ = """
-        :param copula: copula
-            Copula that will be fitted
-        :param data: numpy array
-            Array of data used to fit copula. Usually, data should be the pseudo observations
-        :param x0: numpy array
-            Initial starting point. If value is None, best starting point will be estimated
-        :param method:
-            Method of fitting. Supported methods are:
-                ml - maximize likelihood,
-        :param est_var: bool
-            Whether to estimate variance of the fitted copula
-        :param verbose: int
-            Log level for the estimator. The higher the number, the more verbose. 0 prints nothing
-        :param optim_options: dict
-            keyword arguments to pass into scipy.optimize.minimize
-""".strip()
+from copulae.utility import merge_dict
 
 
 class CopulaEstimator:
 
-    @format_docstring(params_doc=__estimator_params_docs__)
     def __init__(self, copula: Copula, data: np.ndarray, x0: np.ndarray = None, method='ml', est_var=False,
                  verbose=1, optim_options: Optional[dict] = None):
         """
@@ -39,7 +20,30 @@ class CopulaEstimator:
 
         By passing the copula into class object, the copula will be automatically fitted
 
-        {params_doc}
+        Parameters
+        ----------
+        data: ndarray
+            Array of data used to fit copula. Usually, data should be the pseudo observations
+
+        x0: ndarray
+            Initial starting point. If value is None, best starting point will be estimated
+
+        method: { 'ml', 'mpl', 'irho', 'itau' }
+            Method of fitting. Supported methods are: 'ml' - Maximum Likelihood, 'mpl' - Maximum Pseudo-likelihood,
+            'irho' - Inverse Spearman Rho, 'itau' - Inverse Kendall Tau
+
+        est_var: bool
+            If True, estimates variance of the fitted copula.
+
+        verbose: int
+            Log level for the estimator. The higher the number, the more verbose it is. 0 prints nothing.
+
+        optim_options: dict
+            Keyword arguments to pass into scipy.optimize.minimize
+
+        See Also
+        --------
+        :code:`scipy.optimize.minimize`: the optimization function
         """
 
         self.copula = copula
@@ -121,7 +125,11 @@ class CopulaEstimator:
 
         options.setdefault('method', 'SLSQP')
         method_is = _method_is(options['method'])
-        bounds = [(l, u) for l, u in zip(*self.copula.params_bounds)]
+
+        if isinstance(self.copula.params_bounds[0], (int, float)):
+            bounds = [self.copula.params_bounds]
+        else:
+            bounds = [(l, u) for l, u in zip(*self.copula.params_bounds)]
         if method_is('Nelder-Mead'):
             return merge_dict({
                 'options': {

@@ -15,10 +15,27 @@ from .abstract import AbstractArchimedeanCopula
 
 
 class ClaytonCopula(AbstractArchimedeanCopula):
-
     def __init__(self, theta=np.nan, dim=2):
+        """
+        The Clayton copula is a copula that allows any specific non-zero level of (lower) tail dependency between
+        individual variables. It is an Archimedean copula and exchangeable. A Clayton copula is defined as
+
+        .. math::
+
+            C_\\theta (u_1, \dots, u_d) = \left(\sum_i^d (u_{i}^{-\\theta}) - d + 1 \\right)^{-1/\\theta}
+
+        Parameters
+        ----------
+        theta: float, optional
+            Number specifying the copula parameter
+
+        dim: int, optional
+            Dimension of the copula
+        """
         super().__init__(dim, theta, 'clayton')
         self._ext = ClaytonExt(self)
+        # TODO ADD BOUNDS
+        self._bounds = (-1 + EPS, np.inf) if dim == 2 else (0, np.inf)
 
     def A(self, w: Numeric):
         return NotImplemented
@@ -50,7 +67,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         return s * a
 
     def drho(self, x: OptNumeric = None):
-        # TODO CLayton: add rho derivative function
+        # TODO Clayton: add rho derivative function
         # if x is None:
         #     x = self._theta
         # if np.isnan(x):
@@ -144,7 +161,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         if np.isnan(theta):
             raise RuntimeError('Clayton copula parameter cannot be nan')
 
-        if abs(theta) < EPS:
+        if abs(theta) < 6.06e-6:  # magic number
             return random_uniform(n, self.dim, seed)
 
         r = random_uniform(n, self.dim, seed)

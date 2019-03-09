@@ -11,12 +11,21 @@ def comb(n: Numeric, r: Numeric, log=False):
     Generalized combination function. Unlike standard combination functions which uses factorials, function can take
     floats as it uses the gamma function.
 
-    :param n: iterable[float, int], float, int
-    :param r: iterable[float, int], float, int
-    :param log: boolean, default False
+    Parameters
+    ----------
+    n: numeric vector or scalar
+        Numeric scalar or vector
+
+    r: numeric vector or scalar
+        Numeric scalar or vector
+
+    log: bool, optional
         If true, returns the log of the combination function
-    :return: iterable[float, int], float
-        nCr value
+
+    Returns
+    -------
+    comb: ndarray or scalar
+        Number of combinations
     """
     n, r = np.asarray(n), np.asarray(r)
 
@@ -27,15 +36,24 @@ def comb(n: Numeric, r: Numeric, log=False):
 
 def perm(n: Numeric, r: Numeric, log=False):
     """
-    Generalized combination function. Unlike standard combination functions which uses factorials, function can take
+    Generalized permutation function. Unlike standard permutation functions which uses factorials, function can take
     floats as it uses the gamma function.
 
-    :param n: iterable[float, int], float, int
-    :param r: iterable[float, int], float, int
-    :param log: boolean, default False
-        If true, returns the log of the combination function
-    :return: iterable[float, int], float
-        nCr value
+    Parameters
+    ----------
+    n: numeric vector or scalar
+        Numeric scalar or vector
+
+    r: numeric vector or scalar
+        Numeric scalar or vector
+
+    log: bool, optional
+        If true, returns the log of the permutation function
+
+    Returns
+    -------
+    perm: ndarray or scalar
+        Number of permutations
     """
     n, r = np.asarray(n), np.asarray(r)
 

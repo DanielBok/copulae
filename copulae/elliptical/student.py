@@ -15,8 +15,33 @@ class StudentParams(NamedTuple):
 
 
 class StudentCopula(AbstractEllipticalCopula):
+    """
+    The Student (T) Copula. It is elliptical and symmetric which gives it nice analytical properties. The
+    Student copula is determined by its correlation matrix and the degrees of freedom. Student copulas have
+    fatter tails as compared to Gaussian copulas.
+
+    A Student copula is fined as
+
+    .. math::
+
+        C_{\Sigma, \\nu} (u_1, \dots, u_d) = \mathbf{t}_{\Sigma, \\nu} (t_\\nu^{-1} (u_1), \dots, t_\\nu^{-1} (u_d))
+
+    where :math:`\Sigma` and :math:`\\nu` are the covariance matrix and degrees of freedom which describes the
+    Student copula and :math:`t_\\nu^{-1}` is the quantile (inverse cdf) function
+    """
 
     def __init__(self, dim=2, df=1):
+        """
+        Creates a Student copula instance
+
+        Parameters
+        ----------
+        dim: int, optional
+            Dimension of the copula
+
+        df: float, optional
+            Degrees of freedom of the copula
+        """
         super().__init__(dim, 'Student')
 
         n = sum(range(dim))
@@ -25,7 +50,7 @@ class StudentCopula(AbstractEllipticalCopula):
 
         lower, upper = np.repeat(-1., n + 1), np.repeat(1., n + 1)
         lower[0], upper[0] = 0, np.inf  # bounds for df, the rest are correlation
-        self.params_bounds = lower, upper
+        self._bounds = (lower, upper)
 
     @reshape_data
     def cdf(self, x: np.ndarray, log=False):
@@ -44,9 +69,6 @@ class StudentCopula(AbstractEllipticalCopula):
     def irho(self, rho: Array):
         """
         irho is not implemented for t copula
-
-        :param rho: numpy array
-        :return: Not Implemented
         """
         return NotImplemented()
 
@@ -63,6 +85,24 @@ class StudentCopula(AbstractEllipticalCopula):
 
     @property
     def params(self) -> StudentParams:
+        """
+        The parameters of the Student copula. A tuple where the first value is the degrees of freedom and the
+        subsequent values are the correlation matrix parameters
+
+        Parameters
+        ----------
+        params: array like
+            An array like where the first value is the degrees of freedom and the subsequent values are the
+            correlation parameters
+
+        Returns
+        -------
+        df: float
+            Degrees of freedom
+        corr: ndarray
+            Correlation parameters
+
+        """
         return StudentParams(self._df, self._rhos)
 
     @params.setter

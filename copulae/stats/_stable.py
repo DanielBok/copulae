@@ -191,17 +191,29 @@ def _pdf_f1(x: float, zeta: float, alpha: float, beta: float, theta0: float, zet
     """
     Helper function to derive probability density at point 'x'
 
-    :param x:
-    :param zeta:
-        bound (-inf, inf). infinity when alpha -> 1
-    :param alpha:
-        bound between (0, 2]
-    :param beta:
+    Parameters
+    ----------
+    x: float
+        numeric
+
+    zeta: float
+        numeric bound between (-inf, inf). infinity when alpha -> 1
+
+    alpha: float
+        bound between [0, 2]
+
+    beta: float
         bound between [-1, 1]
-    :param theta0:
+
+    theta0: float
         bound between [-pi / 2, pi / 2]
-    :param zeta_tol: 1e-16
-    :return:
+
+    zeta_tol: float
+        zeta tolerance
+    Returns
+    -------
+    float
+        numeric
     """
     x_m_zeta = abs(x - zeta)
 

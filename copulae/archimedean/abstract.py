@@ -33,17 +33,22 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
 
         A bivariate copula C is an extreme-value copula if and only if
 
-        C(u, v) = (uv)^A(log(v) / log(uv)), (u,v) in (0,1]^2 w/o {(1,1)},
+        .. math::
 
-        where A: [0,1] -> [1/2, 1] is convex and satisfies max(t,1-t) <= A(t) <= 1 for all t in [0,1].
+            C(u, v) = (uv)^{A(log(v) / log(uv))}, (u,v) in (0,1]^2 w/o {(1,1)}
 
-        In the d-variate case, the Pickands dependence function A is defined on the d-dimensional unit simplex.
+        where :math:`A: [0,1] \rightarrow [1/2, 1]` is convex and satisfies :math:`max(t,1-t) \leq A(t) \leq 1` for all
+        :math:`t \in [0, 1]`
 
-        :param w: int, float, Iterable[int, float]
-            A numeric
+        Parameters
+        ----------
+        w: int or float or iterable of int or float
+            A numeric scalar or vector
 
-        :return: ndarray
-            Value of the dependence function
+        Returns
+        -------
+        ndarray
+            Array containing values of the dependence function
         """
         raise NotImplementedError
 
@@ -56,11 +61,19 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
         """
         First and second derivative of A
 
-        :param w: int, float, Iterable[int, float]
-            A numeric
+        Parameters
+        ----------
+        w: int or float or iterable of int or float
+            A numeric scalar or vector
 
-        :return: ndarray
-            First and second derivative of A
+        Returns
+        -------
+        ndarray
+            Array containing the first and second derivative of the dependence function
+
+        See Also
+        --------
+        A: Dependence function
         """
         raise NotImplementedError
 
@@ -69,10 +82,15 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
         """
         Generator function for Archimedean copulae.
 
-        :param s: ndarray
-            numerical vector at which these functions are to be evaluated.
-        :return: ndarray
-            generator value for Archimedean copula
+        Parameters
+        ----------
+        s: ndarray
+            Numerical vector at which the generator function is to be evaluated against
+
+        Returns
+        -------
+        ndarray
+            Generator value for the Archimedean copula
         """
         raise NotImplementedError
 
@@ -83,12 +101,18 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
 
         Currently only computes the first two derivatives of iPsi()
 
-        :param u: ndarray
-            numerical vector at which these functions are to be evaluated.
-        :param log: boolean, default False
-            If True, log of psi inverse will be returned
-        :return: ndarray
-            inverse generator value for Archimedean copula
+        Parameters
+        ----------
+        u: ndarray
+            Numerical vector at which the inverse generator function is to be evaluated against
+
+        log: bool, optional
+            If True, log of ipsi will be returned
+
+        Returns
+        -------
+        ndarray
+            Inverse generator value for the Archimedean copula
         """
         raise NotImplementedError
 
@@ -97,13 +121,20 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
         """
         Derivative of the inverse of the generator function for Archimedean copulae
 
-        :param u: ndarray
-            numerical vector at which these functions are to be evaluated.
-        :param degree: int, default 1
-            the degree of the derivative (defaults to 1)
-        :param log: bool, default False
-            If True, log of derivative will be returned
-        :return: ndarray
-            derivative of psi
+        Parameters
+        ----------
+        u: ndarray
+            Numerical vector at which the derivative of the inverse generator function is to be evaluated against
+
+        degree: int
+            The degree of the derivative
+
+        log: bool, optional
+            If True, the log of the derivative will be returned
+
+        Returns
+        -------
+        ndarray
+            Derivative of the inverse generator value for the Archimedean copula
         """
         raise NotImplementedError

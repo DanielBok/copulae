@@ -10,14 +10,19 @@ class CorrInversionEstimator:
         """
         Inversion of Spearman's rho or Kendall's tau Estimator
 
-        :param copula: BaseCopula
-            copula to be inverted
-        :param data: ndarray
-            data to fit copula with
-        :param est_var: bool
-            If true, calculates variance estimates
-        :param verbose: int
-            verbosity level for optimizer
+        Parameters
+        ----------
+        copula: AbstractCopula
+            Copula whose parameters are to be estimated
+
+        data: ndarray
+            Data to fit the copula with
+
+        est_var: bool
+            If True, calculates the variance estimates
+
+        verbose: int
+            Verbosity level for the optimizer
         """
 
         self.copula = copula
@@ -29,11 +34,15 @@ class CorrInversionEstimator:
         """
         Fits the copula with the inversion of Spearman's rho or Kendall's tau Estimator
 
-        :param typ: str
-            The type of rank correlation measure. Must be one of 'itau', 'irho
+        Parameters
+        ----------
+        typ: {'irho', 'itau'}
+            The type of rank correlation measure to use. 'itau' uses Kendall's tau while 'irho' uses Spearman's rho
 
-        :return: ndarray
-            estimates for the copula
+        Returns
+        -------
+        ndarray
+            Estimates for the copula
         """
         typ = typ.lower()
         if typ not in ('itau', 'irho'):
@@ -64,9 +73,14 @@ class CorrInversionEstimator:
         """
         Variance of the Inversion of a Rank Correlation Measure Estimator
 
-        :param typ: str
-            The rank correlation measure. Must be one of 'itau', 'irho
-        :return: float
+        Parameters
+        ----------
+        typ: {'itau', 'irho'}
+            The type of rank correlation measure to use
+
+        Returns
+        -------
+        float:
             Variance of the inversion of rank correlation measure estimator
         """
 

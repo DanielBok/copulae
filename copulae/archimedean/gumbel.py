@@ -7,11 +7,11 @@ from scipy.special import gammaln
 
 from copulae.copula import TailDep
 from copulae.core import valid_rows_in_u
+from copulae.special.special_func import polyn_eval, sign_ff, stirling_second_all, stirling_first_all
 from copulae.special.trig import cospi2
+from copulae.stats import poisson
 from copulae.stats._stable import skew_stable
 from copulae.stats.uniform import random_uniform
-from copulae.special.special_func import polyn_eval, sign_ff, stirling_second_all, stirling_first_all
-from copulae.stats import poisson
 from copulae.types import Array, Numeric
 from copulae.utility.utils import reshape_data, reshape_output
 from ._data_ext import _Ext
@@ -20,12 +20,33 @@ from .auxiliary import dsum_sibuya
 
 
 class GumbelCopula(AbstractArchimedeanCopula):
+    """
+    The Gumbel copula is a copula that allows any specific level of (upper) tail dependency between individual
+    variables. It is an Archimedean copula, and exchangeable. A Gumbel copula is defined as
+
+    .. math::
+
+        C_\\theta (u_1, \dots, u_d) = \exp( - (\sum_u^i (-\log u_{i})^{-\\theta} )^{1/\\theta})
+    """
+
     def __init__(self, theta=np.nan, dim=2):
+        """
+        Creates a Gumbel copula instance
+
+        Parameters
+        ----------
+        theta: float, optional
+            Number specifying the copula parameter
+
+        dim: int, optional
+            Dimension of the copula
+        """
         if not np.isnan(theta) and theta < 1:
             raise ValueError('<theta> for Gumbel Copulae must be >= 1')
 
         super().__init__(dim, theta, 'clayton')
         self._ext = GumbelExt(self)
+        self._bounds = (1.0, np.inf)
 
     @reshape_output
     def A(self, w: Numeric):
@@ -210,16 +231,24 @@ def gumbel_coef(d: int, alpha: float, method='sort', log=False) -> np.ndarray:
     Compute the coefficients a[d,k](θ) involved in the generator (psi) derivatives and the copula density of Gumbel
     copulas.
 
-    :param d: int
-        the dimension of the Gumbel copula
-    :param alpha: float
-        the inverse of the theta parameter
-    :param method: str, default 'sort'
-        string specifying computation method. One of sort, horner, direct, log, ds.direct, diff,
-    :param log: boolean, default False
+    Parameters
+    ----------
+    d: int
+        Dimension of the Gumbel copula
+
+    alpha: float
+        Inverse of the theta parameter (that describes the Gumbel copula)
+
+    method: { 'sort', 'horner', 'direct', 'log', 'ds.direct', 'diff' }, optional
+        String specifying computation method to compute coefficient
+
+    log: bool, optional
         If True, the logarithm of the result is returned
-    :return: ndarray
-        the coefficients of the polynomial
+
+    Returns
+    -------
+    ndarray
+        The coefficients of the polynomial
     """
     if not (0 < alpha <= 1):
         raise ValueError("<alpha> used in calculating the gumbel polynomial must be (0, 1]")
@@ -235,7 +264,7 @@ def gumbel_coef(d: int, alpha: float, method='sort', log=False) -> np.ndarray:
         a = np.zeros(d)
         for i in range(d):
             ds = np.arange(i, d)
-            b = (ds + 1) * np.log(alpha) + ls[ds] + [lS[x][i] for x in ds]
+            b = (ds + 1) * np.log(alpha) + ls[ds] + np.asarray([lS[x][i] for x in ds])
             exponents = np.exp(b - b.max())
 
             # sum odd components of exponents first
@@ -286,20 +315,29 @@ def gumbel_poly(log_x: np.ndarray, alpha: float, d: int, method='default', log=F
     """
     Compute the polynomial involved in the generator derivatives and the copula density of a Gumbel copula
 
-    :param log_x: ndarray
-        1d vector, log of x
-    :param alpha: float
-        the inverse of the theta parameter
-    :param d: int
-        the dimension of the Gumbel copula
-    :param method: str, default 'default'
-        A string which determines the method used to calculate the polynomial. Must be one default, pois, direct, log,
-        sort. If set to 'default', an algorithm will automatically determine best method to use
-    :param log: boolean, default False
-        If True, the logarithm of the result is returned
-    :return:
-    """
+    Parameters
+    ----------
+    log_x: ndarray
+        1d vector, log of `x`
 
+    alpha: float
+        Inverse of the theta parameter (that describes the Gumbel copula)
+
+    d: int
+        Dimension of the Gumbel copula
+
+    method: { 'default', 'pois', 'direct', 'log' }, optional
+        String specifying computation method to compute polynomial. If set to 'default', an algorithm will
+        automatically determine best method to use
+
+    log: bool, optional
+        If True, the logarithm of the result is returned
+
+    Returns
+    -------
+    ndarray
+        polynomials of the Gumbel copula
+    """
     if not (0 < alpha <= 1):
         raise ValueError("<alpha> used in calculating the gumbel polynomial must be (0, 1]")
 

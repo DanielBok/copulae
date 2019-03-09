@@ -9,20 +9,28 @@ class MaxLikelihoodEstimator:
     def __init__(self, copula: Copula, data: np.ndarray, initial_params: InitialParam, optim_options, est_var: bool,
                  verbose: int):
         """
-        Maximum Likelihood Estimator for Copulas
 
-        :param copula: BaseCopula
-            copula to be inverted
-        :param data: ndarray
-            data to fit copula with
-        :param initial_params: float or ndarray
-            initial parameters for copula
-        :param optim_options: dict
+
+        Parameters
+        ----------
+        copula: AbstractCopula
+            Copula whose parameters are to be estimated
+
+        data: ndarray
+            Data to fit the copula with
+
+        initial_params: float or ndarray
+            Initial parameters for optimization
+
+        optim_options: dict
             optimizer options
-        :param est_var: bool
-            If true, calculates variance estimates
-        :param verbose: int
-            verbosity level for optimizer
+
+        est_var: bool
+            If True, calculates the variance estimates
+
+        verbose: int
+            Verbosity level for the optimizer
+
         """
 
         self.copula = copula
@@ -36,11 +44,16 @@ class MaxLikelihoodEstimator:
         """
         Fits the copula with the Maximum Likelihood Estimator
 
-        :param method: str
-            'ml' or 'mpl'. This will determine the variance estimate
+        Parameters
+        ----------
+        method: {'ml', 'mpl'}
+            This will determine the variance estimate
 
-        :return: ndarray
-            estimates for the copula
+        Returns
+        -------
+        ndarray
+            Estimated parameters for the copula
+
         """
 
         res = self._optimize()
@@ -73,10 +86,16 @@ class MaxLikelihoodEstimator:
         """
         Calculates the log likelihood after setting the new parameters (inserted from the optimizer) of the copula
 
-        :param param: numpy array
-            parameters of the copula
-        :return: float
-            negative log likelihood
+        Parameters
+        ----------
+        param: ndarray
+            Parameters of the copula
+
+        Returns
+        -------
+        float
+            Negative log likelihood of the copula
+
         """
         try:
             self.copula.params = param

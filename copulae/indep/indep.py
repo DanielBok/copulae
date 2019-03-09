@@ -10,6 +10,19 @@ from copulae.utility import reshape_data
 
 class IndepCopula(BaseCopula):
     def __init__(self, dim=2):
+        """
+        The Independence copula is the copula that results from a dependency structure in which each individual
+        variable is independent of each other. It has no parameters and is defined as
+
+        .. math::
+
+            C(u_1, \dots, u_d) = \prod_i u_i
+
+        Parameters
+        ----------
+        dim: int, optional
+            The dimension of the copula
+        """
         super().__init__(dim, 'Independence')
         self.fit_stats = 'Unavailable'
 

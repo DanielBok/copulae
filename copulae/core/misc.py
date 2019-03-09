@@ -1,10 +1,12 @@
+import warnings
+
 import numpy as np
 from scipy import stats
-import warnings
 
 __all__ = ['create_cov_matrix', 'EPS', 'valid_rows_in_u', 'pseudo_obs', 'rank_data', 'tri_indices']
 
-EPS = 6.06e-6
+EPS = np.finfo('float').eps
+"""Machine Epsilon"""
 
 
 def create_cov_matrix(params: np.ndarray):
@@ -13,12 +15,16 @@ def create_cov_matrix(params: np.ndarray):
 
     Useful for elliptical copulae where we translate the rhos to the covariance matrix
 
-    :param params: numpy array, 1d
-        Vector of parameters
-    :return: numpy array, 2d
-        Square matrix where the upper and lower triangles are the parameters and the diagonal is a vector of 1
-    """
+    Parameters
+    ----------
+    params: array like
+        (1, N) vector of parameters
 
+    Returns
+    -------
+    ndarray
+        (N x N) matrix where the upper and lower triangles are the parameters and the diagonal is a vector of 1
+    """
     c = len(params)
     d = int(1 + (1 + 4 * 2 * c) ** 0.5) // 2  # dimension of matrix, determine this from the length of params
 
@@ -31,15 +37,18 @@ def pseudo_obs(data: np.ndarray, ties='average'):
     """
     Compute the pseudo-observations for the given data matrix
 
-    :param data: numpy array
-        n x d-matrix (or d-vector) of random variates to be converted to pseudo-observations
+    Parameters
+    ----------
+    data: (N, D) ndarray
+        Random variates to be converted to pseudo-observations
 
-    :param ties: str
-        string specifying how ranks should be computed if there are ties in any of the coordinate samples
-        The options are 'average', 'min', 'max', 'dense' and 'ordinal'. Passed to scipy.stats.rankdata
+    ties: { 'average', 'min', 'max', 'dense', 'ordinal' }, optional
+        String specifying how ranks should be computed if there are ties in any of the coordinate samples
 
-    :return: numpy array
-        matrix or vector of the same dimension as X containing the pseudo observations
+    Returns
+    -------
+    ndarray
+        matrix or vector of the same dimension as `data` containing the pseudo observations
     """
     return rank_data(data, 1, ties) / (len(data) + 1)
 
@@ -48,8 +57,24 @@ def rank_data(obs: np.ndarray, axis=0, ties='average'):
     """
     Assign ranks to data, dealing with ties appropriately. This function works on core as well as vectors
 
+    Parameters
+    ----------
+    obs: ndarray
+        Data to be ranked. Can only be 1 or 2 dimensional.
+    axis: {0, 1}, optional
+        The axis to perform the ranking. 0 means row, 1 means column.
+    ties
+
+    Returns
+    -------
+
+    """
+
+    """
+    
+
     :param obs: numpy array
-        n x d-matrix (or d-vector) of random variates to be converted to pseudo-observations
+        
 
     :param axis: int, default 0
         The axis to perform the ranking. 0 means row, 1 means column.
