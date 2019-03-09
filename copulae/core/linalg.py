@@ -85,6 +85,17 @@ def is_psd(M: np.ndarray, strict=False, tol=1e-8) -> bool:
     if isinstance(M, (int, float)):
         return M >= 0
 
+    strict: bool
+        If True, tests for posotive definiteness
+
+    tol: float
+        Numeric tolerance to check for equality
+
+    Returns
+    -------
+    bool
+        True if matrix is positive (semi-)definite, else False
+    """
     M = np.asarray(M)
     if not is_symmetric(M, tol):
         return False

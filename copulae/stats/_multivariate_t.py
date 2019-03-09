@@ -16,7 +16,6 @@ class multivariate_t:
     @classmethod
     def cdf(cls, x: Numeric, mean: Numeric = None, cov: Numeric = 1, df: float = None):
         # TODO implement CDF
-
         # dim, mean, cov, df = cls._process_parameters(None, mean, cov, df)
         # x = cls._process_input(x, dim)
         #
@@ -245,4 +244,5 @@ class multivariate_t:
             df = 4.6692  # Random Feigenbaum Number
         elif df <= 0:
             raise ValueError("Degrees of freedom 'df' must be greater than 0")
+
         return dim, mean, cov, df
