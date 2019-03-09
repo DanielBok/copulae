@@ -1,5 +1,5 @@
-import pickle
 import os
+import pickle
 from os.path import join as pjoin, dirname, exists
 from typing import Optional, Iterable, Callable
 
@@ -33,7 +33,9 @@ class _Ext:
         """
         Loads the meta data in the pickle file
 
-        :return: dict
+        Returns
+        -------
+        dict
             dictionary containing the meta data
         """
         if not self.file_exists:
@@ -45,9 +47,14 @@ class _Ext:
         """
         Returns the function stored in the meta data file.
 
-        :param func_name: str
-            function name
-        :return: Callable
+        Parameters
+        ----------
+        func_name: str
+            Function name
+
+        Returns
+        -------
+        callable
         """
         return self._meta_data[func_name]
 
@@ -55,9 +62,12 @@ class _Ext:
         """
         Saves the meta data (callable object) into the data pickle file
 
-        :param func_name: str
-            name of the meta data function name
-        :param func: callable
+        Parameters
+        ----------
+        func_name: str
+            Name of the meta data function name
+
+        func: callable
             The callable function
         """
         func_dict = self._load_func_dict()
@@ -87,22 +97,34 @@ class _Ext:
         what we do is generate a set of these values first, fit a spline and henceforth, interpolate the
         new values given
 
-        :param theta_grid: ndarray
-            original parameter grid
-        :param method: str
-            whether to use kendall tau or spearman rho for correlation calculation
-        :param param_known: float iterable
-            known parameters for copula
-        :param values_known: float iterable
-            known values given parameters for copula
-        :param symmetrize: bool, default True
-            if True, will make parameter grid symmetric
-        :param df: int, default 5
+        Parameters
+        ----------
+        theta_grid: ndarray
+            Parameter grid
+
+        method: { 'kendall', 'spearman' }
+            Method for calculating correlation
+
+        param_known: iterable float
+            Known parameters for copula
+
+        values_known: iterable float
+            Known values given the respective element in `param_known` for copula. Essentially, this is a map from
+            `param_known` to `values_known`
+
+        symmetrize: bool
+            If True, will make parameter grid symmetric
+
+        df: int in {1, 2, 3, 4, 5}
             degree of freedom for smoothing spline. 1 <= df <= 5
-        :param s: float, default 1.1
+
+        s: float
             smoothing constant for spline
 
-        :return: Univariate Spline Model
+        Returns
+        -------
+        UnivariateSpline
+             Univariate Spline Model
         """
 
         method = method.lower()

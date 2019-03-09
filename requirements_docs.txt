@@ -1,4 +1,3 @@
-guzzle-sphinx-theme==0.7.11
-nbsphinx==0.4.2
 Sphinx==1.8.4
+sphinx-rtd-theme==0.4.2
 sphinxcontrib-websupport==1.1.0

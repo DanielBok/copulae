@@ -11,19 +11,37 @@ from .abstract import AbstractEllipticalCopula
 
 class GaussianCopula(AbstractEllipticalCopula):
     """
-    The Gaussian (Normal) Copula. It is elliptical and symmetric which gives it nice analytical properties. The
-    Gaussian Copula is fully determined by its correlation matrix.
+    The Gaussian (Normal) copula. It is elliptical and symmetric which gives it nice analytical properties. The
+    Gaussian copula is determined entirely by its correlation matrix.
 
-    Gaussian Copulas do not model tail dependencies very well, it's tail is flat. Take not that by symmetry,
+    Gaussian copulas do not model tail dependencies very well, it's tail is flat. Take not that by symmetry,
     it gives equal weight to tail scenarios. In English, this means upside scenarios happen as often as downside
     scenarios.
+
+    A Gaussian copula is fined as
+
+    .. math::
+
+        C_\Sigma (u_1, \dots, u_d) = \Phi_\Sigma (N^{-1} (u_1), \dots, N^{-1} (u_d))
+
+    where :math:`\Sigma` is the covariance matrix which is the parameter of the Gaussian copula and
+    :math:`N^{-1}` is the quantile (inverse cdf) function
     """
 
     def __init__(self, dim=2):
+        """
+        Creates a Gaussian copula instance
+
+        Parameters
+        ----------
+        dim: int, optional
+            Dimension of the copula
+        """
+
         super().__init__(dim, "Gaussian")
         n = sum(range(dim))
         self._rhos = np.zeros(n)
-        self.params_bounds = np.repeat(-1., n), np.repeat(1., n)
+        self._bounds = np.repeat(-1., n), np.repeat(1., n)
 
     @reshape_data
     def cdf(self, x: np.ndarray, log=False):
@@ -40,17 +58,24 @@ class GaussianCopula(AbstractEllipticalCopula):
 
     @property
     def params(self):
+        """
+        The covariance parameters for the Gaussian copula
+
+        Parameters
+        ----------
+        params: float or numpy array
+            Covariance parameters. If it is a single float number, function will broadcast it to an array of similar
+            length as the rhos
+
+        Returns
+        -------
+        ndarray
+            Correlation matrix of the Gaussian copula
+        """
         return self._rhos
 
     @params.setter
     def params(self, params: Union[float, np.ndarray, list]):
-        """
-        Sets the covariance parameters for the copulae
-
-        :param params: float, numpy array
-            Covariance parameters. If it is a single float number, function will broadcast it to an array of similar
-            length as the rhos
-        """
         if isinstance(params, (float, int)):
             params = np.repeat(params, len(self._rhos))
         self._rhos = np.asarray(params)

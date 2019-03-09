@@ -3,15 +3,22 @@ from typing import Tuple
 import numpy as np
 from scipy import stats
 
-from copulae.utility import format_docstring
-
 __all__ = ['corr', 'kendall_tau', 'pearson_rho', 'spearman_rho']
 
-__corr_doc__ = """
+
+def format_docstring(notes):
+    def decorator(func):
+        func.__doc__ = func.__doc__ % notes
+        return func
+
+    return decorator
+
+
+__notes__ = """
     If x and y are vectors, calculates the correlation between the 2 vectors. If x is a matrix, calculates the
     correlation between every 2 columns. 3 types of correlation are supported: Pearson, Kendall and Spearman.
 
-    'use' determines how missing values are handled. 'everything' will propagate NA values resultinng in NA for the
+    'use' determines how missing values are handled. 'everything' will propagate NA values resulting in NA for the
     correlation. 'complete' will remove rows where NA exists. 'pairwise.complete' will remove rows for the pairwise 
     columns being compared where NA exists.
     
@@ -50,25 +57,35 @@ __corr_doc__ = """
 """.strip()
 
 
-@format_docstring(corr_doc=__corr_doc__)
+@format_docstring(__notes__)
 def corr(x: np.ndarray, y: np.ndarray = None, method='pearson', use='everything'):
     """
     Calculates the correlation
 
-    {corr_doc}
+    Parameters
+    ----------
+    x: ndarray
+        Numeric vector to compute correlation. If matrix, `y` can be omitted and correlation will be calculated
+        amongst the different columns
 
-    :param x: numpy array
-        A numeric vector, matrix
-    :param y: optional, numpy array
-        A numeric vector, matrix. Optional
-    :param method: str
-        One of 'pearson' (default), 'spearman' or 'kendall'
-    :param use: str
-        One of 'everything' (default), 'complete', 'pairwise.complete'
-    :return: numpy array
+    y: ndarray, optional
+        Numeric vector to compute correlation against `x`
+
+    method: {'pearson', 'spearman', 'kendall'}, optional
+        The method for calculating correlation
+
+    use: {'everything', 'complete', 'pairwise.complete'}
+        The method to handle missing data
+
+    Returns
+    -------
+    ndarray
         Correlation matrix
-    """
 
+    Notes
+    -----
+    %s
+    """
     use = _validate_use(use)
     corr_func = _get_corr_func(method)
 
@@ -87,71 +104,106 @@ def corr(x: np.ndarray, y: np.ndarray = None, method='pearson', use='everything'
     return c
 
 
-@format_docstring(corr_doc=__corr_doc__)
+@format_docstring(__notes__)
 def pearson_rho(x: np.ndarray, y: np.ndarray = None, use='everything'):
     """
     Calculates the Pearson correlation
 
-    {corr_doc}
+    Parameters
+    ----------
+    x: ndarray
+        Numeric vector to compute correlation. If matrix, `y` can be omitted and correlation will be calculated
+        amongst the different columns
 
-    :param x: numpy array
-        A numeric vector, matrix
-    :param y: optional, numpy array
-        A numeric vector, matrix. Optional
-    :param use: str
-        One of 'everything' (default), 'complete', 'pairwise.complete'
-    :return: numpy array
-        Pearson Correlation matrix
+    y: ndarray, optional
+        Numeric vector to compute correlation against `x`
+
+    use: {'everything', 'complete', 'pairwise.complete'}
+        The method to handle missing data
+
+    Returns
+    -------
+    ndarray
+        Correlation matrix
+
+    Notes
+    -----
+    %s
     """
     return corr(x, y, 'pearson', use)
 
 
-@format_docstring(corr_doc=__corr_doc__)
+@format_docstring(__notes__)
 def kendall_tau(x: np.ndarray, y: np.ndarray = None, use='everything'):
     """
-    Calculates the Kendall Tau correlation
+    Calculates the Kendall's Tau correlation
 
-    {corr_doc}
+    Parameters
+    ----------
+    x: ndarray
+        Numeric vector to compute correlation. If matrix, `y` can be omitted and correlation will be calculated
+        amongst the different columns
 
-    :param x: numpy array
-        A numeric vector, matrix
-    :param y: optional, numpy array
-        A numeric vector, matrix. Optional
-    :param use: str
-        One of 'everything' (default), 'complete', 'pairwise.complete'
-    :return: numpy array
-        Kendall Tau Correlation matrix
+    y: ndarray, optional
+        Numeric vector to compute correlation against `x`
+
+    use: {'everything', 'complete', 'pairwise.complete'}
+        The method to handle missing data
+
+    Returns
+    -------
+    ndarray
+        Correlation matrix
+
+    Notes
+    -----
+    %s
     """
     return corr(x, y, 'kendall', use)
 
 
-@format_docstring(corr_doc=__corr_doc__)
+@format_docstring(__notes__)
 def spearman_rho(x: np.ndarray, y: np.ndarray = None, use='everything'):
     """
-    Calculates the Spearman Rho correlation
+    Calculates the Spearman's Rho correlation
 
-    {corr_doc}
+    Parameters
+    ----------
+    x: ndarray
+        Numeric vector to compute correlation. If matrix, `y` can be omitted and correlation will be calculated
+        amongst the different columns
 
-    :param x: numpy array
-        A numeric vector, matrix
-    :param y: optional, numpy array
-        A numeric vector, matrix. Optional
-    :param use: str
-        One of 'everything' (default), 'complete', 'pairwise.complete'
-    :return: numpy array
-        Spearman Rho Correlation matrix
+    y: ndarray, optional
+        Numeric vector to compute correlation against `x`
+
+    use: {'everything', 'complete', 'pairwise.complete'}
+        The method to handle missing data
+
+    Returns
+    -------
+    ndarray
+        Correlation matrix
+
+    Notes
+    -----
+    %s
     """
     return corr(x, y, 'spearman', use)
 
 
 def _get_corr_func(method: str):
     """
-    Returns the correlation
+    Determines the correlation function
 
-    :param method: str
-        correlation function name
-    :return: callable
-        A correlation function
+    Parameters
+    ----------
+    method: str
+        Correlation function name
+
+    Returns
+    -------
+    Callable
+        The correlation function
     """
 
     method = method.lower()
@@ -169,9 +221,7 @@ def _get_corr_func(method: str):
 
 
 def _validate_use(use: str):
-    """
-    Validates the 'use' argument. If invalid, raises an error
-    """
+    """Validates the 'use' argument. If invalid, raises an error"""
     use = use.lower()
     valid_use_keywords = {'everything', 'pairwise.complete', 'complete'}
 
@@ -208,17 +258,25 @@ def _yield_vectors(x: np.ndarray, use: str):
 
 def _form_xy_vector(x: np.ndarray, y: np.ndarray, use: str) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Yields valid data vectors based on the 'use' argument
+    Yields valid data vectors based on the `use` argument
 
-    :param x: ndarray
-        data vector
-    :param y: ndarray
-        data vector
-    :param use: str
-        determines how missing values are handled. 'everything' will propagate NA values resultinng in NA for the
-        correlation. 'complete' will remove rows where NA exists. 'pairwise.complete' will remove rows for the pairwise
+    Parameters
+    ----------
+    x: ndarray
+        Numeric vector to compute correlation. If matrix, `y` can be omitted and correlation will be calculated
+        amongst the different columns
+
+    y: ndarray, optional
+        Numeric vector to compute correlation against `x`
+
+    use: {'everything', 'complete', 'pairwise.complete'}
+        The method to handle missing data. 'everything' will propagate NA values resultinng in NA for the correlation.
+        'complete' will remove rows where NA exists. 'pairwise.complete' will remove rows for the pairwise
         columns being compared where NA exists.
-    :return: Tuple[ndarray, ndarray]
+
+    Returns
+    -------
+    Tuple[ndarray, ndarray]
         2 column vectors
     """
     if x.ndim != 1 or y.ndim != 1:

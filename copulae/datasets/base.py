@@ -9,9 +9,11 @@ __module_path__ = os.path.dirname(__file__)
 
 def load_residuals() -> pd.DataFrame:
     """
-    A 394 x 7 simulated residuals from an unknown process.
+    Loads a 394 x 7 array of regression residuals from unknown processes
 
-    :return: DataFrame
+    Returns
+    -------
+    DataFrame
         A data frame of simulated regression residuals
     """
 

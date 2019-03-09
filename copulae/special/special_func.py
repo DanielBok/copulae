@@ -11,6 +11,25 @@ def polyn_eval(coef: Numeric, x: Numeric) -> Union[float, np.ndarray]:
     """
     Polynomial evaluation via Horner scheme
 
+    Evaluate a univariate polynomial at `x` (typically a vector). For a given vector of coefficients <coef>,
+    the polynomial :math:`c_1 + c_2x + \dots + c_{p+1}x^p`
+
+    Parameters
+    ----------
+    coef: numeric vector or scalar
+        Coefficients
+
+    x: numeric vector or scalar
+        Evaluation points
+
+    Returns
+    -------
+    {float, ndarray}
+        numeric vector or scalar, with the same dimensions as x, containing the polynomial values
+    """
+    """
+    Polynomial evaluation via Horner scheme
+
     Evaluate a univariate polynomial at x (typically a vector). For a given vector of coefficients <coef>,
     the polynomial coef[1] + coef[2]*x + ... + coef[p+1]*x^p.
 
@@ -19,7 +38,7 @@ def polyn_eval(coef: Numeric, x: Numeric) -> Union[float, np.ndarray]:
     :param x: numeric vector or scalar
         evaluation point
     :return: numeric vector or scalar
-        numeric vector or scalar, with the same dimensions as x, containing the polynomial values
+        
     """
     if isinstance(coef, (float, int)):
         coef = [coef]
@@ -46,13 +65,20 @@ def sign_ff(alpha: float, j: Union[Iterable[int], int], d: Union[Iterable[int], 
     """
     The sign of choose(alpha*j,d)*(-1)^(d-j)
 
-    :param alpha: float
-        parameter in (0, 1]
-    :param j: int
+    Parameters
+    ----------
+    alpha: float
+        Parameter in (0, 1]
+
+    j: int
         integer in [0, d]
-    :param d: int
-        integer scalar >= 0
-    :return: ndarray, int
+
+    d: int
+        integer >= 0
+
+    Returns
+    -------
+    ndarray
         signs
     """
     if not (0 < alpha <= 1):
@@ -91,12 +117,17 @@ def stirling_first(n: int, k: int):
     """
     Computes Stirling number of the first kind
 
-    :param n: int
-        If non-integer passed in, will attempt to cast as integer
-    :param k: int
-        If non-integer passed in, will attempt to cast as integer
+    Parameters
+    ----------
+    n: int
+        Numeric. If non-integer passed in, will attempt to cast as integer
 
-    :return: int
+    k: int
+        Numeric. If non-integer passed in, will attempt to cast as integer
+
+    Returns
+    -------
+    int
         Stirling number of the first kind
     """
     try:
@@ -124,12 +155,18 @@ def stirling_first(n: int, k: int):
 
 def stirling_first_all(n: int):
     """
-    Computes all the Stirling number of the first kind for a given <n>
+    Computes all the Stirling number of the first kind for a given `n`
 
-    :param n: int
-        If non-integer passed in, will attempt to cast as integer
-    :return: List[int]
+    Parameters
+    ----------
+    n: int
+        Numeric. If non-integer passed in, will attempt to cast as integer
+
+    Returns
+    -------
+    List[int]
         a list of all the Stirling number of the first kind
+
     """
     return [stirling_first(n, k + 1) for k in range(n)]
 
@@ -138,13 +175,18 @@ def stirling_second(n: int, k: int):
     """
     Computes Stirling number of the second kind
 
-    :param n: int
-        If non-integer passed in, will attempt to cast as integer
-    :param k: int
-        If non-integer passed in, will attempt to cast as integer
+    Parameters
+    ----------
+    n: int
+        Numeric. If non-integer passed in, will attempt to cast as integer
 
-    :return: int
-        Stirling number of the first kind
+    k: int
+        Numeric. If non-integer passed in, will attempt to cast as integer
+
+    Returns
+    -------
+    int
+        Stirling number of the second kind
     """
     try:
         k, n = int(k), int(n)
@@ -171,11 +213,17 @@ def stirling_second(n: int, k: int):
 
 def stirling_second_all(n: int):
     """
-   Computes all the Stirling number of the second kind for a given <n>
+    Computes all the Stirling number of the second kind for a given `n`
 
-   :param n: int
-        If non-integer passed in, will attempt to cast as integer
-   :return: List[int]
+    Parameters
+    ----------
+    n: int
+        Numeric. If non-integer passed in, will attempt to cast as integer
+
+    Returns
+    -------
+    List[int]
         a list of all the Stirling number of the second kind
-   """
+
+    """
     return [stirling_second(n, k + 1) for k in range(n)]

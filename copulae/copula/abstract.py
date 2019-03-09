@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 import numpy as np
 
-from copulae.types import Array
+from copulae.types import Array, Numeric
 
 
 class AbstractCopula(ABC):
@@ -13,7 +13,7 @@ class AbstractCopula(ABC):
         self.dim = dim
         self.name = name
         self.fit_stats: FitStats = None
-        self._bounds: Tuple[np.ndarray, np.ndarray] = ()
+        self._bounds: Tuple[Numeric, Numeric] = (0.0, 0.0)
 
         if dim < 1 or int(dim) != dim:
             raise ValueError("Copula dimension must be an integer greater than 1.")
@@ -22,30 +22,8 @@ class AbstractCopula(ABC):
     def fit(self, data: np.ndarray, method='mpl', x0: np.ndarray = None, verbose=1, optim_options: dict = None):
         pass
 
-    @property
     @abstractmethod
-    def tau(self):
-        pass
-
-    @property
-    @abstractmethod
-    def rho(self):
-        pass
-
-    @abstractmethod
-    def lambda_(self):
-        pass
-
-    @abstractmethod
-    def itau(self, tau: Array):
-        pass
-
-    @abstractmethod
-    def irho(self, rho: Array):
-        pass
-
-    @abstractmethod
-    def dtau(self, x: Optional[np.ndarray]):
+    def cdf(self, x: Array, log=False) -> Union[float, np.ndarray]:
         pass
 
     @abstractmethod
@@ -53,16 +31,23 @@ class AbstractCopula(ABC):
         pass
 
     @abstractmethod
-    def cdf(self, x: Array, log=False) -> np.ndarray:
+    def dtau(self, x: Optional[np.ndarray]):
         pass
 
     @abstractmethod
-    def pdf(self, x: Array, log=False) -> np.ndarray:
+    def irho(self, rho: Array):
         pass
 
-    @staticmethod
     @abstractmethod
-    def pobs(data: Array, ties='average') -> np.ndarray:
+    def itau(self, tau: Array):
+        pass
+
+    @abstractmethod
+    def lambda_(self):
+        pass
+
+    @abstractmethod
+    def log_lik(self, data: Array) -> float:
         pass
 
     @property
@@ -85,15 +70,30 @@ class AbstractCopula(ABC):
         pass
 
     @abstractmethod
-    def log_lik(self, data: Array) -> float:
+    def pdf(self, x: Array, log=False) -> Union[float, np.ndarray]:
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def pobs(data: Array, ties='average') -> np.ndarray:
         pass
 
     @abstractmethod
     def random(self, n: int, seed: int = None):
         pass
 
+    @property
+    @abstractmethod
+    def rho(self):
+        pass
+
     @abstractmethod
     def summary(self):
+        pass
+
+    @property
+    @abstractmethod
+    def tau(self):
         pass
 
 
@@ -105,16 +105,22 @@ class FitStats:
     ----------
     params: named tuple, numpy array
         parameters of the copula after fitting
+
     var_est: numpy array
         estimate of the variance
+
     method: str
         method used to fit the copula
+
     log_lik: float
         log likelihood value of the copula after fitting
+
     nsample: int
         number of data points used to fit copula
+
     setup: dict
         optimizer set up options
+
     results: dict
         optimization results
     """

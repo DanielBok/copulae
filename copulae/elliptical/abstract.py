@@ -17,6 +17,19 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
         super().__init__(dim, name)
         self._rhos = np.zeros(sum(range(dim)))
 
+    def drho(self, x: Optional[np.ndarray] = None):
+        if x is None:
+            x = self._rhos
+        return 6 / (np.pi * np.sqrt(4 - x ** 2))
+
+    def dtau(self, x: Optional[np.ndarray] = None):
+        if x is None:
+            x = self._rhos
+        return 2 / (np.pi * np.sqrt(1 - x ** 2))
+
+    def itau(self, tau: Array):
+        return np.sin(np.asarray(tau) * np.pi / 2)
+
     def log_lik(self, data: np.ndarray):
         if not is_psd(self.sigma):
             return -np.inf
@@ -25,6 +38,10 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
             return -np.inf
 
         return super().log_lik(data)
+
+    @property
+    def rho(self):
+        return np.arcsin(self._rhos / 2) * 6 / np.pi
 
     @property
     def sigma(self):
@@ -39,23 +56,6 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
     @property
     def tau(self):
         return 2 * np.arcsin(self._rhos) / np.pi
-
-    @property
-    def rho(self):
-        return np.arcsin(self._rhos / 2) * 6 / np.pi
-
-    def drho(self, x: Optional[np.ndarray] = None):
-        if x is None:
-            x = self._rhos
-        return 6 / (np.pi * np.sqrt(4 - x ** 2))
-
-    def dtau(self, x: Optional[np.ndarray] = None):
-        if x is None:
-            x = self._rhos
-        return 2 / (np.pi * np.sqrt(1 - x ** 2))
-
-    def itau(self, tau: Array):
-        return np.sin(tau * np.pi / 2)
 
     def __getitem__(self, i):
         if isinstance(i, int):

@@ -7,22 +7,30 @@ def dsum_sibuya(x, n, alpha: float, method='log', log=False):
     """
     Inner probability mass function for a nested Joe copula, i.e. a Sibuya sum
 
-    Also used in gumbel_coef and gumbel_poly for Gumbel's copula.
+    Also used in gumbel_coef and gumbel_poly for Gumbel's copula. Methods must be one of log, direct, diff.
 
-    Methods must be one of log, direct, rmpfr, diff ,exp.log. "log"
+    Parameters
+    ----------
+    x: iterable of int
+        Vector of integer values ("quantiles") `x` at which to compute the probability mass or cumulative probability.
 
-    :param x: Iterable int
-        vector of integer values (“quantiles”) x at which to compute the probability mass or cumulative probability.
-    :param n: int
-        the number n of summands
-    :param alpha: float
-        parameter in (0, 1]
-    :param method: str, default 'log'
-        string specifying computation method. One of log, direct, diff
-    :param log: boolean, default False
+    n: ndarray
+        The number of summands
+
+    alpha: float
+        Parameter in (0, 1]
+
+    method: { 'log', 'direct', 'diff' }, optional
+        String specifying computation method. One of 'log', 'direct', 'diff'
+
+    log: bool, optional
         If True, the logarithm of the result is returned
-    :return:
-        a vector of probabilities, positive if and only if x >= n and of the same length as x (or n if that is longer).
+
+    Returns
+    -------
+    ndarray
+         Vector of probabilities, positive if and only if `x` ≥ `n` and of the same length as `x`
+         (or `n` if that is longer).
     """
 
     try:

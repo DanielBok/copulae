@@ -2,7 +2,7 @@ from functools import wraps
 
 import numpy as np
 
-__all__ = ['merge_dict', 'merge_dicts', 'format_docstring', 'reshape_data', 'reshape_output']
+__all__ = ['merge_dict', 'merge_dicts', 'reshape_data', 'reshape_output']
 
 
 def merge_dict(a: dict, b: dict) -> dict:
@@ -12,14 +12,19 @@ def merge_dict(a: dict, b: dict) -> dict:
     If the parent and child shares a similar key and the value of that key is a dictionary, the key will be recursively
     merged. Otherwise, the child value will override the parent value.
 
-    :param a: dict
-        parent dictionary
-    :param b: dict
-        child dictionary
-    :return: dict
-        merged dictionary
-    """
+    Parameters
+    ----------
+    a dict:
+        Parent dictionary
 
+    b dict:
+        Child dictionary
+
+    Returns
+    -------
+    dict
+        Merged dictionary
+    """
     for key in b:
         if key in a:
             if isinstance(a[key], dict) and isinstance(b[key], dict):
@@ -35,6 +40,24 @@ def merge_dicts(*dicts: dict) -> dict:
     """
     Merge multiple dictionaries recursively
 
+    Internally, it calls :code:`merge_dict` recursively.
+
+    Parameters
+    ----------
+    dicts
+        a list of dictionaries
+
+    Returns
+    -------
+    dict
+        Merged dictionary
+
+    See Also
+    --------
+    :code:`merge_dict`: merge 2 dictionaries
+    """
+    """
+    
     :param dicts: List[Dict]
         a list of dictionaries
     :return: dict
@@ -48,14 +71,6 @@ def merge_dicts(*dicts: dict) -> dict:
     for b in dicts:
         a = merge_dict(a, b)
     return a
-
-
-def format_docstring(*args, **kwargs):
-    def decorator(func):
-        func.__doc__ = func.__doc__.format(*args, **kwargs)
-        return func
-
-    return decorator
 
 
 def reshape_data(func):

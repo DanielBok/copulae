@@ -25,7 +25,8 @@ The implementation of the Gaussian (Normal) copula is such that all the univaria
 
 
 .. autoclass:: GaussianCopula
-   :inherited-members:
+    :members:
+    :inherited-members:
 
 
 Student
@@ -36,4 +37,5 @@ The implementation of the Student (T) copula is such that all the univariate mar
 Note that the degrees-of-freedom parameter is shared by all univariate margins as well as the joint multivariate distribution
 
 .. autoclass:: StudentCopula
-   :inherited-members:
+    :members:
+    :inherited-members:

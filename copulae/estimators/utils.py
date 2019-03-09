@@ -25,14 +25,20 @@ def fit_cor(copula: Copula, data: np.ndarray, typ: str) -> np.ndarray:
     """
     Constructs parameter matrix from matrix of Kendall's Taus or Spearman's Rho
 
-    :param copula: copula
-        a copula instance
-    :param data: ndarray
-        data to fit copula with
-    :param typ: str
-      The rank correlation measure. Must be one of 'itau', 'irho
-    :return: ndarray
-        d(d-1) / 2 parameter vector where d is dimension of the copula
+    Parameters
+    ----------
+    copula: AbstractCopula
+        Copula instance
+
+    data: ndarray
+        Data to fit copula with
+    typ: {'irho', 'itau'}
+        The type of rank correlation measure to use. 'itau' uses Kendall's tau while 'irho' uses Spearman's rho
+
+    Returns
+    -------
+    ndarray
+        Parameter matrix is copula is elliptical. Otherwise, a vector
     """
 
     indices = tri_indices(copula.dim, 1, 'lower')

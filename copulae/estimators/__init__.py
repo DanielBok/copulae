@@ -1,1 +1,1 @@
-from .estimator import CopulaEstimator, __estimator_params_docs__
+from .estimator import CopulaEstimator
