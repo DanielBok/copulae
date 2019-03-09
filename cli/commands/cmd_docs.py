@@ -18,7 +18,7 @@ def build():
 @cli.command()
 def deps():
     """Builds dependency file for read the docs to install"""
-    file = 'docs_requirements.txt'
+    file = 'requirements_docs.txt'
     echo("Building", style(file, 'green'))
 
     dependencies = shell_run('pip freeze').splitlines()

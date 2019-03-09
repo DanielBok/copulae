@@ -15,8 +15,6 @@
 import os
 import sys
 
-import guzzle_sphinx_theme
-
 sys.path.insert(0, os.path.abspath('../../copulae'))
 
 # -- Project information -----------------------------------------------------
@@ -40,7 +38,6 @@ release = '0.0.1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'guzzle_sphinx_theme',
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
     'sphinx.ext.doctest',
@@ -81,26 +78,27 @@ pygments_style = 'default'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-
-html_theme_path = guzzle_sphinx_theme.html_theme_path()
-html_theme = 'guzzle_sphinx_theme'
+html_theme = 'sphinx_rtd_theme'
+html_theme_path = ["_themes", ]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 
 html_theme_options = {
-    # Set the name of the project to appear in the sidebar
-    "project_nav_name": "Copulae",
-
-    # Visible levels of the global TOC; -1 means unlimited
-    "globaltoc_depth": 3,
-
-    # If False, expand all TOC entries
-    "globaltoc_collapse": True,
-
-    # If True, show hidden TOC entries
-    "globaltoc_includehidden": False,
+    'canonical_url': '',
+    'logo_only': False,
+    'display_version': True,
+    'prev_next_buttons_location': 'bottom',
+    'style_external_links': False,
+    # 'vcs_pageview_mode': '',
+    # 'style_nav_header_background': 'white',
+    # Toc options
+    'collapse_navigation': True,
+    'sticky_navigation': True,
+    'navigation_depth': 4,
+    'includehidden': True,
+    'titles_only': False
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
