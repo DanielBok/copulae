@@ -3,6 +3,7 @@ import subprocess
 from typing import Union
 
 import click
+import sys
 
 __all__ = ['ROOT', 'echo', 'shell_run', 'style', 'write_file']
 
@@ -27,12 +28,24 @@ def echo(*msg: str, sep=' ', file=None, nl=True, err=False, color=None):
     click.echo(message, file, nl, err, color)
 
 
-def shell_run(*args, cwd: Union[str, pathlib.Path] = None, shell=True) -> str:
+def shell_run(*args, cwd: Union[str, pathlib.Path] = None, shell=True, tty=False) -> str:
     if cwd is None:
         cwd = ROOT.as_posix()
     elif isinstance(cwd, pathlib.Path):
         cwd = cwd.as_posix()
-    return subprocess.check_output(' '.join(str(a) for a in args), cwd=cwd, shell=shell).decode('utf-8')
+
+    cmd = ' '.join(str(a) for a in args)
+
+    if tty:
+        pipe = subprocess.PIPE
+        proc = subprocess.Popen(cmd, stdout=pipe, stderr=pipe, stdin=sys.stdin, cwd=cwd, shell=True, bufsize=1)
+        for line in iter(proc.stdout.readline, b''):
+            echo(line.decode('utf8'))
+        proc.stdout.close()
+        proc.wait()
+        return ''
+    else:
+        return subprocess.check_output(cmd, cwd=cwd, shell=shell).decode('utf-8')
 
 
 def style(text, fg=None, bg=None, bold=None, dim=None, underline=None,

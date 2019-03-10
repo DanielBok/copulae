@@ -1,8 +1,8 @@
 OUTPUT_DIR := dist
 
-.PHONY: build build-all cli dist docs test
+.PHONY: build build-all cli dist test
 
-all: bdist
+all: dist
 
 
 build:
@@ -33,12 +33,6 @@ cli:
 dist:
 	python setup.py sdist
 	python setup.py bdist_wheel
-
-
-
-docs:
-	rm -rf docs/build
-	$(MAKE) -C docs html
 
 
 test:

@@ -26,8 +26,12 @@ pip install -U copulae
 
 Still working on the conda build. Please wait a while more!!  
 
+## Documentation
 
-## Usage
+The documentation is located at https://copulae.readthedocs.io/en/latest/. Please check it out. :)
+
+
+## Simple Usage
 
 ```python
 from copulae import NormalCopula
