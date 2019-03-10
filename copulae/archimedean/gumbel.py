@@ -117,9 +117,6 @@ class GumbelCopula(AbstractArchimedeanCopula):
         v = (-np.log(u)) ** self.params
         return np.log(v) if log else v
 
-    def lambda_(self):
-        return TailDep(0, 2 * 2 ** (1 / self.params))
-
     @reshape_output
     def itau(self, tau: Array):
         warning_message = "For the Gumbel copula, tau must be >= 0. Replacing negative values by 0."
@@ -136,6 +133,9 @@ class GumbelCopula(AbstractArchimedeanCopula):
                 tau = 0.0
 
         return 1 / (1 - tau)
+
+    def lambda_(self):
+        return TailDep(0, 2 * 2 ** (1 / self.params))
 
     @property
     def params(self):

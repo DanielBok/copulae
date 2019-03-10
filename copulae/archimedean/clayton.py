@@ -15,14 +15,18 @@ from .abstract import AbstractArchimedeanCopula
 
 
 class ClaytonCopula(AbstractArchimedeanCopula):
+    """
+    The Clayton copula is a copula that allows any specific non-zero level of (lower) tail dependency between
+    individual variables. It is an Archimedean copula and exchangeable. A Clayton copula is defined as
+
+    .. math::
+
+        C_\\theta (u_1, \dots, u_d) = \left(\sum_i^d (u_{i}^{-\\theta}) - d + 1 \\right)^{-1/\\theta}
+    """
+
     def __init__(self, theta=np.nan, dim=2):
         """
-        The Clayton copula is a copula that allows any specific non-zero level of (lower) tail dependency between
-        individual variables. It is an Archimedean copula and exchangeable. A Clayton copula is defined as
-
-        .. math::
-
-            C_\\theta (u_1, \dots, u_d) = \left(\sum_i^d (u_{i}^{-\\theta}) - d + 1 \\right)^{-1/\\theta}
+        Creates a Clayton copula instance
 
         Parameters
         ----------
@@ -37,10 +41,10 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         # TODO ADD BOUNDS
         self._bounds = (-1 + EPS, np.inf) if dim == 2 else (0, np.inf)
 
-    def A(self, w: Numeric):
+    def A(self, w: Numeric):  # pragma: no cover
         return NotImplemented
 
-    def dAdu(self, w: Numeric):
+    def dAdu(self, w: Numeric):  # pragma: no cover
         return NotImplemented
 
     @reshape_output
@@ -66,7 +70,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
 
         return s * a
 
-    def drho(self, x: OptNumeric = None):
+    def drho(self, x: OptNumeric = None):  # pragma: no cover
         # TODO Clayton: add rho derivative function
         # if x is None:
         #     x = self._theta
@@ -76,10 +80,10 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         return NotImplemented
 
     @reshape_output
-    def dtau(self, x: OptNumeric = None):
-        if x is None:
-            x = self._theta
-        return 2 / (x + 2) ** 2
+    def dtau(self, theta: OptNumeric = None):
+        if theta is None:
+            theta = self._theta
+        return 2 / (theta + 2) ** 2
 
     @reshape_output
     def ipsi(self, u: Array, log=False):
@@ -87,10 +91,9 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         v = np.sign(self._theta) * (u ** -self._theta - 1)
         return np.log(v) if log else v
 
-    def irho(self, rho: Numeric):
+    def irho(self, rho: Numeric):  # pragma: no cover
         # TODO Clayton: add inverse rho function
         return NotImplemented
-        # return self._ext.irho(rho)
 
     @reshape_output
     def itau(self, tau: Array):
@@ -123,10 +126,6 @@ class ClaytonCopula(AbstractArchimedeanCopula):
     def pdf(self, x: Array, log=False):
 
         n, d = x.shape
-        if d != self.dim:
-            raise ValueError("input array does not match copula's dimension")
-        elif d < 2:
-            raise ValueError("input array should at least be bivariate")
 
         theta = self.params
         ok = valid_rows_in_u(x)
@@ -191,7 +190,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
 
 
 # TODO Clayton: write extension
-class ClaytonExt(_Ext):
+class ClaytonExt(_Ext):  # pragma: no cover
     """
     Clayton Extension class is used to derive values that have no analytical solutions. The values are derived
     numerically and stored in an interpolation object that is called whenever we need to call those values

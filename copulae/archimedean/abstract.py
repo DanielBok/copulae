@@ -42,7 +42,7 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
 
         Parameters
         ----------
-        w: int or float or iterable of int or float
+        w: scalar or array like
             A numeric scalar or vector
 
         Returns
@@ -63,7 +63,7 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
 
         Parameters
         ----------
-        w: int or float or iterable of int or float
+        w: scalar or array like
             A numeric scalar or vector
 
         Returns
@@ -84,7 +84,7 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
 
         Parameters
         ----------
-        s: ndarray
+        s: array like
             Numerical vector at which the generator function is to be evaluated against
 
         Returns
@@ -103,7 +103,7 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
 
         Parameters
         ----------
-        u: ndarray
+        u: array like
             Numerical vector at which the inverse generator function is to be evaluated against
 
         log: bool, optional
@@ -117,13 +117,13 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def dipsi(self, u, degree=1, log=False):
+    def dipsi(self, u: Array, degree=1, log=False):
         """
         Derivative of the inverse of the generator function for Archimedean copulae
 
         Parameters
         ----------
-        u: ndarray
+        u: array like
             Numerical vector at which the derivative of the inverse generator function is to be evaluated against
 
         degree: int

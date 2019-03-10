@@ -37,6 +37,7 @@ Clayton
 .. autoclass:: ClaytonCopula
     :members:
     :inherited-members:
+    :exclude-members: A, dAdu
 
 
 Gumbel

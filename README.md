@@ -44,7 +44,7 @@ cop.random(10)  # simulate random number
 print(cop.params)  
 
 # overriding parameters
-cop.params = np.eye(8)  # in this case,  setting to independent Gaussian Copula
+cop[:] = np.eye(8)  # in this case,  setting to independent Gaussian Copula
 ```
 
 I'll work on the docs and other copulas as soon as I can!

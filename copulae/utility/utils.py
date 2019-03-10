@@ -107,8 +107,8 @@ def reshape_output(func):
     """
 
     @wraps(func)
-    def decorator(cls, x, *args, **kwargs):
-        x = np.asarray(x)
+    def decorator(cls, x=None, *args, **kwargs):
+        x = np.asarray(x) if x is not None else x
         res = np.asarray(func(cls, x, *args, **kwargs))
 
         if res.size == 1:
