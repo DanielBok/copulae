@@ -16,11 +16,13 @@ requirements = [
     'statsmodels >=0.9'
 ]
 
-setup_requirements = [
-    'pytest',
-    'pytest-cov',
-    'pandas',
-]
+extras_require = {
+    'dev': [
+        'pytest',
+        'pytest-cov',
+        'twine'
+    ]
+}
 
 
 def run_setup():
@@ -45,7 +47,7 @@ def run_setup():
             'Intended Audience :: Financial and Insurance Industry',
             'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
-            'License :: OSI Approved :: MIT',
+            'License :: OSI Approved :: MIT License',
             'Operating System :: MacOS :: MacOS X',
             'Operating System :: Microsoft :: Windows',
             'Operating System :: POSIX',
@@ -53,7 +55,7 @@ def run_setup():
             'Topic :: Scientific/Engineering',
         ],
         install_requires=requirements,
-        setup_requires=setup_requirements,
+        extras_require=extras_require,
         include_package_data=True,
         python_requires='>=3.6',
         zip_safe=False,

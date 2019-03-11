@@ -52,9 +52,10 @@ def upload(user, password, build_, clean_, verbose):
     elif build_:
         _build_package()
 
-    pypirc = Path.home().joinpath('.pypirc').read_text().splitlines()
+    pypirc = Path.home().joinpath('.pypirc')
+    config = pypirc.read_text().splitlines() if pypirc.exists() else []
     if user is None:
-        for line in pypirc:
+        for line in config:
             if line.lower().startswith('username'):
                 user = line.split()[-1].strip()
                 break
@@ -62,7 +63,7 @@ def upload(user, password, build_, clean_, verbose):
             user = click.prompt("Enter your username", default='DannieBee', type=str)
 
     if password is None:
-        for line in pypirc:
+        for line in config:
             if line.lower().startswith('password'):
                 password = line.split()[-1].strip()
                 break
