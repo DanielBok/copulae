@@ -23,5 +23,4 @@ setup(
         [console_scripts]
         copulae=cli.main:main
     """
-
 )

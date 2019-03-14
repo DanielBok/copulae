@@ -15,4 +15,8 @@ Copulae can be installed via pip from `PyPI <https://pypi.org/project/pandas>`_
 
     pip install copulae
 
-Support for conda will be added as soon as I can.
+Otherwise, install :code:`copulae` from conda forge via
+
+.. code-block:: bash
+
+    conda install -c conda-forge copulae

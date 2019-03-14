@@ -1,5 +1,6 @@
 import shutil
 from pathlib import Path
+from typing import Iterable
 
 import click
 
@@ -13,15 +14,16 @@ def cli():
 
 
 @cli.command()
-@click.option('--clean', 'clean_', is_flag=True, default=False, help='If enabled, removes all previous builds')
-def build(clean_):
+@click.option('--no-clean', 'no_clean', is_flag=True, default=False, help='If enabled, does not remove previous builds')
+@click.argument('dist', nargs=-1)
+def build(no_clean, dist):
     """Builds sdist and bdist wheel"""
-    if clean_:
+    if not no_clean:
         status = _remove_build_dir()
         if status != 0:
             return status
 
-    return _build_package()
+    return _build_package(dist)
 
 
 @cli.command()
@@ -36,21 +38,14 @@ def clean():
 @click.option('-p', '--password', 'password', default=None,
               help='PYPI password. Defaults to value in .pypirc if available')
 @click.option('-b', '--build', 'build_', is_flag=True, default=False, help='If enabled, rebuilds package')
-@click.option('--clean', 'clean_', is_flag=True, default=False, help='If enabled, removes all previous builds')
 @click.option('--verbose', 'verbose', is_flag=True, default=True, help='Verbose output')
-def upload(user, password, build_, clean_, verbose):
+def upload(user, password, build_, verbose):
     """Uploads built package to PYPI"""
     cmd = [f"twine upload"]
 
-    if clean_:
-        status = _remove_build_dir()
-        if status != 0:
-            return status
-
-        _build_package()  # cleaning automatically rebuilds package. If not there won't be any package to upload
-
-    elif build_:
-        _build_package()
+    if build_:
+        if _build_package() != 0:
+            return 1
 
     pypirc = Path.home().joinpath('.pypirc')
     config = pypirc.read_text().splitlines() if pypirc.exists() else []
@@ -82,8 +77,22 @@ def upload(user, password, build_, clean_, verbose):
     return 0
 
 
-def _build_package():
-    shell_run("make dist", tty=True)
+def _build_package(dist: Iterable[str] = ()):
+    dist = tuple(dist)
+    if len(dist) == 0:
+        dist = 'sdist', 'bdist'
+
+    count = 0
+    for d in dist:
+        d = d.lower()
+        if d in ('dist', 'sdist'):
+            shell_run("make dist", tty=True)
+            count += 1
+        elif d in ('bdist', 'dist-wheel'):
+            shell_run("make dist-wheel", tty=True)
+            count += 1
+
+    echo(f"Completed building {style(count, 'green')} distributions")
     return 0
 
 

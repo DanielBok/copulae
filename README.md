@@ -18,13 +18,18 @@ implemented are multivariate by default.
 
 ## Installing
 
-Install and update using [pip](https://pip.pypa.io/en/stable/quickstart/)
+Install and update using [pip](https://pip.pypa.io/en/stable/quickstart/) and on conda.
 
 ```bash
-pip install -U copulae
+# conda
+conda install -c conda-forge copulae 
+
 ```
 
-Still working on the conda build. Please wait a while more!!  
+```bash
+# PyPI
+pip install -U copulae
+```
 
 ## Documentation
 

@@ -1,5 +1,0 @@
-[run]
-omit =
-    */_version.py
-    */types.py
-    */__init__.py
