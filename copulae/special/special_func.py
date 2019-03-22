@@ -2,7 +2,42 @@ from typing import Iterable, Union
 
 import numpy as np
 
-__all__ = ['polyn_eval', 'sign_ff', 'stirling_first', 'stirling_first_all', 'stirling_second', 'stirling_second_all']
+__all__ = ['log1mexp', 'log1pexp', 'polyn_eval', 'sign_ff', 'stirling_first', 'stirling_first_all', 'stirling_second',
+           'stirling_second_all']
+
+
+def log1mexp(x):
+    r"""
+    Calculates log(1 - exp(-x))
+
+    Parameters
+    ----------
+    x: array_like
+        data
+
+    Returns
+    -------
+    array_like
+        Results of :math:`\log(1 - e^{-x})`
+    """
+    return np.log(1 - np.exp(-x))
+
+
+def log1pexp(x):
+    r"""
+    Calculates log(1 + exp(x))
+
+    Parameters
+    ----------
+    x: array_like
+        data
+
+    Returns
+    -------
+    array_like
+        Results of :math:`\log(1 - e^{-x})`
+    """
+    return np.log(1 + np.exp(x))
 
 
 def polyn_eval(coef, x) -> Union[float, np.ndarray]:

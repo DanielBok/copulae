@@ -4,6 +4,22 @@ from numpy.testing import assert_almost_equal
 from copulae.special.special_func import *
 
 
+@pytest.mark.parametrize('value, exp', [
+    (2.5, -0.08565048),
+    ([5.6, 1.4], [-0.003704718, -0.283154954])
+])
+def test_log1mexp(value, exp):
+    assert_almost_equal(log1mexp(value), exp)
+
+
+@pytest.mark.parametrize('value, exp', [
+    (2.5, 2.57888973429255),
+    ([5.6, 1.4], [5.60369104342695, 1.62041740991845])
+])
+def test_log1mexp(value, exp):
+    assert_almost_equal(log1pexp(value), exp)
+
+
 @pytest.mark.parametrize('coef, x, exp', [
     ([0.5, 4, 3, -1.5], 0.4, 2.484),
     ([0.3, -0.9, 5], [-0.5, 1.2], (2, 6.42)),
