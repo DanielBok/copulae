@@ -10,7 +10,7 @@ from copulae.utility import reshape_data
 
 class IndepCopula(BaseCopula):
     def __init__(self, dim=2):
-        """
+        r"""
         The Independence copula is the copula that results from a dependency structure in which each individual
         variable is independent of each other. It has no parameters and is defined as
 

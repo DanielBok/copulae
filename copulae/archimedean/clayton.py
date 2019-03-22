@@ -15,13 +15,13 @@ from .abstract import AbstractArchimedeanCopula
 
 
 class ClaytonCopula(AbstractArchimedeanCopula):
-    """
+    r"""
     The Clayton copula is a copula that allows any specific non-zero level of (lower) tail dependency between
     individual variables. It is an Archimedean copula and exchangeable. A Clayton copula is defined as
 
     .. math::
 
-        C_\\theta (u_1, \dots, u_d) = \left(\sum_i^d (u_{i}^{-\\theta}) - d + 1 \\right)^{-1/\\theta}
+        C_\theta (u_1, \dots, u_d) = \left(\sum_i^d (u_{i}^{-\theta}) - d + 1 \right)^{-1/\theta}
     """
 
     def __init__(self, theta=np.nan, dim=2):
@@ -40,12 +40,6 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         self._ext = ClaytonExt(self)
         # TODO ADD BOUNDS
         self._bounds = (-1 + EPS, np.inf) if dim == 2 else (0, np.inf)
-
-    def A(self, w: Numeric):  # pragma: no cover
-        return NotImplemented
-
-    def dAdu(self, w: Numeric):  # pragma: no cover
-        return NotImplemented
 
     @reshape_output
     def dipsi(self, u, degree=1, log=False):

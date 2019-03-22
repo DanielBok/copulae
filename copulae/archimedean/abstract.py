@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 from copulae.copula.base import BaseCopula
-from copulae.types import Array, Numeric
+from copulae.types import Array
 from copulae.utility import reshape_data
 
 
@@ -27,55 +27,10 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
 
         super().__init__(dim, family)
 
-    def A(self, w: Numeric):
-        """
-        The Pickands dependence function. This can be seen as the generator function of an extreme-value copula.
-
-        A bivariate copula C is an extreme-value copula if and only if
-
-        .. math::
-
-            C(u, v) = (uv)^{A(log(v) / log(uv))}, (u,v) in (0,1]^2 w/o {(1,1)}
-
-        where :math:`A: [0,1] \rightarrow [1/2, 1]` is convex and satisfies :math:`max(t,1-t) \leq A(t) \leq 1` for all
-        :math:`t \in [0, 1]`
-
-        Parameters
-        ----------
-        w: scalar or array like
-            A numeric scalar or vector
-
-        Returns
-        -------
-        ndarray
-            Array containing values of the dependence function
-        """
-        raise NotImplementedError
-
     @reshape_data
     def cdf(self, u: Array, log=False) -> np.ndarray:
         cdf = self.psi(self.ipsi(u).sum(1))
         return np.log(cdf) if log else cdf
-
-    def dAdu(self, w: Numeric):
-        """
-        First and second derivative of A
-
-        Parameters
-        ----------
-        w: scalar or array like
-            A numeric scalar or vector
-
-        Returns
-        -------
-        ndarray
-            Array containing the first and second derivative of the dependence function
-
-        See Also
-        --------
-        A: Dependence function
-        """
-        raise NotImplementedError
 
     @abstractmethod
     def psi(self, s: Array):

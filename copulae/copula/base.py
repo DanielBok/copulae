@@ -178,7 +178,7 @@ class BaseCopula(AbstractCopula, ABC):
         raise NotImplementedError
 
     def log_lik(self, data: np.ndarray) -> float:
-        """
+        r"""
          Returns the log likelihood (LL) of the copula given the data.
 
         The greater the LL (closer to :math:`\infty`) the better.

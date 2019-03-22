@@ -9,9 +9,7 @@ from copulae.copula import TailDep
 from copulae.core import valid_rows_in_u
 from copulae.special.special_func import polyn_eval, sign_ff, stirling_second_all, stirling_first_all
 from copulae.special.trig import cospi2
-from copulae.stats import poisson
-from copulae.stats._stable import skew_stable
-from copulae.stats.uniform import random_uniform
+from copulae.stats import poisson, random_uniform, skew_stable
 from copulae.types import Array, Numeric
 from copulae.utility.utils import reshape_data, reshape_output
 from ._data_ext import _Ext
@@ -20,13 +18,13 @@ from .auxiliary import dsum_sibuya
 
 
 class GumbelCopula(AbstractArchimedeanCopula):
-    """
+    r"""
     The Gumbel copula is a copula that allows any specific level of (upper) tail dependency between individual
     variables. It is an Archimedean copula, and exchangeable. A Gumbel copula is defined as
 
     .. math::
 
-        C_\\theta (u_1, \dots, u_d) = \exp( - (\sum_u^i (-\log u_{i})^{-\\theta} )^{1/\\theta})
+        C_\theta (u_1, \dots, u_d) = \exp( - (\sum_u^i (-\log u_{i})^{-\theta} )^{1/\theta})
     """
 
     def __init__(self, theta=np.nan, dim=2):
@@ -50,13 +48,53 @@ class GumbelCopula(AbstractArchimedeanCopula):
 
     @reshape_output
     def A(self, w: Numeric):
+        r"""
+        The Pickands dependence function. This can be seen as the generator function of an
+        extreme-value copula.
+
+        A bivariate copula C is an extreme-value copula if and only if
+
+        .. math::
+
+            C(u, v) = (uv)^{A(log(v) / log(uv))}, (u,v) in (0,1]^2 w/o {(1,1)}
+
+        where :math:`A: [0,1] \rightarrow [1/2, 1]` is convex and satisfies
+        :math:`max(t,1-t) \leq A(t) \leq 1 \forall t \in [0, 1]`
+
+        Parameters
+        ----------
+        w: scalar or array like
+            A numeric scalar or vector
+
+        Returns
+        -------
+        ndarray
+            Array containing values of the dependence function
+        """
         bnd = (w == 0) | (w == 1)
         r = (w ** self.params + (1 - w) ** self.params) ** (1 / self.params)
         r[bnd] = 1
         return r
 
     @reshape_output
-    def dAdu(self, w: Numeric):
+    def dAdu(self, w):
+        """
+        First and second derivative of A
+
+        Parameters
+        ----------
+        w: array_like
+            A numeric scalar or vector
+
+        Returns
+        -------
+        ndarray
+            Array containing the first and second derivative of the dependence function
+
+        See Also
+        --------
+        A: Dependence function
+        """
 
         alpha = self.params
 

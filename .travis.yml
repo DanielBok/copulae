@@ -15,15 +15,12 @@ env:
 matrix:
   include:
     - python: 3.6
-      env:
-        - COVERAGE=false
     - python: 3.7
       env:
         - COVERAGE=true
 
 install:
   - pip install coveralls pytest pytest-cov
-  - pip install -e .
 
 
 script:

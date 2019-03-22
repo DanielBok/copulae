@@ -10,7 +10,7 @@ from .abstract import AbstractEllipticalCopula
 
 
 class GaussianCopula(AbstractEllipticalCopula):
-    """
+    r"""
     The Gaussian (Normal) copula. It is elliptical and symmetric which gives it nice analytical properties. The
     Gaussian copula is determined entirely by its correlation matrix.
 
@@ -60,12 +60,6 @@ class GaussianCopula(AbstractEllipticalCopula):
     def params(self):
         """
         The covariance parameters for the Gaussian copula
-
-        Parameters
-        ----------
-        params: float or numpy array
-            Covariance parameters. If it is a single float number, function will broadcast it to an array of similar
-            length as the rhos
 
         Returns
         -------

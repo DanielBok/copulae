@@ -2,13 +2,11 @@ from typing import Iterable, Union
 
 import numpy as np
 
-from copulae.types import Numeric
-
 __all__ = ['polyn_eval', 'sign_ff', 'stirling_first', 'stirling_first_all', 'stirling_second', 'stirling_second_all']
 
 
-def polyn_eval(coef: Numeric, x: Numeric) -> Union[float, np.ndarray]:
-    """
+def polyn_eval(coef, x) -> Union[float, np.ndarray]:
+    r"""
     Polynomial evaluation via Horner scheme
 
     Evaluate a univariate polynomial at `x` (typically a vector). For a given vector of coefficients <coef>,
@@ -16,29 +14,16 @@ def polyn_eval(coef: Numeric, x: Numeric) -> Union[float, np.ndarray]:
 
     Parameters
     ----------
-    coef: numeric vector or scalar
+    coef: array_like
         Coefficients
 
-    x: numeric vector or scalar
+    x: array_like
         Evaluation points
 
     Returns
     -------
     {float, ndarray}
         numeric vector or scalar, with the same dimensions as x, containing the polynomial values
-    """
-    """
-    Polynomial evaluation via Horner scheme
-
-    Evaluate a univariate polynomial at x (typically a vector). For a given vector of coefficients <coef>,
-    the polynomial coef[1] + coef[2]*x + ... + coef[p+1]*x^p.
-
-    :param coef: numeric vector or scalar
-        coefficients
-    :param x: numeric vector or scalar
-        evaluation point
-    :return: numeric vector or scalar
-        
     """
     if isinstance(coef, (float, int)):
         coef = [coef]
@@ -62,8 +47,8 @@ def polyn_eval(coef: Numeric, x: Numeric) -> Union[float, np.ndarray]:
 
 
 def sign_ff(alpha: float, j: Union[Iterable[int], int], d: Union[Iterable[int], int]):
-    """
-    The sign of choose(alpha*j,d)*(-1)^(d-j)
+    r"""
+    The sign of :math:`\binom{\alpha * j}{d} \cdot (-1)^{d-j}`
 
     Parameters
     ----------

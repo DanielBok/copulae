@@ -15,7 +15,7 @@ class StudentParams(NamedTuple):
 
 
 class StudentCopula(AbstractEllipticalCopula):
-    """
+    r"""
     The Student (T) Copula. It is elliptical and symmetric which gives it nice analytical properties. The
     Student copula is determined by its correlation matrix and the degrees of freedom. Student copulas have
     fatter tails as compared to Gaussian copulas.
@@ -24,10 +24,10 @@ class StudentCopula(AbstractEllipticalCopula):
 
     .. math::
 
-        C_{\Sigma, \\nu} (u_1, \dots, u_d) = \mathbf{t}_{\Sigma, \\nu} (t_\\nu^{-1} (u_1), \dots, t_\\nu^{-1} (u_d))
+        C_{\Sigma, \nu} (u_1, \dots, u_d) = \mathbf{t}_{\Sigma, \nu} (t_\nu^{-1} (u_1), \dots, t_\nu^{-1} (u_d))
 
-    where :math:`\Sigma` and :math:`\\nu` are the covariance matrix and degrees of freedom which describes the
-    Student copula and :math:`t_\\nu^{-1}` is the quantile (inverse cdf) function
+    where :math:`\Sigma` and :math:`\nu` are the covariance matrix and degrees of freedom which describes the
+    Student copula and :math:`t_\nu^{-1}` is the quantile (inverse cdf) function
     """
 
     def __init__(self, dim=2, df=1):
@@ -88,12 +88,6 @@ class StudentCopula(AbstractEllipticalCopula):
         """
         The parameters of the Student copula. A tuple where the first value is the degrees of freedom and the
         subsequent values are the correlation matrix parameters
-
-        Parameters
-        ----------
-        params: array like
-            An array like where the first value is the degrees of freedom and the subsequent values are the
-            correlation parameters
 
         Returns
         -------
