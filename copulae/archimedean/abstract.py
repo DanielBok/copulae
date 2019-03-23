@@ -16,14 +16,8 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
         except ValueError:
             raise ValueError('theta must be a float')
 
-        if dim < 2:
-            raise ValueError('dim must be >= 2')
-        if dim > 2 and self._theta < 0:
-            raise ValueError('theta can only be negative when dim = 2')
-
         families = ('clayton', 'frank', 'amh', 'gumbel', 'joe')
-        if family not in families:
-            raise ValueError(f"Unknown family of Archimedean copula: {family}. Use one of {', '.join(families)}")
+        assert family in families, f"Unknown family of Archimedean copula: {family}. Use one of {', '.join(families)}"
 
         super().__init__(dim, family)
 
@@ -53,7 +47,7 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
         ndarray
             Derivative of the inverse generator value for the Archimedean copula
         """
-        raise NotImplementedError
+        pass
 
     @abstractmethod
     def ipsi(self, u, log=False):
@@ -75,7 +69,7 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
         ndarray
             Inverse generator value for the Archimedean copula
         """
-        raise NotImplementedError
+        pass
 
     @abstractmethod
     def psi(self, s):
@@ -92,4 +86,4 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
         ndarray
             Generator value for the Archimedean copula
         """
-        raise NotImplementedError
+        pass
