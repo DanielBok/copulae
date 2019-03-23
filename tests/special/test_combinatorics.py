@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 from numpy.testing import assert_almost_equal
 
@@ -13,6 +14,8 @@ from copulae.special.combinatorics import *
 def test_comb(n, r, exp):
     assert_almost_equal(comb(n, r), exp, 4)
 
+    assert_almost_equal(comb(n, r, log=True), np.log(exp))
+
 
 @pytest.mark.parametrize("n, r, exp", [
     (7, 4, 840),
@@ -24,3 +27,6 @@ def test_comb(n, r, exp):
 ])
 def test_perm(n, r, exp):
     assert_almost_equal(perm(n, r), exp, 4)
+
+    if np.all(np.array(exp) > 0):
+        assert_almost_equal(perm(n, r, log=True), np.log(exp))

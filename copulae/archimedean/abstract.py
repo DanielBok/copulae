@@ -13,7 +13,7 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
 
         try:
             self._theta = float(theta)
-        except ValueError:
+        except ValueError:  # pragma: no cover
             raise ValueError('theta must be a float')
 
         families = ('clayton', 'frank', 'amh', 'gumbel', 'joe')
@@ -27,7 +27,7 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
         return np.log(cdf) if log else cdf
 
     @abstractmethod
-    def dipsi(self, u, degree=1, log=False):
+    def dipsi(self, u, degree=1, log=False):  # pragma: no cover
         """
         Derivative of the inverse of the generator function for Archimedean copulae
 
@@ -50,7 +50,7 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
         pass
 
     @abstractmethod
-    def ipsi(self, u, log=False):
+    def ipsi(self, u, log=False):  # pragma: no cover
         """
         The inverse generator function for Archimedean copulae
 
@@ -72,7 +72,7 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
         pass
 
     @abstractmethod
-    def psi(self, s):
+    def psi(self, s):  # pragma: no cover
         """
         Generator function for Archimedean copulae.
 

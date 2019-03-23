@@ -34,6 +34,7 @@ def test_polyn_eval(coef, x, exp):
     (8, 4, 6769),
     (8, 5, -1960),
     (7, 2, -1764),
+    (2, 0, 0)
 ])
 def test_stirling_first(n, k, exp):
     assert stirling_first(n, k) == exp
@@ -52,6 +53,7 @@ def test_stirling_first_all(n, exp):
     (8, 4, 1701),
     (8, 5, 1050),
     (6, 5, 15),
+    (2, 0, 0)
 ])
 def test_stirling_second(n, k, exp):
     assert stirling_second(n, k) == exp

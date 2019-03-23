@@ -1,22 +1,20 @@
 import numpy as np
 from scipy.special import gammaln, gamma
 
-from copulae.types import Numeric
-
 __all__ = ['comb', 'perm']
 
 
-def comb(n: Numeric, r: Numeric, log=False):
+def comb(n, r, log=False):
     """
     Generalized combination function. Unlike standard combination functions which uses factorials, function can take
     floats as it uses the gamma function.
 
     Parameters
     ----------
-    n: numeric vector or scalar
+    n: {array_like, scalar}
         Numeric scalar or vector
 
-    r: numeric vector or scalar
+    r: {array_like, scalar}
         Numeric scalar or vector
 
     log: bool, optional
@@ -34,17 +32,17 @@ def comb(n: Numeric, r: Numeric, log=False):
     return gamma(n + 1) / (gamma(n + 1 - r) * gamma(r + 1))
 
 
-def perm(n: Numeric, r: Numeric, log=False):
+def perm(n, r, log=False):
     """
     Generalized permutation function. Unlike standard permutation functions which uses factorials, function can take
     floats as it uses the gamma function.
 
     Parameters
     ----------
-    n: numeric vector or scalar
+    n: {array_like, scalar}
         Numeric scalar or vector
 
-    r: numeric vector or scalar
+    r: {array_like, scalar}
         Numeric scalar or vector
 
     log: bool, optional

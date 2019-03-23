@@ -42,14 +42,11 @@ def dsum_sibuya(x, n, alpha: float, method='log', log=False):
         if n.size == 1:
             n = n.reshape(1)
 
-    except ValueError:
-        raise TypeError("<x> and <n> must be integer vectors or scalars")
+    except ValueError:  # pragma: no cover
+        raise TypeError("`x` and `n` must be integer vectors or scalars")
 
-    if np.any(n < 0):
-        raise ValueError("integers in <n> must >= 0")
-
-    if not (0 < alpha <= 1):
-        raise ValueError("<alpha> must be between (0, 1]")
+    assert np.all(n >= 0), "integers in `n` must >= 0"
+    assert 0 < alpha <= 1, "`alpha` must be between (0, 1]"
 
     len_x, len_n = len(x), len(n)
 
@@ -64,6 +61,8 @@ def dsum_sibuya(x, n, alpha: float, method='log', log=False):
         return (x == n).astype(float)
 
     method = method.lower()
+    assert method in ('log', 'direct', 'diff')
+
     s = np.zeros(len_long)
     if method == 'log':
         signs = sign_ff(alpha, np.arange(np.max(n)) + 1, x)
@@ -89,11 +88,9 @@ def dsum_sibuya(x, n, alpha: float, method='log', log=False):
 
         return np.log(s) if log else s
 
-    elif method == 'diff':
+    else:  # diff
         for i, xx, nn in zip(range(len_long), x, n):
             dd = comb(np.array([*range(nn, 0, -1), 0]) * alpha, xx)
             s[i] = np.diff(dd, nn) * (-1) ** xx
 
         return np.log(s) if log else s
-    else:
-        raise ValueError(f"Unknown <method>: {method}. Use one of log, direct, diff")

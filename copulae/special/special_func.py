@@ -101,14 +101,12 @@ def sign_ff(alpha: float, j: Union[Iterable[int], int], d: Union[Iterable[int], 
     ndarray
         signs
     """
-    if not (0 < alpha <= 1):
-        raise ValueError("<alpha> must be between (0, 1]")
+    assert 0 < alpha <= 1, "`alpha` must be between (0, 1]"
 
     d, j = np.asarray(d, int), np.asarray(j, int)
-    if not np.all(d >= 0):
-        raise ValueError("<d> must be >= 0")
-    if not np.all(j >= 0):
-        raise ValueError("all elements in <j> must be >= 0")
+
+    assert np.all(d >= 0), "`d` must be >= 0"
+    assert np.all(j >= 0), "all elements in `j` must be >= 0"
 
     if d.ndim == 0 and j.ndim == 0:
         d, j = int(d), int(j)
@@ -216,7 +214,6 @@ def stirling_second(n: int, k: int):
     if k < 0 or k > n:
         raise ValueError("<k> must be in the range of [0, <n>]")
 
-    # s = np.zeros((n, k)).astype(np.uint64)
     if n == 0 or n == k:
         return 1
     if k == 0:
