@@ -4,7 +4,7 @@ import numpy as np
 
 from copulae.copula.base import BaseCopula
 from copulae.types import Array
-from copulae.utility import reshape_data
+from copulae.utility import array_io
 
 
 class AbstractArchimedeanCopula(BaseCopula, ABC):
@@ -27,30 +27,36 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
 
         super().__init__(dim, family)
 
-    @reshape_data
+    @array_io(dim=2)
     def cdf(self, u: Array, log=False) -> np.ndarray:
         cdf = self.psi(self.ipsi(u).sum(1))
         return np.log(cdf) if log else cdf
 
     @abstractmethod
-    def psi(self, s: Array):
+    def dipsi(self, u, degree=1, log=False):
         """
-        Generator function for Archimedean copulae.
+        Derivative of the inverse of the generator function for Archimedean copulae
 
         Parameters
         ----------
-        s: array like
-            Numerical vector at which the generator function is to be evaluated against
+        u: {array_like, scalar}
+            Numerical vector at which the derivative of the inverse generator function is to be evaluated against
+
+        degree: int
+            The degree of the derivative
+
+        log: bool, optional
+            If True, the log of the derivative will be returned
 
         Returns
         -------
         ndarray
-            Generator value for the Archimedean copula
+            Derivative of the inverse generator value for the Archimedean copula
         """
         raise NotImplementedError
 
     @abstractmethod
-    def ipsi(self, u: Array, log=False):
+    def ipsi(self, u, log=False):
         """
         The inverse generator function for Archimedean copulae
 
@@ -58,7 +64,7 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
 
         Parameters
         ----------
-        u: array like
+        u: {array_like, scalar}
             Numerical vector at which the inverse generator function is to be evaluated against
 
         log: bool, optional
@@ -72,24 +78,18 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def dipsi(self, u: Array, degree=1, log=False):
+    def psi(self, s):
         """
-        Derivative of the inverse of the generator function for Archimedean copulae
+        Generator function for Archimedean copulae.
 
         Parameters
         ----------
-        u: array like
-            Numerical vector at which the derivative of the inverse generator function is to be evaluated against
-
-        degree: int
-            The degree of the derivative
-
-        log: bool, optional
-            If True, the log of the derivative will be returned
+        s: {array_like, scalar}
+            Numerical vector at which the generator function is to be evaluated against
 
         Returns
         -------
         ndarray
-            Derivative of the inverse generator value for the Archimedean copula
+            Generator value for the Archimedean copula
         """
         raise NotImplementedError

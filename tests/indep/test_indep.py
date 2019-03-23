@@ -7,7 +7,7 @@ from copulae import IndepCopula
 DP = 3
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture
 def copula(residual_data: np.ndarray):
     dim = residual_data.shape[1]
     cop = IndepCopula(dim)

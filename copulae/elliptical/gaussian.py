@@ -5,7 +5,7 @@ import numpy as np
 from copulae.copula import TailDep
 from copulae.stats import multivariate_normal as mvn, norm
 from copulae.types import Array
-from copulae.utility import reshape_data
+from copulae.utility import array_io
 from .abstract import AbstractEllipticalCopula
 
 
@@ -43,12 +43,13 @@ class GaussianCopula(AbstractEllipticalCopula):
         self._rhos = np.zeros(n)
         self._bounds = np.repeat(-1., n), np.repeat(1., n)
 
-    @reshape_data
+    @array_io(dim=2)
     def cdf(self, x: np.ndarray, log=False):
         q = norm.ppf(x)
         sigma = self.sigma
         return mvn.logcdf(q, cov=sigma) if log else mvn.cdf(q, cov=sigma)
 
+    @array_io
     def irho(self, rho: Array):
         return np.sin(np.array(rho) * np.pi / 6) * 2
 
@@ -74,7 +75,7 @@ class GaussianCopula(AbstractEllipticalCopula):
             params = np.repeat(params, len(self._rhos))
         self._rhos = np.asarray(params)
 
-    @reshape_data
+    @array_io(dim=2)
     def pdf(self, x: np.ndarray, log=False):
         sigma = self.sigma
         q = norm.ppf(x)

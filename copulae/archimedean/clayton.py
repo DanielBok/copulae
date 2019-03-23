@@ -8,8 +8,8 @@ from scipy.interpolate import UnivariateSpline, interp1d
 from copulae.copula import TailDep
 from copulae.core import EPS, valid_rows_in_u
 from copulae.stats import random_uniform
-from copulae.types import Array, Numeric, OptNumeric
-from copulae.utility import reshape_data, reshape_output
+from copulae.types import Array, Numeric
+from copulae.utility import array_io
 from ._data_ext import _Ext
 from .abstract import AbstractArchimedeanCopula
 
@@ -41,30 +41,22 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         # TODO ADD BOUNDS
         self._bounds = (-1 + EPS, np.inf) if dim == 2 else (0, np.inf)
 
-    @reshape_output
+    @array_io
     def dipsi(self, u, degree=1, log=False):
-        s = 1 if log or degree % 2 == 0 else -1
-        t = self._theta
+        assert degree in (1, 2), 'degree can only be 1 or 2'
 
-        if t < 0:
-            raise NotImplementedError('have not implemented dipsi for theta < 0')
+        s = 1 if log or degree % 2 == 0 else -1
+        t = self.params
 
         if degree == 1:
-            if log:
-                a = np.log(t) - (1 + t) * np.log(u)
-            else:
-                a = t * u ** (- (1 + t))
-        elif degree == 2:
-            if log:
-                a = np.log(t) + np.log1p(t) - (t + 2) * np.log(u)
-            else:
-                a = t * (1 + t) * u ** (-t - 2)
+            a = np.log(t) - (1 + t) * np.log(u)
         else:
-            raise NotImplementedError('have not implemented absdiPsi for degree > 2')
+            a = np.log(t) + np.log1p(t) - (t + 2) * np.log(u)
 
-        return s * a
+        return s * (a if log else np.exp(a))
 
-    def drho(self, x: OptNumeric = None):  # pragma: no cover
+    @array_io(optional=True)
+    def drho(self, x=None):  # pragma: no cover
         # TODO Clayton: add rho derivative function
         # if x is None:
         #     x = self._theta
@@ -73,25 +65,24 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         # return self._ext.drho(x)
         return NotImplemented
 
-    @reshape_output
-    def dtau(self, theta: OptNumeric = None):
+    @array_io(optional=True)
+    def dtau(self, theta=None):
         if theta is None:
             theta = self._theta
         return 2 / (theta + 2) ** 2
 
-    @reshape_output
+    @array_io
     def ipsi(self, u: Array, log=False):
-        u = np.asarray(u)
         v = np.sign(self._theta) * (u ** -self._theta - 1)
         return np.log(v) if log else v
 
+    @array_io
     def irho(self, rho: Numeric):  # pragma: no cover
         # TODO Clayton: add inverse rho function
         return NotImplemented
 
-    @reshape_output
+    @array_io
     def itau(self, tau: Array):
-        tau = np.asarray(tau)
         return 2 * tau / (1 - tau)
 
     @property
@@ -116,7 +107,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
 
         self._theta = theta
 
-    @reshape_data
+    @array_io(dim=2)
     def pdf(self, x: Array, log=False):
 
         n, d = x.shape
@@ -144,9 +135,8 @@ class ClaytonCopula(AbstractArchimedeanCopula):
 
         return log_pdf if log else np.exp(log_pdf)
 
-    @reshape_output
+    @array_io
     def psi(self, s: Array):
-        s = np.asarray(s)
         return np.maximum(1 + np.sign(self._theta) * s, np.zeros_like(s)) ** (-1 / self._theta)
 
     def random(self, n: int, seed: int = None) -> np.ndarray:
@@ -260,8 +250,8 @@ class ClaytonExt(_Ext):  # pragma: no cover
                 return self._pos_irho(rho)
             return np.nan
 
-    def rho(self, alpha: Numeric):
-        alpha = np.asarray(alpha, np.float)
+    @array_io
+    def rho(self, alpha):
         theta = self._forward_transfer(alpha)
         rhos = np.where(alpha <= 0, self._neg_rho(theta), self._pos_rho(theta))
 

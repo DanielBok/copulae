@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import NamedTuple, Optional, Tuple, Union
+from typing import NamedTuple, Tuple, Union
 
 import numpy as np
 
@@ -18,6 +18,7 @@ class BaseCopula(AbstractCopula, ABC):
     def __init__(self, dim: int, name: str):
         super().__init__(dim, name)
 
+    @abstractmethod
     def cdf(self, x: Array, log=False) -> np.ndarray:
         """
         Returns the cumulative distribution function (CDF) of the copulae.
@@ -79,13 +80,14 @@ class BaseCopula(AbstractCopula, ABC):
 
         CopulaEstimator(self, data, x0=x0, method=method, est_var=est_var, verbose=verbose, optim_options=optim_options)
 
-    def drho(self, x: Optional[np.ndarray] = None):
+    @abstractmethod
+    def drho(self, x=None):
         """
         Computes derivative of Spearman's Rho
 
         Parameters
         ----------
-        x: ndarray
+        x: array_like, optional
             1d vector to compute derivative of Spearman's Rho. If not supplied, will default to copulae parameters
 
         Returns
@@ -95,13 +97,14 @@ class BaseCopula(AbstractCopula, ABC):
         """
         raise NotImplementedError
 
-    def dtau(self, x: Optional[np.ndarray] = None):
+    @abstractmethod
+    def dtau(self, x=None):
         """
         Computes derivative of Kendall's Tau
 
         Parameters
         ----------
-        x: ndarray
+        x: array_like, optional
             1d vector to compute derivative of Kendall's Tau. If not supplied, will default to copulae parameters
 
         Returns
@@ -109,16 +112,9 @@ class BaseCopula(AbstractCopula, ABC):
         ndarray:
             Derivative of Kendall's Tau
         """
-        """
-        
-
-        :param x: numpy array, optional
-            1d vector to compute derivative of Kendall's Tau. If not supplied, will default to copulae parameters
-        :return: numpy array
-            
-        """
         raise NotImplementedError
 
+    @abstractmethod
     def irho(self, rho: Array):
         """
         Computes the inverse Spearman's Rho
@@ -141,6 +137,7 @@ class BaseCopula(AbstractCopula, ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
     def itau(self, tau: Array):
         """
         Computes the inverse Kendall's Tau
@@ -231,6 +228,7 @@ class BaseCopula(AbstractCopula, ABC):
 
         return self._bounds
 
+    @abstractmethod
     def pdf(self, x: Array, log=False):
         """
         Returns the probability distribution function (PDF) of the copulae.

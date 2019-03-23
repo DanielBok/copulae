@@ -1,5 +1,5 @@
 import warnings
-from collections import defaultdict, abc
+from collections import defaultdict
 from typing import Optional
 
 import numpy as np
@@ -11,7 +11,7 @@ from copulae.special.special_func import polyn_eval, sign_ff, stirling_second_al
 from copulae.special.trig import cospi2
 from copulae.stats import poisson, random_uniform, skew_stable
 from copulae.types import Array, Numeric
-from copulae.utility.utils import reshape_data, reshape_output
+from copulae.utility import array_io
 from ._data_ext import _Ext
 from .abstract import AbstractArchimedeanCopula
 from .auxiliary import dsum_sibuya
@@ -39,14 +39,13 @@ class GumbelCopula(AbstractArchimedeanCopula):
         dim: int, optional
             Dimension of the copula
         """
-        if not np.isnan(theta) and theta < 1:
-            raise ValueError('<theta> for Gumbel Copulae must be >= 1')
+        assert theta >= 1 or np.isnan(theta), 'Gumbel Copula parameter must be >= 1'
 
         super().__init__(dim, theta, 'clayton')
         self._ext = GumbelExt(self)
         self._bounds = (1.0, np.inf)
 
-    @reshape_output
+    @array_io
     def A(self, w: Numeric):
         r"""
         The Pickands dependence function. This can be seen as the generator function of an
@@ -63,7 +62,7 @@ class GumbelCopula(AbstractArchimedeanCopula):
 
         Parameters
         ----------
-        w: scalar or array like
+        w: array like
             A numeric scalar or vector
 
         Returns
@@ -76,7 +75,7 @@ class GumbelCopula(AbstractArchimedeanCopula):
         r[bnd] = 1
         return r
 
-    @reshape_output
+    @array_io
     def dAdu(self, w):
         """
         First and second derivative of A
@@ -121,55 +120,51 @@ class GumbelCopula(AbstractArchimedeanCopula):
             res[:, 1] = hess
             return res
 
-    @reshape_output
+    @array_io
     def dipsi(self, u, degree=1, log=False) -> np.ndarray:
+        assert degree in (1, 2), 'degree can only be 1 or 2'
+
         s = 1 if log or degree % 2 == 0 else -1
         lu = np.log(u)
         if degree == 1:
             v = self.params * ((-lu) ** (self.params - 1)) / u
-            if log:
-                v = np.log(v)
-        elif degree == 2:
-            v = self.params * (self.params - 1 - lu) * ((-lu) ** (self.params - 2)) / (u ** 2)
-            if log:
-                v = np.log(v)
         else:
-            raise NotImplementedError('have not implemented absdiPsi for degree > 2')
+            v = self.params * (self.params - 1 - lu) * ((-lu) ** (self.params - 2)) / (u ** 2)
 
-        return s * v
+        return s * (np.log(v) if log else v)
 
     def drho(self, x: Optional[np.ndarray] = None):
         # TODO Gumbel: add rho derivative function
         return NotImplemented
 
-    @reshape_data
-    def dtau(self, x: Optional[np.ndarray] = None):
-        return self.params ** -2
+    @array_io(optional=True)
+    def dtau(self, x=None):
+        if x is None:
+            x = self.params
+        return x ** -2
 
-    def irho(self, rho: Array):
+    @array_io(optional=True)
+    def irho(self, rho=None):
         # TODO Gumbel: add inverse rho function
         return NotImplemented
 
-    @reshape_output
+    @array_io
     def ipsi(self, u: Array, log=False):
         v = (-np.log(u)) ** self.params
         return np.log(v) if log else v
 
-    @reshape_output
-    def itau(self, tau: Array):
+    @array_io
+    def itau(self, tau):
         warning_message = "For the Gumbel copula, tau must be >= 0. Replacing negative values by 0."
-        if isinstance(tau, abc.Iterable):
-            tau = np.asarray(tau)
-            neg = tau < 0
-            if np.any(neg):
-                warnings.warn(warning_message)
-                tau[neg] = 0
-        else:
-            # noinspection PyTypeChecker
+        if np.size(tau) == 1:
+            tau = float(tau)
             if tau < 0:
                 warnings.warn(warning_message)
-                tau = 0.0
-
+                return 1
+        else:
+            if np.any(tau < 0):
+                warnings.warn(warning_message)
+                tau[tau < 0] = 0
         return 1 / (1 - tau)
 
     def lambda_(self):
@@ -188,7 +183,7 @@ class GumbelCopula(AbstractArchimedeanCopula):
 
         self._theta = theta
 
-    @reshape_data
+    @array_io(dim=2)
     def pdf(self, u: Array, log=False):
         n, d = u.shape
         if d != self.dim:
@@ -225,7 +220,7 @@ class GumbelCopula(AbstractArchimedeanCopula):
 
         return log_pdf if log else np.exp(log_pdf)
 
-    @reshape_output
+    @array_io
     def psi(self, s: Array) -> np.ndarray:
         return np.exp(-s ** (1 / self.params))
 
@@ -376,11 +371,8 @@ def gumbel_poly(log_x: np.ndarray, alpha: float, d: int, method='default', log=F
     ndarray
         polynomials of the Gumbel copula
     """
-    if not (0 < alpha <= 1):
-        raise ValueError("<alpha> used in calculating the gumbel polynomial must be (0, 1]")
-
-    if not isinstance(d, int) or d < 1:
-        raise ValueError("dimension of copula must be an integer and >= 1")
+    assert 0 < alpha <= 1, "`alpha` used in calculating the gumbel polynomial must be (0, 1]"
+    assert isinstance(d, int) and d >= 1, "dimension of copula must be an integer and >= 1"
 
     log_x = np.asarray(log_x)
     shape = log_x.shape

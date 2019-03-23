@@ -1,11 +1,9 @@
-from typing import Optional
-
 import numpy as np
 
 from copulae.copula import BaseCopula, TailDep
 from copulae.stats import random_uniform
 from copulae.types import Array
-from copulae.utility import reshape_data
+from copulae.utility import array_io
 
 
 class IndepCopula(BaseCopula):
@@ -26,14 +24,16 @@ class IndepCopula(BaseCopula):
         super().__init__(dim, 'Independence')
         self.fit_stats = 'Unavailable'
 
-    @reshape_data
+    @array_io
     def cdf(self, x: Array, log=False) -> np.ndarray:
         return np.log(x).sum(1) if log else x.prod(1)
 
-    def drho(self, x: Optional[np.ndarray] = None):
+    @array_io(optional=True)
+    def drho(self, x=None):
         return 0
 
-    def dtau(self, x: Optional[np.ndarray] = None):
+    @array_io(optional=True)
+    def dtau(self, x=None):
         return 0
 
     def fit(self, data: np.ndarray, x0: np.ndarray = None, method='mpl', est_var=False, verbose=1,
@@ -59,7 +59,7 @@ class IndepCopula(BaseCopula):
     def params(self):
         return self.dim
 
-    @reshape_data
+    @array_io
     def pdf(self, x: Array, log=False) -> np.ndarray:
         return np.repeat(0 if log else 1, len(x))
 

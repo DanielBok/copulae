@@ -1,8 +1,8 @@
-from copulae.utility import merge_dicts, reshape_data
 import numpy as np
 import pytest
 
 from copulae import GaussianCopula
+from copulae.utility import merge_dicts, array_io
 
 
 def test_merge_dicts():
@@ -19,16 +19,17 @@ def test_merge_dicts():
 def test_reshape_data_decorator():
     copula = GaussianCopula(2)
 
-    func = reshape_data(lambda cop, x: x)
+    # test that scalar goes through fine
+    assert isinstance(array_io(lambda cop, x: x)(copula, 0.5), float)
+    assert isinstance(array_io(lambda cop, x: x, dim=1)(copula, 0.5), float)
 
-    res = func(copula, np.zeros(2))
+    # test that vector goes through okay
+    assert array_io(lambda cop, x: x, dim=1)(copula, [0.5, 0.2]).ndim == 1
+
+    # test that 1D array gets converted to 2D array
+    res = array_io(lambda cop, x: x, dim=2)(copula, np.zeros(2))
     assert res.ndim == 2
 
-    with pytest.raises(ValueError):
-        func(copula, np.zeros((3, 3, 3)))
-
-    with pytest.raises(ValueError):
-        func(copula, np.zeros((10, 4)))
-
-    func = reshape_data(lambda cop, x: np.array([0.0]))
-    assert func(copula, np.zeros(2)) == 0
+    # Non-optional input
+    with pytest.raises(AssertionError):
+        array_io(lambda cop, x: x, optional=False)(copula, None)

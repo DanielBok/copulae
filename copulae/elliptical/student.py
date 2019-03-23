@@ -5,7 +5,7 @@ import numpy as np
 from copulae.copula import TailDep
 from copulae.stats import multivariate_t as mvt, t
 from copulae.types import Array
-from copulae.utility import reshape_data
+from copulae.utility import array_io
 from .abstract import AbstractEllipticalCopula
 
 
@@ -52,7 +52,7 @@ class StudentCopula(AbstractEllipticalCopula):
         lower[0], upper[0] = 0, np.inf  # bounds for df, the rest are correlation
         self._bounds = (lower, upper)
 
-    @reshape_data
+    @array_io(dim=2)
     def cdf(self, x: np.ndarray, log=False):
         sigma = self.sigma
         df = self._df
@@ -116,7 +116,7 @@ class StudentCopula(AbstractEllipticalCopula):
             self._df = df
             self._rhos = params[1:]
 
-    @reshape_data
+    @array_io(dim=2)
     def pdf(self, x: np.ndarray, log=False):
         sigma = self.sigma
         df = self._df

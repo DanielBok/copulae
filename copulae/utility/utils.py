@@ -2,7 +2,7 @@ from functools import wraps
 
 import numpy as np
 
-__all__ = ['merge_dict', 'merge_dicts', 'reshape_data', 'reshape_output']
+__all__ = ['merge_dict', 'merge_dicts', 'array_io']
 
 
 def merge_dict(a: dict, b: dict) -> dict:
@@ -73,46 +73,37 @@ def merge_dicts(*dicts: dict) -> dict:
     return a
 
 
-def reshape_data(func):
+def array_io(func=None, dim=0, optional=False):
     """
-    Helper that ensures that inputs of pdf and cdf function gets converted to a 2D array and output if a single
-    value gets converted to a scalar
+    Decorator that ensures that the first input of function gets converted to a
+    numpy array of the dimension specified. The return value will also be converted
+    to a scalar if the size is 1
     """
+    assert func is None or callable(func), "`func` can either be None or a callable"
 
-    @wraps(func)
-    def decorator(cls, x, *args, **kwargs):
-        x = np.asarray(x)
-        if x.ndim == 1:
-            x = x.reshape(1, -1)
+    def decorator(f):
+        @wraps(f)
+        def internal(cls, x=None, *args, **kwargs):
+            assert not (x is None and not optional), "Input array is None when it is not optional"
 
-        if x.ndim != 2:
-            raise ValueError("input array must be a vector or matrix")
+            if dim == 1:
+                x = np.asarray(x)
+                if x.ndim == 0:
+                    x = x.ravel()
+                assert x.ndim == 1, 'Dimension of x must be 1'
 
-        if x.shape[1] != cls.dim:
-            raise ValueError('number of columns in input data does not match copula dimension')
+            elif dim == 2:
+                x = np.asarray(x)
+                if x.ndim == 1:
+                    x = x.reshape(1, -1)
+                assert x.ndim == 2 and x.shape[1] == cls.dim, 'Input data shape does not match copula dimension'
 
-        res = np.asarray(func(cls, x, *args, **kwargs))
+            elif x is not None:
+                x = np.asarray(x)
 
-        if res.size == 1:
-            res = float(res)
+            res = np.asarray(f(cls, x, *args, **kwargs))
+            return float(res) if res.size == 1 else res
 
-        return res
+        return internal
 
-    return decorator
-
-
-def reshape_output(func):
-    """
-    Helpers function that converts the output to a float if the size of the output is 1
-    """
-
-    @wraps(func)
-    def decorator(cls, x=None, *args, **kwargs):
-        x = np.asarray(x) if x is not None else x
-        res = np.asarray(func(cls, x, *args, **kwargs))
-
-        if res.size == 1:
-            res = float(res)
-        return res
-
-    return decorator
+    return decorator(func) if func else decorator

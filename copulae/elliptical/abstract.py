@@ -1,11 +1,11 @@
 from abc import ABC
-from typing import Optional, Tuple
+from typing import Tuple
 
 import numpy as np
 
 from copulae.copula.base import BaseCopula
 from copulae.core import create_cov_matrix, is_psd, near_psd, tri_indices
-from copulae.types import Array
+from copulae.utility import array_io
 
 
 class AbstractEllipticalCopula(BaseCopula, ABC):
@@ -17,17 +17,20 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
         super().__init__(dim, name)
         self._rhos = np.zeros(sum(range(dim)))
 
-    def drho(self, x: Optional[np.ndarray] = None):
+    @array_io(optional=True)
+    def drho(self, x=None):
         if x is None:
             x = self._rhos
         return 6 / (np.pi * np.sqrt(4 - x ** 2))
 
-    def dtau(self, x: Optional[np.ndarray] = None):
+    @array_io(optional=True)
+    def dtau(self, x=None):
         if x is None:
             x = self._rhos
         return 2 / (np.pi * np.sqrt(1 - x ** 2))
 
-    def itau(self, tau: Array):
+    @array_io
+    def itau(self, tau):
         return np.sin(np.asarray(tau) * np.pi / 2)
 
     def log_lik(self, data: np.ndarray):
