@@ -76,9 +76,9 @@ class GaussianCopula(AbstractEllipticalCopula):
         self._rhos = np.asarray(params)
 
     @array_io(dim=2)
-    def pdf(self, x: np.ndarray, log=False):
+    def pdf(self, u: np.ndarray, log=False):
         sigma = self.sigma
-        q = norm.ppf(x)
+        q = norm.ppf(u)
         d = mvn.logpdf(q, cov=sigma) - norm.logpdf(q).sum(1)
         return d if log else np.exp(d)
 

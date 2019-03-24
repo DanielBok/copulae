@@ -70,7 +70,7 @@ class AbstractCopula(ABC):
         pass
 
     @abstractmethod
-    def pdf(self, x: Array, log=False) -> Union[float, np.ndarray]:
+    def pdf(self, u: Array, log=False) -> Union[float, np.ndarray]:
         pass
 
     @staticmethod

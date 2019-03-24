@@ -229,7 +229,7 @@ class BaseCopula(AbstractCopula, ABC):
         return self._bounds
 
     @abstractmethod
-    def pdf(self, x: Array, log=False):
+    def pdf(self, u: Array, log=False):
         """
         Returns the probability distribution function (PDF) of the copulae.
 
@@ -238,7 +238,7 @@ class BaseCopula(AbstractCopula, ABC):
 
         Parameters
         ----------
-        x: ndarray
+        u: ndarray
             Vector or matrix of observed data
 
         log: bool, optional

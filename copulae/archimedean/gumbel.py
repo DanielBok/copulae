@@ -184,12 +184,10 @@ class GumbelCopula(AbstractArchimedeanCopula):
         self._theta = theta
 
     @array_io(dim=2)
-    def pdf(self, u: Array, log=False):
+    def pdf(self, u: np.ndarray, log=False):
+        assert not np.isnan(self.params), "Copula must have parameters to calculate parameters"
+
         n, d = u.shape
-        if d != self.dim:
-            raise ValueError("input array does not match copula's dimension")
-        elif d < 2:
-            raise ValueError("input array should at least be bivariate")
 
         theta = self.params
         ok = valid_rows_in_u(u)

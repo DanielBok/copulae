@@ -110,12 +110,13 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         self._theta = theta
 
     @array_io(dim=2)
-    def pdf(self, x: Array, log=False):
+    def pdf(self, u: Array, log=False):
+        assert not np.isnan(self.params), "Copula must have parameters to calculate parameters"
 
-        n, d = x.shape
+        n, d = u.shape
 
         theta = self.params
-        ok = valid_rows_in_u(x)
+        ok = valid_rows_in_u(u)
         log_pdf = np.repeat(np.nan, n)
         if not ok.any():
             return log_pdf
@@ -123,8 +124,8 @@ class ClaytonCopula(AbstractArchimedeanCopula):
             log_pdf[ok] = 0
             return log_pdf
 
-        lu = np.log(x).sum(1)
-        t = self.ipsi(x).sum(1)
+        lu = np.log(u).sum(1)
+        t = self.ipsi(u).sum(1)
 
         if theta < 0:  # dim == 2
             pos_t = t < 1

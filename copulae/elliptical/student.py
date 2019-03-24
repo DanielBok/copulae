@@ -117,10 +117,10 @@ class StudentCopula(AbstractEllipticalCopula):
             self._rhos = params[1:]
 
     @array_io(dim=2)
-    def pdf(self, x: np.ndarray, log=False):
+    def pdf(self, u: np.ndarray, log=False):
         sigma = self.sigma
         df = self._df
-        q = t.ppf(x, df)
+        q = t.ppf(u, df)
         d = mvt.logpdf(q, cov=sigma, df=df) - t.logpdf(q, df=df).sum(1)
         return d if log else np.exp(d)
 
