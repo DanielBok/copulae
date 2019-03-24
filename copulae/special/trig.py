@@ -1,9 +1,19 @@
+from functools import wraps
+
 import numpy as np
 
-from copulae.types import Numeric
+
+def _array_io(f):
+    @wraps(f)
+    def decorator(x):
+        res = np.asarray(f(np.asarray(x)))
+        return float(res) if res.size == 1 else res
+
+    return decorator
 
 
-def cospi(x: Numeric):
+@_array_io
+def cospi(x):
     """
     Cosine function where every element is multiplied by pi.
 
@@ -13,7 +23,7 @@ def cospi(x: Numeric):
 
     Parameters
     ----------
-    x: array like
+    x: {array_like, scalar}
         Input array in degrees
 
     Returns
@@ -24,7 +34,8 @@ def cospi(x: Numeric):
     return np.cos(x * np.pi)
 
 
-def cospi2(x: Numeric):
+@_array_io
+def cospi2(x):
     """
     Cosine function where every element is multiplied by pi / 2.
 
@@ -34,7 +45,7 @@ def cospi2(x: Numeric):
 
     Parameters
     ----------
-    x: array like
+    x: {array_like, scalar}
         Input array in degrees
 
     Returns
@@ -45,7 +56,8 @@ def cospi2(x: Numeric):
     return np.cos(x * np.pi / 2)
 
 
-def sinpi(x: Numeric):
+@_array_io
+def sinpi(x):
     """
     Sine function where every element is multiplied by pi.
 
@@ -55,7 +67,7 @@ def sinpi(x: Numeric):
 
     Parameters
     ----------
-    x: array like
+    x: {array_like, scalar}
         Input array in degrees
 
     Returns
@@ -66,7 +78,8 @@ def sinpi(x: Numeric):
     return np.sin(x * np.pi)
 
 
-def sinpi2(x: Numeric):
+@_array_io
+def sinpi2(x):
     """
     Sine function where every element is multiplied by pi / 2.
 
@@ -76,7 +89,7 @@ def sinpi2(x: Numeric):
 
     Parameters
     ----------
-    x: array like
+    x: {array_like, scalar}
         Input array in degrees
 
     Returns
@@ -87,7 +100,8 @@ def sinpi2(x: Numeric):
     return np.sin(x * np.pi / 2)
 
 
-def tanpi(x: Numeric):
+@_array_io
+def tanpi(x):
     """
     Tangent function where every element is multiplied by pi.
 
@@ -97,7 +111,7 @@ def tanpi(x: Numeric):
 
     Parameters
     ----------
-    x: array like
+    x: {array_like, scalar}
         Input array in degrees
 
     Returns
@@ -109,7 +123,8 @@ def tanpi(x: Numeric):
     return np.tan(x * np.pi)
 
 
-def tanpi2(x: Numeric):
+@_array_io
+def tanpi2(x):
     """
     Tangent function where every element is multiplied by pi / 2.
 
@@ -119,12 +134,12 @@ def tanpi2(x: Numeric):
 
     Parameters
     ----------
-    x: array like
+    x: {array_like, scalar}
         Input array in degrees
 
     Returns
     -------
-    ndarray
+    {array_like, scalar}
         The corresponding Tangent values. This is a scalar if x is a scalar.
     """
     return np.tan(x * np.pi / 2)

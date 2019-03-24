@@ -41,7 +41,7 @@ def find_root(f, a, b, delta=1e-06, max_iter=1000):
     --------
 
     >>> import numpy as np
-    >>> from copulae.core.roots import find_root
+    >>> from copulae.special.optimize import find_root
 
     >>> find_root(lambda x: (84.5 - x ** 3) / (x ** 2 + 1), 4, 6)  # some random guesses (4, 6)
 

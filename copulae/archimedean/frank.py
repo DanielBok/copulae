@@ -1,7 +1,7 @@
 import numpy as np
 
 from copulae.copula import TailDep
-from copulae.core.roots import find_root
+from copulae.special.optimize import find_root
 from copulae.special import log1mexp, log1pexp
 from copulae.special.debye import debye_1, debye_2
 from copulae.types import Array
