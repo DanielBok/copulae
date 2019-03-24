@@ -41,7 +41,7 @@ def array_io(func=None, dim=0, optional=False):
     return decorator(func) if func else decorator
 
 
-def as_array(x) -> np.ndarray:
+def as_array(x, dtype=float, copy=False) -> np.ndarray:
     """
     Converts a scalar or array into a numpy array
 
@@ -50,12 +50,19 @@ def as_array(x) -> np.ndarray:
     x: {array_like, scalar}
         Numeric input
 
+    dtype
+        Array type
+
+    copy: bool
+        If true, returns a copy of the array
+
     Returns
     -------
     ndarray
         Numpy array
     """
-    x = np.asarray(x, float)
+    x = np.asarray(x, dtype)
+    x = x.copy() if copy else x
     return x.ravel() if x.ndim == 0 else x
 
 
