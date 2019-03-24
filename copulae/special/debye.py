@@ -1,20 +1,10 @@
-from typing import List
-
 import numba as nb
 import numpy as np
 
-import copulae.special._machine as M
+from copulae.special import _machine as M
+from copulae.special._cheb import cheb_eval
 
-
-@nb.njit()
-def cheb_eval(constants: List[float], x: float):  # pragma: no cover
-    """Evaluates the Chebyshev series"""
-    d, dd = 0.0, 0.0
-
-    for j in range(len(constants) - 1, 0, -1):
-        dd, d = d, 2 * x * d - dd + constants[j]
-
-    return x * d - dd + 0.5 * constants[0]
+__all__ = ['debye_n', 'debye_1', 'debye_2', 'debye_3', 'debye_4', 'debye_5', 'debye_6']
 
 
 def debye_n(x, order=1):
@@ -49,12 +39,13 @@ def debye_n(x, order=1):
         return debye_3(x)
     elif order == 4:
         return debye_4(x)
+    elif order == 5:
+        return debye_5(x)
+    elif order == 6:
+        return debye_6(x)
 
 
-@nb.vectorize([
-    nb.double(nb.int_),
-    nb.double(nb.double),
-    nb.complex128(nb.complex128)])
+@nb.vectorize([nb.float64(nb.float64)])
 def debye_1(x):  # pragma: no cover
     r"""
     Computes the first-order Debye function
@@ -117,10 +108,7 @@ def debye_1(x):  # pragma: no cover
         return val_infinity / x
 
 
-@nb.vectorize([
-    nb.double(nb.int_),
-    nb.double(nb.double),
-    nb.complex128(nb.complex128)])
+@nb.vectorize([nb.float64(nb.float64)])
 def debye_2(x):  # pragma: no cover
     r"""
     Computes the second-order Debye function
@@ -186,10 +174,7 @@ def debye_2(x):  # pragma: no cover
         return val_infinity / x ** 2
 
 
-@nb.vectorize([
-    nb.double(nb.int_),
-    nb.double(nb.double),
-    nb.complex128(nb.complex128)])
+@nb.vectorize([nb.float64(nb.float64)])
 def debye_3(x):  # pragma: no cover
     r"""
     Computes the third-order Debye function
@@ -254,10 +239,7 @@ def debye_3(x):  # pragma: no cover
         return val_infinity / x ** 3
 
 
-@nb.vectorize([
-    nb.double(nb.int_),
-    nb.double(nb.double),
-    nb.complex128(nb.complex128)])
+@nb.vectorize([nb.float64(nb.float64)])
 def debye_4(x):  # pragma: no cover
     r"""
     Computes the fourth-order Debye function
@@ -322,10 +304,7 @@ def debye_4(x):  # pragma: no cover
         return val_infinity / x ** 4
 
 
-@nb.vectorize([
-    nb.double(nb.int_),
-    nb.double(nb.double),
-    nb.complex128(nb.complex128)])
+@nb.vectorize([nb.float64(nb.float64)])
 def debye_5(x):  # pragma: no cover
     r"""
     Computes the fifth-order Debye function
@@ -389,10 +368,7 @@ def debye_5(x):  # pragma: no cover
         return val_infinity / x ** 5
 
 
-@nb.vectorize([
-    nb.double(nb.int_),
-    nb.double(nb.double),
-    nb.complex128(nb.complex128)])
+@nb.vectorize([nb.float64(nb.float64)])
 def debye_6(x):  # pragma: no cover
     r"""
     Computes the sixth-order Debye function

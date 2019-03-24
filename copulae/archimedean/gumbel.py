@@ -42,7 +42,7 @@ class GumbelCopula(AbstractArchimedeanCopula):
         assert theta >= 1 or np.isnan(theta), 'Gumbel Copula parameter must be >= 1'
 
         super().__init__(dim, theta, 'clayton')
-        self._ext = GumbelExt(self)
+        self._ext = None
         self._bounds = (1.0, np.inf)
 
     @array_io

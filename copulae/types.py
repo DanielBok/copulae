@@ -6,6 +6,6 @@ EPSILON = np.finfo('float').eps
 
 Array = Union[Iterable[float], Iterable[int], np.ndarray]
 
-Numeric = Union[np.ndarray, Iterable[Union[float, int]], int, float]
+Numeric = Union[np.ndarray, Iterable, int, float, complex]
 
 OptNumeric = Optional[Numeric]
