@@ -1,6 +1,8 @@
 import numpy as np
 
-import copulae.special._machine as M
+from copulae.special import _machine as M
+from copulae.special._log import complex_log_e
+from copulae.special.clausen import clausen
 from copulae.utility import as_array
 
 
@@ -22,7 +24,7 @@ def dilog(x):
     {array_like, scalar}
         Real Dilog output
     """
-    x = as_array(x)
+    x = as_array(x, copy=True)
     x[x >= 0] = _dilog_xge0(x[x >= 0])
 
     xm = x[x < 0]
@@ -144,3 +146,189 @@ def _dilog_series_2(x: np.ndarray):
     t[~m1] += (xx - 1) * (1 + xx * (0.5 + xx * tt))
 
     return t + 1
+
+
+# noinspection PyPep8Naming
+def dilog_complex(z):
+    r"""
+    This function computes the full complex-valued dilogarithm for the complex argument
+    :math=:`z = r \exp(i \theta)`.
+
+    Parameters
+    ----------
+    z: {array_like, complex}
+        Numeric complex vector input
+
+    Returns
+    -------
+    {array_like, scalar}
+        Complex Dilog output
+    """
+    z = as_array(z, complex, True)
+    Z = np.ravel(z)
+
+    R, Theta = np.abs(Z), np.angle(Z)
+    X = R * np.cos(Theta)
+    Y = R * np.sin(Theta)
+
+    ZETA2 = M.M_PI ** 2 / 6
+    R2 = X * X + Y * Y
+
+    log_x = np.log(X)
+    atans = np.arctan2(Y, X)
+
+    res = np.zeros_like(Z, complex)
+    for i, x, y, r2 in zip(range(len(Z)), X, Y, R2):
+        if y == 0:
+            c = (-M.M_PI * log_x[i]) if x >= 0 else 0.0
+            res[i] = complex(dilog(x), c)
+        elif abs(r2 - 1) < M.DBL_EPSILON:
+            t = atans[i]
+            t1 = t * t / 4
+            t2 = M.M_PI * abs(t) / 2
+            r = ZETA2 + t1 - t2
+            res[i] = complex(r, clausen(t))
+        elif r2 < 1:
+            res[i] = _dilogc_unit_disk(x, y)
+        else:
+            re, im = _dilogc_unit_disk(x / r2, y / r2)
+            t = atans[i]
+            re1 = np.log(r2 ** 0.5)
+            im1 = (-1 if t < 0 else 1) * (abs(t) - M.M_PI)
+            re2 = re1 ** 2 - im1 ** 2
+            im2 = 2 * re1 * im1
+
+            res[i] = complex(-re - 0.5 * re2 - ZETA2, -im - 0.5 * im2)
+
+    return res
+
+
+def _dilogc_fundametal(r, x, y):
+    if r > 0.98:
+        return _dilogc_series_1(r, x, y)
+    elif r > 0.25:
+        return _dilogc_series_2(r, x, y)
+    else:
+        return _dilogc_series_3(r, x, y)
+
+
+def _dilogc_unit_disk(x: float, y: float):
+    # dilogc_unitdisk(x, y, real_dl, imag_dl)
+    magic_split_value = 0.732
+    z2 = M.M_PI ** 2 / 6
+
+    r = np.hypot(x, y)
+
+    if x > magic_split_value:
+        x_tmp = 1.0 - x
+        y_tmp = -y
+        r_tmp = np.hypot(x_tmp, y_tmp)
+
+        re, im = _dilogc_fundametal(r_tmp, x_tmp, y_tmp)
+        a = np.log(r)
+        b = np.log(r_tmp)
+        c = np.arctan2(y, x)
+        d = np.arctan2(y_tmp, x_tmp)
+
+        re = -re + z2 - a * b + c * d
+        im = im - b * c - a * d
+        return re, im
+    else:
+        return _dilogc_fundametal(r, x, y)
+
+
+def _dilogc_series_1(r, x, y):
+    cos_theta = x / r
+    sin_theta = y / r
+
+    ck, sk, rk = cos_theta, sin_theta, r
+
+    re, im = r * ck, r * sk
+
+    for k in range(2, 50 + int(22.0 / (-np.log(r)))):
+        ck_tmp = ck
+        ck -= ((1.0 - cos_theta) * ck + sin_theta * sk)
+        sk -= sk - ((1.0 - cos_theta) * sk - sin_theta * ck_tmp)
+        rk *= r
+        dr = rk / (k * k) * ck
+        di = rk / (k * k) * sk
+        re += dr
+        im += di
+        if abs((dr * dr + di * di) / (re * re + im * im)) < M.DBL_EPSILON ** 2:
+            break
+
+    return re, im
+
+
+def _dilogc_series_2(r, x, y):
+    if r == 0:
+        return .0, .0
+    re, im = _series_2_c(r, x, y)
+
+    om_r, om_i = complex_log_e(1 - x, -y)
+    tx = (om_r * x + om_i * y) / (r ** 2)
+    ty = (-om_r * y + om_i * x) / (r ** 2)
+    rx = (1.0 - x) * tx + y * ty
+    ry = (1.0 - x) * ty - y * tx
+
+    return re + rx + 1.0, im + ry
+
+
+def _dilogc_series_3(r, x, y):
+    theta = np.arctan2(y, x)
+    cos_theta = x / r
+    sin_theta = y / r
+    omc = 1.0 - cos_theta
+
+    re = [
+        M.M_PI ** 2 / 6 + 0.25 * (theta ** 2 - 2 * M.M_PI * abs(theta)),
+        -0.5 * np.log(2 * omc),
+        -0.5,
+        -0.5 / omc,
+        0,
+        0.5 * (2.0 + cos_theta) / (omc ** 2),
+        0
+    ]
+
+    im = [
+        clausen(theta),
+        -np.arctan2(-sin_theta, omc),
+        0.5 * sin_theta / omc,
+        0,
+        -0.5 * sin_theta / (omc ** 2),
+        0,
+        0.5 * sin_theta / (omc ** 5) * (8.0 * omc - sin_theta * sin_theta * (3.0 + cos_theta))
+    ]
+
+    sum_re, sum_im = re[0], im[0]
+    a, an, nfact = np.log(r), 1, 1
+    for n in range(1, 7):
+        an *= a
+        nfact *= n
+        t = an / nfact
+        sum_re += t * re[n]
+        sum_im += t * im[n]
+
+    return sum_re, sum_im
+
+
+def _series_2_c(r, x, y):
+    cos_theta = x / r
+    sin_theta = y / r
+
+    ck, sk, rk = cos_theta, sin_theta, r
+
+    re, im = 0.5 * r * ck, 0.5 * r * sk
+
+    for k in range(2, 30 + int(18.0 / (-np.log(r)))):
+        ck_tmp = ck
+        ck -= ((1.0 - cos_theta) * ck + sin_theta * sk)
+        sk -= ((1.0 - cos_theta) * sk - sin_theta * ck_tmp)
+        rk *= r
+        dr = rk / (k * k * (k + 1.0)) * ck
+        di = rk / (k * k * (k + 1.0)) * sk
+        re += dr
+        im += di
+        if abs((dr ** 2 + di ** 2) / (re ** 2 + im ** 2)) < M.DBL_EPSILON ** 2:
+            break
+    return re, im

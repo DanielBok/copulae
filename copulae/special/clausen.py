@@ -6,6 +6,8 @@ from copulae.special._trig import angle_restrict_pos_err_e
 from copulae.types import Numeric
 from copulae.utility import as_array
 
+__all__ = ['clausen']
+
 
 def clausen(x) -> Numeric:
     r"""
