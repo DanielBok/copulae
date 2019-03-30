@@ -4,7 +4,7 @@ import numpy as np
 from scipy.stats import logistic as logis
 
 from copulae.special.combinatorics import comb
-from copulae.special.dilog import dilog
+from copulae.special.dilog import dilog, dilog_complex
 
 __all__ = ['eulerian', 'eulerian_all', 'log1mexp', 'log1pexp', 'poly_log', 'polyn_eval', 'sign_ff',
            'stirling_first', 'stirling_first_all', 'stirling_second', 'stirling_second_all']
@@ -108,6 +108,75 @@ def log1pexp(x):
     return np.log(1 + np.exp(x))
 
 
+def poly_log(z, s, method='default', log=False) -> Union[float, np.ndarray]:
+    r"""
+    Computes the polylogarithm function. Current implementation only takes care of :math:`s \leq 0`
+
+    .. math::
+
+        L_s(z) = \sum_{k=1}^\infty \frac{z^k}{k^s}
+
+    Parameters
+    ----------
+    z: {array_like, scalar}
+        Numeric or complex vector
+
+    s: {array_like, scalar}
+        Complex number
+
+    method: {'default', 'neg-stirling', 'neg-eulerian'}
+        Algorithm used for calculating poly logarithms
+
+    log: bool
+        If True, returns the log of poly logarithms
+
+    Returns
+    -------
+    {array_like, scalar}
+        Poly logarithms
+    """
+    if isinstance(z, (complex, int, float)):
+        z = np.ravel(z)
+
+    method = method.lower()
+    assert method in ('default', 'neg-stirling', 'neg-eulerian')
+    if s == 2 and method == 'default':
+        res = dilog_complex(z) if np.any(np.iscomplex(z)) else dilog(z)
+        return float(res) if res.shape == 1 else res
+
+    elif method == 'default':
+        method = 'neg-stirling'
+
+    assert float(s).is_integer() and s <= 1
+
+    if s == 1:
+        r = -np.log1p(-z)
+        return np.log(r) if log else r
+
+    iz = 1 - z
+    n = abs(int(s))
+
+    if method == 'neg-stirling':
+        r = z / iz
+        f = np.cumprod([1, *range(1, n + 1)])
+        s = stirling_second_all(n + 1)
+        p = polyn_eval(f * s, r)
+        if log:
+            res = np.log(p) + logis.ppf(z)
+        else:
+            res = r * p
+
+    else:
+        #  method == 'neg-eulerian'
+        p = polyn_eval(eulerian_all(n), z)
+        if log:
+            res = np.log(p) + np.log(z) - (n + 1) * np.log1p(-z)
+        else:
+            res = z * p / iz ** (n + 1)
+
+    return float(res) if res.size == 1 else res
+
+
 def polyn_eval(coef, x) -> Union[float, np.ndarray]:
     r"""
     Polynomial evaluation via Horner scheme
@@ -135,7 +204,7 @@ def polyn_eval(coef, x) -> Union[float, np.ndarray]:
 
     m = len(coef)
 
-    res = np.zeros(len(x))
+    res = np.zeros(len(x), np.float64)
     for i, xi in enumerate(x):
         if m == 1:
             r = coef[0]

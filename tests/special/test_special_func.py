@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 from numpy.testing import assert_almost_equal
 
@@ -44,6 +45,28 @@ def test_log1mexp(value, exp):
 ])
 def test_log1mexp(value, exp):
     assert_almost_equal(log1pexp(value), exp)
+
+
+@pytest.mark.parametrize('z, s, log, dp, exp', [
+    (np.arange(-4, 0.1, 0.4), -7, False, 6,
+     [-0.5126656000003, -0.573610269987928, -0.606087738137387, -0.579693804311355, -0.446840155547746,
+      -0.145404663923222, 0.363288070892882, 0.937598521985122, 0.878245290738864, -0.493319717367522, 0]),
+    (np.arange(0, 4.1, 0.4), -7, False, 3,
+     [0, 10142.9492455418, 819890420.000001, 4127873429.99997, 2116512.53772291, 94586, 14605.1307824849,
+      3990.40387466444, 1504.3276293274, 695.371444040548, 369.475994513025]),
+    (np.arange(0.1, 1, 0.1), -11, True, 4,
+     [7.49391587403553, 11.7916877939206, 15.2747867369797, 18.5513667073359, 21.9004628928554, 25.5630317509794,
+      29.8734730437786, 35.5015876869881, 44.5067157736232]),
+    (np.arange(0.1, 1, 0.1), 1, True, 4,
+     [-2.25036732731245, -1.49993998675952, -1.03093043315872, -0.671726992092122, -0.366512920581664,
+      -0.0874215717907552, 0.185626758862366, 0.475884995327111, 0.834032445247956]),
+    (0.5, 2, False, 6, 0.5822405),  # special case
+])
+@pytest.mark.parametrize('method', ['default', 'neg-eulerian'])
+def test_poly_log(z, s, method, log, exp, dp):
+    if s == 2 and method != 'default':
+        return
+    assert_almost_equal(poly_log(z, s, method=method, log=log), exp, dp)
 
 
 @pytest.mark.parametrize('coef, x, exp', [
