@@ -116,7 +116,7 @@ def _dilog_series_1(x: np.ndarray):
         mask *= ((term / total) >= M.DBL_EPSILON)
         if np.alltrue(mask == 0):
             break
-    else:
+    else:  # pragma: no cover
         raise RuntimeError('Max iterations hit for dilog series 1')
 
     return total
@@ -149,7 +149,7 @@ def _dilog_series_2(x: np.ndarray):
 
 
 # noinspection PyPep8Naming
-def dilog_complex(z):
+def dilog_complex(z) -> np.ndarray:
     r"""
     This function computes the full complex-valued dilogarithm for the complex argument
     :math=:`z = r \exp(i \theta)`.
@@ -180,18 +180,18 @@ def dilog_complex(z):
     res = np.zeros_like(Z, complex)
     for i, x, y, r2 in zip(range(len(Z)), X, Y, R2):
         if y == 0:
-            c = (-M.M_PI * log_x[i]) if x >= 0 else 0.0
+            c = (-M.M_PI * log_x[i]) if x >= 1.0 else 0.0
             res[i] = complex(dilog(x), c)
-        elif abs(r2 - 1) < M.DBL_EPSILON:
+        elif abs(r2 - 1) <= M.DBL_EPSILON:
             t = atans[i]
             t1 = t * t / 4
             t2 = M.M_PI * abs(t) / 2
             r = ZETA2 + t1 - t2
             res[i] = complex(r, clausen(t))
         elif r2 < 1:
-            res[i] = _dilogc_unit_disk(x, y)
+            res[i] = complex(*_dilogc_unit_disk(x, y))
         else:
-            re, im = _dilogc_unit_disk(x / r2, y / r2)
+            re, im = _dilogc_unit_disk(x / r2, -y / r2)
             t = atans[i]
             re1 = np.log(r2 ** 0.5)
             im1 = (-1 if t < 0 else 1) * (abs(t) - M.M_PI)
@@ -200,22 +200,20 @@ def dilog_complex(z):
 
             res[i] = complex(-re - 0.5 * re2 - ZETA2, -im - 0.5 * im2)
 
-    return res
+    return complex(res) if res.size == 1 else res.reshape(z.shape)
 
 
-def _dilogc_fundametal(r, x, y):
+def _dilogc_fundamental(r, x, y):
     if r > 0.98:
-        return _dilogc_series_1(r, x, y)
+        return _dilogc_series_3(r, x, y)
     elif r > 0.25:
         return _dilogc_series_2(r, x, y)
     else:
-        return _dilogc_series_3(r, x, y)
+        return _dilogc_series_1(r, x, y)
 
 
 def _dilogc_unit_disk(x: float, y: float):
-    # dilogc_unitdisk(x, y, real_dl, imag_dl)
     magic_split_value = 0.732
-    z2 = M.M_PI ** 2 / 6
 
     r = np.hypot(x, y)
 
@@ -224,31 +222,34 @@ def _dilogc_unit_disk(x: float, y: float):
         y_tmp = -y
         r_tmp = np.hypot(x_tmp, y_tmp)
 
-        re, im = _dilogc_fundametal(r_tmp, x_tmp, y_tmp)
+        re, im = _dilogc_fundamental(r_tmp, x_tmp, y_tmp)
         a = np.log(r)
         b = np.log(r_tmp)
         c = np.arctan2(y, x)
         d = np.arctan2(y_tmp, x_tmp)
 
-        re = -re + z2 - a * b + c * d
-        im = im - b * c - a * d
+        re = -re + M.M_PI ** 2 / 6 - a * b + c * d
+        im = -im - b * c - a * d
         return re, im
     else:
-        return _dilogc_fundametal(r, x, y)
+        return _dilogc_fundamental(r, x, y)
 
 
 def _dilogc_series_1(r, x, y):
     cos_theta = x / r
     sin_theta = y / r
 
+    alpha = 1 - cos_theta
+    beta = sin_theta
+
     ck, sk, rk = cos_theta, sin_theta, r
 
     re, im = r * ck, r * sk
 
-    for k in range(2, 50 + int(22.0 / (-np.log(r)))):
+    for k in range(2, 50 + int(-22 / np.log(r))):
         ck_tmp = ck
-        ck -= ((1.0 - cos_theta) * ck + sin_theta * sk)
-        sk -= sk - ((1.0 - cos_theta) * sk - sin_theta * ck_tmp)
+        ck = ck - (alpha * ck + beta * sk)
+        sk = sk - (alpha * sk - beta * ck_tmp)
         rk *= r
         dr = rk / (k * k) * ck
         di = rk / (k * k) * sk
@@ -261,7 +262,7 @@ def _dilogc_series_1(r, x, y):
 
 
 def _dilogc_series_2(r, x, y):
-    if r == 0:
+    if r == 0:  # pragma: no cover
         return .0, .0
     re, im = _series_2_c(r, x, y)
 
@@ -271,7 +272,7 @@ def _dilogc_series_2(r, x, y):
     rx = (1.0 - x) * tx + y * ty
     ry = (1.0 - x) * ty - y * tx
 
-    return re + rx + 1.0, im + ry
+    return re + rx + 1, im + ry
 
 
 def _dilogc_series_3(r, x, y):
@@ -316,14 +317,17 @@ def _series_2_c(r, x, y):
     cos_theta = x / r
     sin_theta = y / r
 
+    alpha = 1 - cos_theta
+    beta = sin_theta
+
     ck, sk, rk = cos_theta, sin_theta, r
 
     re, im = 0.5 * r * ck, 0.5 * r * sk
 
     for k in range(2, 30 + int(18.0 / (-np.log(r)))):
         ck_tmp = ck
-        ck -= ((1.0 - cos_theta) * ck + sin_theta * sk)
-        sk -= ((1.0 - cos_theta) * sk - sin_theta * ck_tmp)
+        ck = ck - (alpha * ck + beta * sk)
+        sk = sk - (alpha * sk - beta * ck_tmp)
         rk *= r
         dr = rk / (k * k * (k + 1.0)) * ck
         di = rk / (k * k * (k + 1.0)) * sk

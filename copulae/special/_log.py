@@ -12,4 +12,7 @@ def complex_log_e(zr, zi):
     re = np.log(mx) + 0.5 * np.log(1.0 + (mn / mx) * (mn / mx))
     im = np.arctan2(zi, zr)
 
+    if np.size(re) == 1:
+        re = float(re)
+        im = float(im)
     return re, im
