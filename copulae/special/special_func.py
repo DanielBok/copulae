@@ -1,9 +1,77 @@
 from typing import Iterable, Union
 
 import numpy as np
+from scipy.stats import logistic as logis
 
-__all__ = ['log1mexp', 'log1pexp', 'polyn_eval', 'sign_ff', 'stirling_first', 'stirling_first_all', 'stirling_second',
-           'stirling_second_all']
+from copulae.special.combinatorics import comb
+from copulae.special.dilog import dilog
+
+__all__ = ['eulerian', 'eulerian_all', 'log1mexp', 'log1pexp', 'poly_log', 'polyn_eval', 'sign_ff',
+           'stirling_first', 'stirling_first_all', 'stirling_second', 'stirling_second_all']
+
+
+def eulerian(n, k):
+    r"""
+    Computes the Eulerian numbers.
+
+    The Eulerian number :math:`\binom{n}{k}` gives the number of permutations of
+    {1,2,...,n} having :math:`k` permutation ascents. A description of a permutation
+    ascent is as given. Let :math:`p = {a_1, a_2, \dots, a_n}` be a permutation.
+    Then :math:`i` is a permutation ascent if :math:`a_i < a_{i+1}`. For example,
+    the permutation {1,2,3,4} is composed of three ascents, namely {1,2}, {2,3}, and {3,4}.
+
+    Parameters
+    ----------
+    n: int
+        Numeric. If non-integer passed in, will attempt to cast as integer
+
+    k: int
+        Numeric. If non-integer passed in, will attempt to cast as integer
+
+    Returns
+    -------
+    int
+        Eulerian number
+    """
+    try:
+        k, n = int(k), int(n)
+    except (ValueError, TypeError):
+        raise TypeError("`k` and `n` must both be integers")
+
+    assert 0 <= k <= n, "`k` must be in the range of [0, `n`]"
+
+    if k == n:
+        return 0
+    if k == 0:
+        return 1
+    if k >= (n + 1) // 2:
+        k = n - k - 1
+    k1 = k + 1
+    sig = np.ones(k1)
+    sig[1::2] *= -1
+
+    return int(round(sum(sig * comb(n + 1, np.arange(k + 1)) * np.arange(k1, 0, -1, np.float64) ** n)))
+
+
+def eulerian_all(n):
+    """
+    Computes the full vector of Eulerian numbers
+
+    Parameters
+    ----------
+    n: int
+        Positive integer
+
+    Returns
+    -------
+    list of int
+        All Eulerian numbers at :math:`n`
+    """
+    assert n >= 0 and isinstance(n, int), "`n` must be an integer >= 0"
+    if n == 0:
+        return 1
+
+    return [eulerian(n, i) for i in range(n)]
 
 
 def log1mexp(x):
@@ -151,10 +219,9 @@ def stirling_first(n: int, k: int):
     try:
         k, n = int(k), int(n)
     except (ValueError, TypeError):
-        raise TypeError("<k> and <n> must both be integers")
+        raise TypeError("`k` and `n` must both be integers")
 
-    if k < 0 or k > n:
-        raise ValueError("<k> must be in the range of [0, <n>]")
+    assert 0 <= k <= n, "`k` must be in the range of [0, `n`]"
 
     if n == 0 or n == k:
         return 1
@@ -182,8 +249,8 @@ def stirling_first_all(n: int):
 
     Returns
     -------
-    List[int]
-        a list of all the Stirling number of the first kind
+    list of int
+        A vector of all the Stirling number of the first kind
 
     """
     return [stirling_first(n, k + 1) for k in range(n)]
@@ -209,10 +276,9 @@ def stirling_second(n: int, k: int):
     try:
         k, n = int(k), int(n)
     except (ValueError, TypeError):
-        raise TypeError("<k> and <n> must both be integers")
+        raise TypeError("`k` and `n` must both be integers")
 
-    if k < 0 or k > n:
-        raise ValueError("<k> must be in the range of [0, <n>]")
+    assert 0 <= k <= n, "`k` must be in the range of [0, `n`]"
 
     if n == 0 or n == k:
         return 1
@@ -239,8 +305,7 @@ def stirling_second_all(n: int):
 
     Returns
     -------
-    List[int]
-        a list of all the Stirling number of the second kind
-
+    list of int
+        A vector of all the Stirling number of the second kind
     """
     return [stirling_second(n, k + 1) for k in range(n)]

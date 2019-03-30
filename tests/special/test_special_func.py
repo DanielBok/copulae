@@ -4,6 +4,32 @@ from numpy.testing import assert_almost_equal
 from copulae.special.special_func import *
 
 
+@pytest.mark.parametrize('n, k, exp', [
+    ('A', 'B', None),
+    (5, 3, 26),
+    (14, 3, 198410786),
+    (3, 3, 0),
+    (15, 0, 1)
+])
+def test_eulerian(n, k, exp):
+    if isinstance(n, str) or isinstance(k, str):
+        with pytest.raises(TypeError):
+            # noinspection PyTypeChecker
+            eulerian(n, k)
+    else:
+        assert eulerian(n, k) == exp
+
+
+@pytest.mark.parametrize('n, exp', [
+    (0, 1),
+    (5, [1, 26, 66, 26, 1]),
+    (10, [1, 1013, 47840, 455192, 1310354, 1310354, 455192, 47840, 1013, 1]),
+    (12, [1, 4083, 478271, 10187685, 66318474, 162512286, 162512286, 66318474, 10187685, 478271, 4083, 1])
+])
+def test_eulerian_all(n, exp):
+    assert_almost_equal(eulerian_all(n), exp)
+
+
 @pytest.mark.parametrize('value, exp', [
     (2.5, -0.08565048),
     ([5.6, 1.4], [-0.003704718, -0.283154954])
@@ -64,7 +90,7 @@ def test_stirling_second(n, k, exp):
     (8, [1, 127, 966, 1701, 1050, 266, 28, 1])
 ])
 def test_stirling_second_all(n, exp):
-    assert stirling_second_all(n) == exp
+    assert_almost_equal(stirling_second_all(n), exp)
 
 
 # noinspection PyTypeChecker
@@ -72,7 +98,7 @@ def test_stirling_second_all(n, exp):
     ([1, 2, 3], [4, 5, 6])
 ])
 def test_stirling_raises_type_error(n, k):
-    match = '<k> and <n> must both be integers'
+    match = '`k` and `n` must both be integers'
     with pytest.raises(TypeError, match=match):
         stirling_first(n, k)
     with pytest.raises(TypeError, match=match):
@@ -84,9 +110,9 @@ def test_stirling_raises_type_error(n, k):
     (4, -1)
 ])
 def test_stirling_raises_value_error(n, k):
-    match = r'<k> must be in the range of \[0, <n>\]'
-    with pytest.raises(ValueError, match=match):
+    match = r'`k` must be in the range of \[0, `n`\]'
+    with pytest.raises(AssertionError, match=match):
         stirling_first(n, k)
 
-    with pytest.raises(ValueError, match=match):
+    with pytest.raises(AssertionError, match=match):
         stirling_second(n, k)
