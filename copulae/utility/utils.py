@@ -34,14 +34,14 @@ def array_io(func=None, dim=0, optional=False):
                 x = np.asarray(x)
 
             res = np.asarray(f(cls, x, *args, **kwargs))
-            return float(res) if res.size == 1 else res
+            return res.item(0) if res.size == 1 else res
 
         return internal
 
     return decorator(func) if func else decorator
 
 
-def as_array(x, dtype=float, copy=False) -> np.ndarray:
+def as_array(x, dtype=None, copy=False) -> np.ndarray:
     """
     Converts a scalar or array into a numpy array
 

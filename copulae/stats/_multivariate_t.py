@@ -199,7 +199,7 @@ class multivariate_t:
         else:
             raise ValueError(f"Unknown centrality type {type_}. Use one of 'Kshirsagar', 'shifted'")
 
-        return float(r) if r.size == 1 else np.asarray(r)
+        return r.item(0) if r.size == 1 else r
 
     @staticmethod
     def _process_input(x: Numeric, dim: int):

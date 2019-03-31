@@ -19,4 +19,4 @@ def angle_restrict_pos_err_e(theta):
     if np.any(m):
         r[m] = np.nan
 
-    return float(r) if r.size == 1 else r
+    return r.item(0) if r.size == 1 else r

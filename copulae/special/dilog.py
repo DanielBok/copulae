@@ -99,7 +99,7 @@ def _dilog_xge0(x):
     if np.any(m7):
         res[m7] = _dilog_series_1(x[m7])
 
-    return float(res) if res.size == 1 else res
+    return res.item(0) if res.size == 1 else res
 
 
 def _dilog_series_1(x: np.ndarray):
@@ -200,7 +200,7 @@ def dilog_complex(z) -> np.ndarray:
 
             res[i] = complex(-re - 0.5 * re2 - ZETA2, -im - 0.5 * im2)
 
-    return complex(res) if res.size == 1 else res.reshape(z.shape)
+    return res.item(0) if res.size == 1 else res.reshape(z.shape)
 
 
 def _dilogc_fundamental(r, x, y):

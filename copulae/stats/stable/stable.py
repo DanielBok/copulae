@@ -110,7 +110,7 @@ class skew_stable:
             d = ans[~infs]
             ans[~infs] = (d - np.log(gamma)) if log else (d / gamma)
 
-        return float(ans) if ans.size == 1 else ans
+        return ans.item(0) if ans.size == 1 else ans
 
     @classmethod
     def logpdf(cls, x: Numeric, alpha: float, beta: float, gamma=1., delta=0., pm=0):

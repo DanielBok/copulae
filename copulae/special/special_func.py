@@ -174,7 +174,7 @@ def poly_log(z, s, method='default', log=False) -> Union[float, np.ndarray]:
         else:
             res = z * p / iz ** (n + 1)
 
-    return float(res) if res.size == 1 else res
+    return res.item(0) if res.size == 1 else res
 
 
 def polyn_eval(coef, x) -> Union[float, np.ndarray]:
@@ -215,7 +215,7 @@ def polyn_eval(coef, x) -> Union[float, np.ndarray]:
 
         res[i] = r
 
-    return float(res) if res.size == 1 else res
+    return res.item(0) if res.size == 1 else res
 
 
 def sign_ff(alpha: float, j: Union[Iterable[int], int], d: Union[Iterable[int], int]):
@@ -265,7 +265,7 @@ def sign_ff(alpha: float, j: Union[Iterable[int], int], d: Union[Iterable[int], 
         ind = x != np.floor(x)
         res[ind] = (-1) ** (j[ind] - np.ceil(x[ind]))
 
-    return int(res) if np.size == 1 else res
+    return res.item(0) if res.size == 1 else res
 
 
 def stirling_first(n: int, k: int):

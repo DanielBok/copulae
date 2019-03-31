@@ -74,4 +74,4 @@ def clausen(x) -> Numeric:
 
     res *= sgn
 
-    return float(res) if res.size == 1 else res
+    return res.item(0) if res.size == 1 else res

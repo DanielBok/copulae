@@ -7,7 +7,7 @@ def _array_io(f):
     @wraps(f)
     def decorator(x):
         res = np.asarray(f(np.asarray(x)))
-        return float(res) if res.size == 1 else res
+        return res.item(0) if res.size == 1 else res
 
     return decorator
 
