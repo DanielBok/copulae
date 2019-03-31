@@ -111,7 +111,7 @@ def test_itau_fit(residual_data: np.ndarray):
 
 
 @pytest.mark.parametrize("dim, theta, err", [
-    [2, -5, 'theta must be greater than -1 in 2 dimensional clayton copulae'],
+    [2, -5, 'theta must be greater than -1 in 2 dimensional Clayton copula'],
     [3, -1, 'theta must be positive when dim > 2']
 ])
 def test_param_set_raises_error(dim, theta, err):

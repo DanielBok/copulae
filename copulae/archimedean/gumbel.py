@@ -178,8 +178,8 @@ class GumbelCopula(AbstractArchimedeanCopula):
     def params(self, theta: float):
         theta = float(theta)
 
-        if theta < -1:
-            raise ValueError('<theta> must be >= 1 for Gumbel Copulae')
+        if theta < 1:
+            raise ValueError('<theta> must be >= 1 for Gumbel copula')
 
         self._theta = theta
 

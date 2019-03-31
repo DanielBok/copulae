@@ -102,7 +102,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         theta = float(theta)
 
         if self.dim == 2 and theta < -1:
-            raise ValueError('theta must be greater than -1 in 2 dimensional clayton copulae')
+            raise ValueError('theta must be greater than -1 in 2 dimensional Clayton copula')
         elif self.dim > 2 and theta < 0:
             raise ValueError('theta must be positive when dim > 2')
 
