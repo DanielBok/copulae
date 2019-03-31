@@ -45,7 +45,7 @@ def debye_n(x, order=1):
         return debye_6(x)
 
 
-@nb.vectorize([nb.float64(nb.float64)])
+@nb.vectorize([nb.float64(nb.float64)], cache=True)
 def debye_1(x):  # pragma: no cover
     r"""
     Computes the first-order Debye function
@@ -108,7 +108,7 @@ def debye_1(x):  # pragma: no cover
         return val_infinity / x
 
 
-@nb.vectorize([nb.float64(nb.float64)])
+@nb.vectorize([nb.float64(nb.float64)], cache=True)
 def debye_2(x):  # pragma: no cover
     r"""
     Computes the second-order Debye function
@@ -174,7 +174,7 @@ def debye_2(x):  # pragma: no cover
         return val_infinity / x ** 2
 
 
-@nb.vectorize([nb.float64(nb.float64)])
+@nb.vectorize([nb.float64(nb.float64)], cache=True)
 def debye_3(x):  # pragma: no cover
     r"""
     Computes the third-order Debye function
@@ -239,7 +239,7 @@ def debye_3(x):  # pragma: no cover
         return val_infinity / x ** 3
 
 
-@nb.vectorize([nb.float64(nb.float64)])
+@nb.vectorize([nb.float64(nb.float64)], cache=True)
 def debye_4(x):  # pragma: no cover
     r"""
     Computes the fourth-order Debye function
@@ -304,7 +304,7 @@ def debye_4(x):  # pragma: no cover
         return val_infinity / x ** 4
 
 
-@nb.vectorize([nb.float64(nb.float64)])
+@nb.vectorize([nb.float64(nb.float64)], cache=True)
 def debye_5(x):  # pragma: no cover
     r"""
     Computes the fifth-order Debye function
@@ -368,7 +368,7 @@ def debye_5(x):  # pragma: no cover
         return val_infinity / x ** 5
 
 
-@nb.vectorize([nb.float64(nb.float64)])
+@nb.vectorize([nb.float64(nb.float64)], cache=True)
 def debye_6(x):  # pragma: no cover
     r"""
     Computes the sixth-order Debye function
