@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import NamedTuple, Tuple, Union
+from typing import NamedTuple, Union
 
 import numpy as np
 
@@ -123,7 +123,7 @@ class BaseCopula(AbstractCopula, ABC):
 
         Parameters
         ----------
-        rho: ndarray
+        rho: array_like
             numerical values of Spearman's rho between [-1, 1].
 
         Returns
@@ -213,19 +213,15 @@ class BaseCopula(AbstractCopula, ABC):
         raise NotImplementedError
 
     @property
-    def params_bounds(self) -> Tuple[np.ndarray, np.ndarray]:
+    def params_bounds(self):
         """
         Gets the bounds for the parameters
 
         Returns
         -------
-        lower: float, ndarray
-            lower bound of the copula's parameters
-
-        upper:
-            upper bound of the copula's parameters
+        (scalar or array_like, scalar or array_like)
+            Lower and upper bound of the copula's parameters
         """
-
         return self._bounds
 
     @abstractmethod

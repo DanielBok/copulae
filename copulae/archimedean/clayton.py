@@ -1,16 +1,11 @@
-from collections import abc
-from typing import Optional
-
 import numpy as np
 import numpy.random as rng
-from scipy.interpolate import UnivariateSpline, interp1d
 
 from copulae.copula import TailDep
 from copulae.core import EPS, valid_rows_in_u
 from copulae.stats import random_uniform
-from copulae.types import Array, Numeric
+from copulae.types import Array
 from copulae.utility import array_io
-from ._data_ext import _Ext
 from .abstract import AbstractArchimedeanCopula
 
 
@@ -39,7 +34,6 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         super().__init__(dim, theta, 'clayton')
         assert not (dim != 2 and theta < 0), 'Clayton Copula parameter must be >= 0 when dimension == 2'
 
-        self._ext = None
         self._bounds = (-1 + EPS) if dim == 2 else 0, np.inf
 
     @array_io
@@ -76,11 +70,6 @@ class ClaytonCopula(AbstractArchimedeanCopula):
     def ipsi(self, u: Array, log=False):
         v = np.sign(self._theta) * (u ** -self._theta - 1)
         return np.log(v) if log else v
-
-    @array_io
-    def irho(self, rho: Numeric):  # pragma: no cover
-        # TODO Clayton: add inverse rho function
-        return NotImplemented
 
     @array_io
     def itau(self, tau: Array):
@@ -160,11 +149,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
 
     @property
     def rho(self):
-        # TODO Clayton: add rho function
-        # if np.isnan(self._theta):
-        #     return np.nan
-        # return self._ext.rho(self._theta)
-        return NotImplemented
+        return self._rho(self.params)
 
     def summary(self):
         # TODO Clayton: add summary
@@ -172,101 +157,13 @@ class ClaytonCopula(AbstractArchimedeanCopula):
 
     @property
     def tau(self):
-        return self._theta / (self._theta + 2)
+        return self._tau(self.params)
 
+    @staticmethod
+    def _rho(theta):
+        # TODO Clayton: add rho function
+        return NotImplemented
 
-# TODO Clayton: write extension
-class ClaytonExt(_Ext):  # pragma: no cover
-    """
-    Clayton Extension class is used to derive values that have no analytical solutions. The values are derived
-    numerically and stored in an interpolation object that is called whenever we need to call those values
-    """
-
-    def __init__(self, copula, seed: Optional[int] = None):
-        super().__init__(copula, 10, seed)
-        pos_rho_func_name = 'clayton_pos_rho'
-        neg_rho_func_name = 'clayton_neg_rho'
-        pos_irho_func_name = 'clayton_pos_irho'
-        neg_irho_func_name = 'clayton_neg_irho'
-
-        if self.file_exists:
-            self._pos_rho: UnivariateSpline = self.load_copula_data(pos_rho_func_name)
-            self._neg_rho: UnivariateSpline = self.load_copula_data(neg_rho_func_name)
-            self._neg_irho = self.load_copula_data(neg_irho_func_name)
-            self._pos_irho = self.load_copula_data(pos_irho_func_name)
-        else:
-            self.form_interpolator('spearman')
-
-            self.save_copula_data(pos_rho_func_name, self._pos_rho)
-            self.save_copula_data(neg_rho_func_name, self._neg_rho)
-            self.save_copula_data(pos_irho_func_name, self._pos_irho)
-            self.save_copula_data(neg_irho_func_name, self._neg_irho)
-
-    def drho(self, alpha: Numeric):
-        alpha = np.asarray(alpha, np.float)
-        theta = self._forward_transfer(alpha)
-        rhos = np.where(alpha <= 0,
-                        self._neg_rho(theta),
-                        self._pos_rho(theta) * self._forward_derivative(alpha))
-
-        return float(rhos) if rhos.ndim == 0 else rhos
-
-    def form_interpolator(self, method: str, df: int = 5, s=1.1, **kwargs):
-        neg_param, neg_val = [-1, 0], [-1, 0]
-        pos_param, pos_val = [0, 1], [0, 1]
-
-        theta_grid_neg = np.arange(-0.999, 0, 0.001)
-        theta_grid_pos = np.arange(0.001, 1, 0.001)
-
-        self._neg_rho = super().form_interpolator(theta_grid_neg, method, pos_param, pos_val, False, df, s)
-        self._pos_rho = super().form_interpolator(theta_grid_pos, method, neg_param, pos_val, False, df, s)
-
-        # forms the reverse interpolator
-        x_neg = [neg_param[0], *theta_grid_neg, neg_param[1]]
-        x_pos = [pos_param[0], *theta_grid_pos, pos_param[1]]
-        y_neg_smth = [neg_val[0], *self._neg_rho(theta_grid_neg), neg_val[1]]
-        y_pos_smth = [pos_val[0], *self._pos_rho(theta_grid_pos), pos_val[1]]
-        self._neg_irho = interp1d(y_neg_smth, x_neg)
-        self._pos_irho = interp1d(y_pos_smth, x_pos)
-
-    def irho(self, rho: Numeric):
-        if isinstance(rho, abc.Iterable):
-            rho = np.asarray(rho)
-            shape = rho.shape
-
-            res = np.ones(np.prod(shape))
-            for i, e in enumerate(rho.ravel()):
-                if -1 <= e < 0:
-                    res[i] = self._neg_irho(e)
-                elif 0 <= e <= 1:
-                    res[i] = self._pos_irho(e)
-                else:
-                    res[i] = np.nan
-
-            return res.reshape(shape)
-
-        else:
-            if -1 <= rho < 0:
-                return self._neg_irho(rho)
-            elif 0 <= rho <= 1:
-                return self._pos_irho(rho)
-            return np.nan
-
-    @array_io
-    def rho(self, alpha):
-        theta = self._forward_transfer(alpha)
-        rhos = np.where(alpha <= 0, self._neg_rho(theta), self._pos_rho(theta))
-
-        return float(rhos) if rhos.ndim == 0 else rhos
-
-    def _forward_transfer(self, x: np.ndarray):
-        return np.where(x <= 0, x, np.tanh(x / self.ss))
-
-    def _backward_transfer(self, x: np.ndarray):
-        return np.where(x <= 0, x, self.ss * np.arctanh(x))
-
-    def _forward_derivative(self, x: np.ndarray):
-        return np.where(x <= 0, x, (1 - np.tanh(x / self.ss) ** 2) / self.ss)
-
-    def _set_param(self, alpha: float):
-        self.copula.params = alpha
+    @staticmethod
+    def _tau(theta):
+        return theta / (theta + 2)

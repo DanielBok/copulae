@@ -159,10 +159,7 @@ class FrankCopula(AbstractArchimedeanCopula):
 
     @property
     def rho(self):
-        t = self.params
-        if np.isclose(t, 0):
-            return t / 6
-        return 1 + 12 / t * (debye2(t) - debye1(t))
+        return self._rho(self.params)
 
     def summary(self):
         # TODO Summary
@@ -175,7 +172,14 @@ class FrankCopula(AbstractArchimedeanCopula):
             return t / 9
         return self._tau(self.params)
 
-    def _tau(self, theta):
+    @staticmethod
+    def _rho(theta):
+        if np.isclose(theta, 0):
+            return theta / 6
+        return 1 + 12 / theta * (debye2(theta) - debye1(theta))
+
+    @staticmethod
+    def _tau(theta):
         theta = np.asarray(theta)
         if theta.size == 1:
             theta = float(theta)

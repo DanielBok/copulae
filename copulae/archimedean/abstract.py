@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 from copulae.copula.base import BaseCopula
+from copulae.special.optimize import find_root
 from copulae.types import Array
 from copulae.utility import array_io
 
@@ -71,6 +72,16 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
         """
         pass
 
+    @array_io
+    def irho(self, rho):
+        lower, upper = self.params_bounds
+        assert np.isscalar(lower) and np.isscalar(upper), "Archimedean copula bounds must be scalar"
+
+        lower = max(-np.sqrt(np.finfo(float).max), lower)
+        upper = min(np.sqrt(np.finfo(float).max), upper)
+
+        return find_root(lambda theta: self._rho(theta) - rho, lower, upper)
+
     @abstractmethod
     def psi(self, s):  # pragma: no cover
         """
@@ -86,4 +97,14 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
         ndarray
             Generator value for the Archimedean copula
         """
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def _rho(theta):
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def _tau(theta):
         pass

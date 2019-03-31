@@ -11,12 +11,16 @@ class AbstractCopula(ABC):
     @abstractmethod
     def __init__(self, dim: int, name: str):
         assert dim >= 2, 'Copula must have more than 2 dimensions'
-        assert int(dim) == dim, 'Copula dimension must be an integer'
+        assert isinstance(dim, int), 'Copula dimension must be an integer'
 
-        self.dim = int(dim)
+        self.__dim = dim  # prevent others from messing around
         self.name = name
         self.fit_stats: FitStats = None
         self._bounds: Tuple[Numeric, Numeric] = (0.0, 0.0)
+
+    @property
+    def dim(self):
+        return self.__dim
 
     @abstractmethod
     def fit(self, data: np.ndarray, method='mpl', x0: np.ndarray = None, verbose=1, optim_options: dict = None):

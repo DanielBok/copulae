@@ -12,7 +12,6 @@ from copulae.special.trig import cospi2
 from copulae.stats import poisson, random_uniform, skew_stable
 from copulae.types import Array, Numeric
 from copulae.utility import array_io
-from ._data_ext import _Ext
 from .abstract import AbstractArchimedeanCopula
 from .auxiliary import dsum_sibuya
 
@@ -42,7 +41,6 @@ class GumbelCopula(AbstractArchimedeanCopula):
         assert theta >= 1 or np.isnan(theta), 'Gumbel Copula parameter must be >= 1'
 
         super().__init__(dim, theta, 'clayton')
-        self._ext = None
         self._bounds = (1.0, np.inf)
 
     @array_io
@@ -143,11 +141,6 @@ class GumbelCopula(AbstractArchimedeanCopula):
             x = self.params
         return x ** -2
 
-    @array_io(optional=True)
-    def irho(self, rho=None):
-        # TODO Gumbel: add inverse rho function
-        return NotImplemented
-
     @array_io
     def ipsi(self, u: Array, log=False):
         v = (-np.log(u)) ** self.params
@@ -237,8 +230,7 @@ class GumbelCopula(AbstractArchimedeanCopula):
 
     @property
     def rho(self):
-        # TODO Gumbel: add rho function
-        return NotImplemented
+        return self._rho(self.params)
 
     def summary(self):
         # TODO Gumbel: add summary
@@ -246,13 +238,16 @@ class GumbelCopula(AbstractArchimedeanCopula):
 
     @property
     def tau(self):
-        return 1 - 1 / self.params
+        return self._tau(self.params)
 
+    @staticmethod
+    def _rho(theta):
+        # TODO Gumbel: add rho function
+        return NotImplemented
 
-# TODO Gumbel: write extension
-class GumbelExt(_Ext):
-    def __init__(self, copula, seed: Optional[int] = None):
-        super().__init__(copula, 10, seed)
+    @staticmethod
+    def _tau(theta):
+        return 1. - 1 / theta
 
 
 def gumbel_coef(d: int, alpha: float, method='sort', log=False) -> np.ndarray:
