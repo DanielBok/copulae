@@ -4,12 +4,30 @@ from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from copulae import FrankCopula
 from copulae.special import log1mexp
+from copulae.archimedean.frank import debye1, debye2
 
 
 @pytest.fixture
 def copula(residual_data):
     cop = FrankCopula(1.295, dim=residual_data.shape[1])
     return cop
+
+
+@pytest.mark.parametrize('order, x, exp', [
+    (1, [-0.5, 0.5], [1.13192715679061, 0.881927156790606]),
+    (2, [-0.5, 0.5], [1.17705452668059, 0.843721193347254]),
+    (1, [-np.inf, np.inf, np.nan, 1.5, -1.5], [np.inf, 0, np.nan, 0.686145310789402, 1.4361453107894]),
+    (2, [-np.inf, np.inf, np.nan, 1.5, -1.5], [np.inf, 0, np.nan, 0.591496372256713, 1.59149637225671]),
+    (1, -0.8, 1.21766522318744),
+    (2, 0.8, 0.759812510194521)
+])
+def test_debye(order, x, exp):
+    if order == 1:
+        d = debye1(x)
+    else:
+        d = debye2(x)
+
+    assert_almost_equal(d, exp)
 
 
 @pytest.mark.parametrize('degree, log, expected', [
@@ -43,6 +61,12 @@ def test_dipsi(copula, U5, degree, log, expected):
         assert_array_almost_equal(copula.dipsi(U5, degree, log), expected, 4)
 
 
+def test_fit(U):
+    cop = FrankCopula(dim=U.shape[1])
+    cop.fit(U)
+    assert_almost_equal(cop.params, 1.29505, 5)
+
+
 @pytest.mark.parametrize('log, expected', [
     (False, [[0.1367441, 0.1725768, 0.2792778, 0.0383506, 0.4486266, 0.0543063, 0.2929384],
              [0.0126516, 1.6461267, 3.6183703, 0.2455986, 0.5129605, 0.2819772, 0.859795],
@@ -69,6 +93,12 @@ def test_itau(copula, U5):
                                [7.8624339, 525.0165626, 18.7160445, 49.2659883, 6.2415492, 39.8632145, 111.1875078]])
 
     assert_almost_equal(copula.itau(0.5), 5.73628270702243)
+
+
+def test_pdf(copula, U5):
+    expected = [4.02910800346931, 0.608665049979427, 0.669917791901045, 1.02347002860614, 11.3229231831187]
+    density = copula.pdf(U5)
+    assert_array_almost_equal(density, expected)
 
 
 @pytest.mark.parametrize('theta, expected', [

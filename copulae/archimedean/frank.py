@@ -1,11 +1,12 @@
 import numpy as np
 
 from copulae.copula import TailDep
-from copulae.special.optimize import find_root
-from copulae.special import log1mexp, log1pexp
+from copulae.core import valid_rows_in_u
 from copulae.special.debye import debye_1, debye_2
+from copulae.special.optimize import find_root
+from copulae.special.special_func import log1mexp, log1pexp, poly_log
 from copulae.types import Array
-from copulae.utility import array_io
+from copulae.utility import array_io, as_array
 from .abstract import AbstractArchimedeanCopula
 
 
@@ -57,13 +58,13 @@ class FrankCopula(AbstractArchimedeanCopula):
     def drho(self, x=None):  # pragma: no cover
         if x is None:
             x = self.params
-        return 12 * (x / np.expm1(x) - 3 * debye_2(x) + 2 * debye_1(x)) / x ** 2
+        return 12 * (x / np.expm1(x) - 3 * debye1(x) + 2 * debye1(x)) / x ** 2
 
     @array_io(optional=True)
     def dtau(self, x=None):  # pragma: no cover
         if x is None:
             x = self.params
-        return (x / np.expm1(x) + 1 - debye_1(x) / x) * (2 / x) ** 2
+        return (x / np.expm1(x) + 1 - debye1(x) / x) * (2 / x) ** 2
 
     @array_io
     def ipsi(self, u, log=False):
@@ -95,8 +96,8 @@ class FrankCopula(AbstractArchimedeanCopula):
     @array_io
     def itau(self, tau):
         res = np.array([find_root(lambda x: self._tau(x) - t,
-                                  1e-8 if t > 0 else -1e20,
-                                  1e20 if t > 0 else -1e-8) for t in tau.ravel()])
+                                  2.2e-16 if t > 0 else -1e20,
+                                  1e20 if t > 0 else -2.2e-16) for t in tau.ravel()])
         res = res.reshape(tau.shape)
         res[tau == 0] = tau[tau == 0]
         return res
@@ -109,8 +110,34 @@ class FrankCopula(AbstractArchimedeanCopula):
     def params(self):
         return self._theta
 
-    def pdf(self, x: Array, log=False):
-        pass
+    @params.setter
+    def params(self, theta):
+        if self.dim > 2 and theta < 0:
+            raise ValueError('theta must be positive when dim > 2')
+        self._theta = float(theta)
+
+    @array_io(dim=2)
+    def pdf(self, u: Array, log=False):
+        assert not np.isnan(self.params), "Copula must have parameters to calculate parameters"
+
+        n, d = u.shape
+        theta = self.params
+
+        ok = valid_rows_in_u(u)
+        res = np.repeat(np.nan, n)
+
+        u_ = u[ok]
+        u_sum = u_.sum(1)
+        lp = log1mexp(theta)
+        lpu = log1mexp(theta * u_)
+        lu = lpu.sum(1)
+
+        li_arg = np.exp(lp + (lpu - lp).sum(1))
+        li = poly_log(li_arg, 1 - d, log=True)
+
+        res[ok] = (d - 1) * np.log(theta) + li - theta * u_sum - lu
+
+        return res if log else np.exp(res)
 
     def psi(self, s):
         assert not np.isnan(self.params), "Copula must have parameters to calculate psi"
@@ -135,7 +162,7 @@ class FrankCopula(AbstractArchimedeanCopula):
         t = self.params
         if np.isclose(t, 0):
             return t / 6
-        return 1 + 12 / t * (debye_2(t) - debye_1(t))
+        return 1 + 12 / t * (debye2(t) - debye1(t))
 
     def summary(self):
         # TODO Summary
@@ -152,4 +179,76 @@ class FrankCopula(AbstractArchimedeanCopula):
         theta = np.asarray(theta)
         if theta.size == 1:
             theta = float(theta)
-        return 1 + 4 * (debye_1(theta) - 1) / theta
+        return 1 + 4 * (debye1(theta) - 1) / theta
+
+
+def debye1(x):
+    """
+    Custom debye order 1 that takes care of negative numbers or non-finite numbers
+
+    Parameters
+    ----------
+    x: array_like
+        Numeric vector
+
+    Returns
+    -------
+    ndarray or scalar
+        Debye order 1 numbers
+
+    See Also
+    --------
+    :code:`copulae.special.debye.debye_1`: The debye order 1 function
+    """
+    x = as_array(x)
+    fin = np.isfinite(x)
+    d = np.abs(x)
+
+    with np.errstate(invalid='ignore'):
+        if np.all(fin):
+            d = debye_1(d)
+        else:
+            d[fin] = debye_1(d[fin])
+
+            pinf = np.isinf(x) & (x > 0)
+            if np.any(pinf):
+                d[pinf] = 0  # set positive infinity to 0 (but not na, thus can't use ~fin)
+
+        d[x < 0] -= x[x < 0] / 2
+        return d.item(0) if d.size == 1 else d
+
+
+def debye2(x):
+    """
+    Custom debye order 2 that takes care of negative numbers or non-finite numbers
+
+    Parameters
+    ----------
+    x: array_like
+        Numeric vector
+
+    Returns
+    -------
+    ndarray or scalar
+        Debye order 2 numbers
+
+    See Also
+    --------
+    :code:`copulae.special.debye.debye_2`: The debye order 2 function
+    """
+    x = as_array(x)
+    fin = np.isfinite(x)
+    d = np.abs(x)
+
+    with np.errstate(invalid='ignore'):
+        if np.all(fin):
+            d = debye_2(d)
+        else:
+            d[fin] = debye_2(d[fin])
+
+            pinf = np.isinf(x) & (x > 0)
+            if np.any(pinf):
+                d[pinf] = 0  # set positive infinity to 0 (but not na, thus can't use ~fin)
+
+        d[x < 0] -= 2 / 3 * x[x < 0]
+        return d.item(0) if d.size == 1 else d
