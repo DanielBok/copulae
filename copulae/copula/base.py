@@ -252,13 +252,13 @@ class BaseCopula(AbstractCopula, ABC):
         raise NotImplementedError
 
     @staticmethod
-    def pobs(data: np.ndarray, ties='average'):
+    def pobs(data, ties='average'):
         """
         Compute the pseudo-observations for the given data matrix
 
         Parameters
         ----------
-        data: (N, D) ndarray
+        data: {array_like, DataFrame}
             Random variates to be converted to pseudo-observations
 
         ties: { 'average', 'min', 'max', 'dense', 'ordinal' }, optional
