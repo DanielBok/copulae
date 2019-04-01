@@ -1,8 +1,9 @@
 import numpy as np
 from scipy.optimize import OptimizeResult, minimize
 
-from copulae.copula.abstract import AbstractCopula as Copula, FitStats
-from .utils import warn_no_convergence, InitialParam
+from copulae.copula.abstract import AbstractCopula as Copula
+from copulae.copula.fit_stats import FitStats
+from copulae.copula.utils import warn_no_convergence, InitialParam
 
 
 class MaxLikelihoodEstimator:

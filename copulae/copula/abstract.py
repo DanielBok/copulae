@@ -3,6 +3,7 @@ from typing import Optional, Tuple, Union
 
 import numpy as np
 
+from copulae.copula.fit_stats import FitStats
 from copulae.types import Array, Numeric
 
 
@@ -15,7 +16,7 @@ class AbstractCopula(ABC):
 
         self.__dim = dim  # prevent others from messing around
         self.name = name
-        self.fit_stats: FitStats = None
+        self.fit_stats: Optional[FitStats] = None
         self._bounds: Tuple[Numeric, Numeric] = (0.0, 0.0)
 
     @property
@@ -99,61 +100,3 @@ class AbstractCopula(ABC):
     @abstractmethod
     def tau(self):
         pass
-
-
-class FitStats:
-    """
-    Statistics on the fit of the copula
-
-    Attributes
-    ----------
-    params: named tuple, numpy array
-        parameters of the copula after fitting
-
-    var_est: numpy array
-        estimate of the variance
-
-    method: str
-        method used to fit the copula
-
-    log_lik: float
-        log likelihood value of the copula after fitting
-
-    nsample: int
-        number of data points used to fit copula
-
-    setup: dict
-        optimizer set up options
-
-    results: dict
-        optimization results
-    """
-
-    def __init__(self, params: np.ndarray, var_est: np.ndarray, method: str, log_lik: float, nsample: int,
-                 setup: Optional[dict] = None, results: Optional[dict] = None):
-        self.params = params
-        self.var_est = var_est
-        self.method = method
-        self.log_lik = log_lik
-        self.nsample = nsample
-        self.setup = setup
-        self.results = results
-
-    def __str__(self):
-        msg = f"""
-Log. Lik        : {self.log_lik}
-Var. Est.       : Not Implemented Yet
-Method          : {self.method}
-Data Pts.       : {self.nsample}
-""".strip()
-
-        skip_keys = {'final_simplex'}
-        for title, dic in [('Optim Options', self.setup), ('Results', self.results)]:
-            if dic is not None:
-                string = "\n".join(f'\t{k:15s}: {v}' for k, v in dic.items() if k not in skip_keys)
-                msg += f"\n\n{title}\n{string}"
-
-        return msg
-
-    def summary(self):
-        print(self)

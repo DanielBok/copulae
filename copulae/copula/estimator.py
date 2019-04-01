@@ -3,10 +3,10 @@ from typing import Optional
 import numpy as np
 
 from copulae.copula.abstract import AbstractCopula as Copula
+from copulae.copula.est_cor_inversion import CorrInversionEstimator
+from copulae.copula.est_max_likelihood import MaxLikelihoodEstimator
+from copulae.copula.utils import is_elliptical
 from copulae.core import tri_indices
-from copulae.estimators.est_cor_inversion import CorrInversionEstimator
-from copulae.estimators.est_max_likelihood import MaxLikelihoodEstimator
-from copulae.estimators.utils import is_elliptical
 from copulae.stats import pearson_rho
 from copulae.utility import merge_dict
 

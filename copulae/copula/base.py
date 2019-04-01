@@ -4,8 +4,8 @@ from typing import NamedTuple, Union
 import numpy as np
 
 from copulae.copula.abstract import AbstractCopula
+from copulae.copula.estimator import CopulaEstimator
 from copulae.core import pseudo_obs
-from copulae.estimators import CopulaEstimator
 from copulae.types import Array, Numeric
 
 

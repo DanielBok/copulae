@@ -1,8 +1,9 @@
 import numpy as np
 
-from copulae.copula.abstract import AbstractCopula as Copula, FitStats
+from copulae.copula.abstract import AbstractCopula as Copula
+from copulae.copula.fit_stats import FitStats
+from copulae.copula.utils import fit_cor, is_archimedean, is_elliptical
 from copulae.core import rank_data
-from copulae.estimators.utils import fit_cor, is_archimedean, is_elliptical
 
 
 class CorrInversionEstimator:
