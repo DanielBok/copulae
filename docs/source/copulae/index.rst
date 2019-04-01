@@ -2,8 +2,8 @@ Copulae
 =======
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
 
         Introduction <introduction>
-        Archimedean Copulas <archimedean>
-        Elliptical Copulas <elliptical>
+        Archimedean Copulas <archimedean/index>
+        Elliptical Copulas <elliptical/index>

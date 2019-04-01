@@ -1,9 +1,6 @@
 Archimedean Copulas
 ===================
 
-.. module::copulae.archimedean
-.. py:currentmodule:: copulae.archimedean
-
 Similar to all other copulas, Archimedean copulas are of the form
 
 .. math::
@@ -31,18 +28,10 @@ In general, to be an Archimedean generator, :math:`\psi` must be a function that
 
 One such function is the exponential function. In fact, if we let :math:`\psi(x) = \exp(-x), t \in [0, \infty]`, we would get the Gumbel copula.
 
-Clayton
-~~~~~~~
 
-.. autoclass:: ClaytonCopula
-    :members:
-    :inherited-members:
-    :exclude-members: A, dAdu
+.. toctree::
+    :hidden:
 
-
-Gumbel
-~~~~~~
-
-.. autoclass:: GumbelCopula
-    :members:
-    :inherited-members:
+    Clayton Copula <clayton>
+    Frank Copula <frank>
+    Gumbel Copula <gumbel>
