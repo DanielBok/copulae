@@ -5,7 +5,7 @@ from typing import Optional
 import numpy as np
 from scipy.special import gammaln
 
-from copulae.copula import TailDep
+from copulae.copula import Summary, TailDep
 from copulae.core import valid_rows_in_u
 from copulae.special.special_func import polyn_eval, sign_ff, stirling_second_all, stirling_first_all
 from copulae.special.trig import cospi2
@@ -233,8 +233,7 @@ class GumbelCopula(AbstractArchimedeanCopula):
         return self._rho(self.params)
 
     def summary(self):
-        # TODO Gumbel: add summary
-        return NotImplemented
+        return Summary(self, {"theta": self.params})
 
     @property
     def tau(self):
@@ -276,13 +275,13 @@ def gumbel_coef(d: int, alpha: float, method='sort', log=False) -> np.ndarray:
     ndarray
         The coefficients of the polynomial
     """
-    if not (0 < alpha <= 1):
-        raise ValueError("<alpha> used in calculating the gumbel polynomial must be (0, 1]")
-
-    if not isinstance(d, int) or d < 1:
-        raise ValueError("dimension of copula must be an integer and >= 1")
+    assert (0 < alpha <= 1), "`alpha` used in calculating the gumbel polynomial must be (0, 1]"
+    assert isinstance(d, int) and d >= 1, "dimension of copula must be an integer and >= 1"
 
     method = method.lower()
+    assert method in ('sort', 'horner', 'direct', 'log', 'ds.direct', 'diff'), \
+        "Method must be one of 'sort', 'horner', 'direct', 'log', 'ds.direct', 'diff'"
+
     if method == 'sort':
         ls = np.log(np.abs(stirling_first_all(d)))
         lS = [np.log(stirling_second_all(i + 1)) for i in range(d)]
@@ -324,17 +323,14 @@ def gumbel_coef(d: int, alpha: float, method='sort', log=False) -> np.ndarray:
 
         return a
     else:
-        if method in ('log', 'ds.direct', 'diff'):
-            method = 'direct' if method.startswith('ds.') else method
-            ds = np.arange(d) + 1
-            ck = np.array([1, *np.cumprod(np.arange(d, 1, -1))])[::-1]
-            if log:
-                ck = np.log(ck)
-            p = dsum_sibuya(d, ds, alpha, method, log)
+        method = 'direct' if method.startswith('ds.') else method
+        ds = np.arange(d) + 1
+        ck = np.array([1, *np.cumprod(np.arange(d, 1, -1))])[::-1]
+        if log:
+            ck = np.log(ck)
+        p = dsum_sibuya(d, ds, alpha, method, log)
 
-            return p + ck if log else p * ck
-        else:
-            raise ValueError(f"Unknown method: '{method}'. Use one of sort, horner, direct, log, ds.direct, diff")
+        return p + ck if log else p * ck
 
 
 def gumbel_poly(log_x: np.ndarray, alpha: float, d: int, method='default', log=False):
@@ -391,6 +387,9 @@ def _calculate_gumbel_poly(lx: np.ndarray, alpha: float, d: int, method: str, lo
     """Inner function that does the actual Gumbel polynomial calculation"""
     k = np.arange(d) + 1
 
+    method = method.lower()
+    assert method in ('pois', 'direct', 'log', 'sort'), "Method must be one of 'pois', 'direct', 'log', 'sort'"
+
     if method == 'pois':
         n = len(lx)
         x = np.exp(lx)  # n x 1 vector
@@ -408,17 +407,15 @@ def _calculate_gumbel_poly(lx: np.ndarray, alpha: float, d: int, method: str, lo
         res = np.log(sum_) + offset
 
         return res if log else np.exp(res)
-    elif method in ('direct', 'log', 'sort'):
+    else:
         log_a_dk = gumbel_coef(d, alpha, method, True)
 
         log_x = log_a_dk[:, None] + k.reshape(-1, 1) @ lx.reshape(1, -1)
         x = np.exp(log_x).sum(0)
         return np.log(x) if log else x
-    else:
-        raise ValueError(f"Unknown <method>: {method}. Use one of pois, direct, log, sort")
 
 
-def _get_poly_method(lx: float, alpha: float, d: int):
+def _get_poly_method(lx: float, alpha: float, d: int):  # pragma: no cover
     """Determines the method to apply for for each log x argument to gumbel_poly"""
 
     if d <= 30:

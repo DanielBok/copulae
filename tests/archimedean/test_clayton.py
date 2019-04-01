@@ -15,6 +15,13 @@ def copula(residual_data: np.ndarray):
     return cop
 
 
+@pytest.fixture(scope="module")
+def fitted_clayton(residual_data):
+    cop = ClaytonCopula(dim=residual_data.shape[1])
+    cop.fit(residual_data)
+    return cop
+
+
 def test_clayton_cdf(copula, U5):
     cdf = copula.cdf(U5)
     expected_cdf = 0.141910076, 0.003616266, 0.004607600, 0.026352224, 0.251302560
@@ -84,10 +91,8 @@ def test_dipsi(copula, U5, degree, log, expected):
         assert_array_almost_equal(copula.dipsi(U5, degree, log), expected, 4)
 
 
-def test_fitted_parameters_match_target(residual_data: np.ndarray):
-    cop = ClaytonCopula(dim=residual_data.shape[1])
-    cop.fit(residual_data)
-    assert_almost_equal(cop.params, 0.3075057, 4)
+def test_fitted_parameters_match_target(fitted_clayton):
+    assert_almost_equal(fitted_clayton.params, 0.3075057, 4)
 
 
 def test_fitted_log_likelihood_match_target(copula, U):
@@ -152,6 +157,12 @@ def test_psi(copula, U5):
     ]
 
     assert_array_almost_equal(psi, target, 3)
+
+
+def test_summary(fitted_clayton):
+    smry = fitted_clayton.summary()
+    assert isinstance(str(smry), str)
+    assert isinstance(smry.as_html(), str)
 
 
 def test_tau(copula):

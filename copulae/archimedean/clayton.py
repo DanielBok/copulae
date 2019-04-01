@@ -1,7 +1,7 @@
 import numpy as np
 import numpy.random as rng
 
-from copulae.copula import TailDep
+from copulae.copula import Summary, TailDep
 from copulae.core import EPS, valid_rows_in_u
 from copulae.stats import random_uniform
 from copulae.types import Array
@@ -152,8 +152,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         return self._rho(self.params)
 
     def summary(self):
-        # TODO Clayton: add summary
-        return NotImplemented
+        return Summary(self, {"theta": self.params})
 
     @property
     def tau(self):

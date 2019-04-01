@@ -3,13 +3,20 @@ import pytest
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from copulae import FrankCopula
-from copulae.special import log1mexp
 from copulae.archimedean.frank import debye1, debye2
+from copulae.special import log1mexp
 
 
 @pytest.fixture
 def copula(residual_data):
     cop = FrankCopula(1.295, dim=residual_data.shape[1])
+    return cop
+
+
+@pytest.fixture(scope="module")
+def fitted_frank(residual_data):
+    cop = FrankCopula(dim=residual_data.shape[1])
+    cop.fit(residual_data)
     return cop
 
 
@@ -61,10 +68,8 @@ def test_dipsi(copula, U5, degree, log, expected):
         assert_array_almost_equal(copula.dipsi(U5, degree, log), expected, 4)
 
 
-def test_fit(U):
-    cop = FrankCopula(dim=U.shape[1])
-    cop.fit(U)
-    assert_almost_equal(cop.params, 1.29505, 5)
+def test_fit(fitted_frank):
+    assert_almost_equal(fitted_frank.params, 1.29505, 5)
 
 
 @pytest.mark.parametrize('log, expected', [
@@ -121,6 +126,12 @@ def test_psi(theta, expected):
 ])
 def test_rho(theta, expected):
     assert_almost_equal(FrankCopula(theta, 2).rho, expected)
+
+
+def test_summary(fitted_frank):
+    smry = fitted_frank.summary()
+    assert isinstance(str(smry), str)
+    assert isinstance(smry.as_html(), str)
 
 
 @pytest.mark.parametrize('theta, expected', [

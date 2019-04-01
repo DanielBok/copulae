@@ -1,6 +1,6 @@
 import numpy as np
 
-from copulae.copula import TailDep
+from copulae.copula import Summary, TailDep
 from copulae.core import valid_rows_in_u
 from copulae.special.debye import debye_1, debye_2
 from copulae.special.optimize import find_root
@@ -161,8 +161,7 @@ class FrankCopula(AbstractArchimedeanCopula):
         return self._rho(self.params)
 
     def summary(self):
-        # TODO Summary
-        return NotImplemented
+        return Summary(self, {"theta": self.params})
 
     @property
     def tau(self):

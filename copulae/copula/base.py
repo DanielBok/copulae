@@ -138,7 +138,7 @@ class BaseCopula(AbstractCopula, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def itau(self, tau: Array):
+    def itau(self, tau):
         """
         Computes the inverse Kendall's Tau
 
@@ -146,12 +146,12 @@ class BaseCopula(AbstractCopula, ABC):
 
         Parameters
         ----------
-        tau: ndarray
+        tau: array_like
             numerical values of Spearman's rho between [-1, 1].
 
         Returns
         -------
-        ndarray
+        array_like
             Inverse Kendall's Tau values
 
         See Also
@@ -301,7 +301,7 @@ class BaseCopula(AbstractCopula, ABC):
 
     @abstractmethod
     def summary(self):
-        """Prints information about the copula"""
+        """Constructs the summary information about the copula"""
         raise NotImplementedError
 
     @property

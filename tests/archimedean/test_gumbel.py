@@ -15,6 +15,13 @@ def copula(residual_data: np.ndarray):
     return cop
 
 
+@pytest.fixture(scope="module")
+def fitted_gumbel(residual_data):
+    cop = GumbelCopula(dim=residual_data.shape[1])
+    cop.fit(residual_data)
+    return cop
+
+
 def test_gumbel_cdf(copula, U5):
     cdf = copula.cdf(U5)
     expected_cdf = 0.1456360421, 0.0005107288, 0.0009219520, 0.0125531052, 0.2712652274
@@ -50,7 +57,7 @@ def test_gumbel_coef(d, alpha, method, expected):
     (5, 1.25)
 ])
 def test_gumbel_coef_raises_error(d, alpha):
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         gumbel_coef(d, alpha)
 
 
@@ -86,10 +93,8 @@ def test_gumbel_dipsi(copula, U5, degree, log, expected):
         assert_array_almost_equal(copula.dipsi(U5, degree, log), expected, 4)
 
 
-def test_gumbel_fit(residual_data):
-    cop = GumbelCopula(dim=residual_data.shape[1])
-    cop.fit(residual_data)
-    assert_almost_equal(cop.params, 1.171789, 5)
+def test_gumbel_fit(fitted_gumbel):
+    assert_almost_equal(fitted_gumbel.params, 1.171789, 5)
 
 
 @pytest.mark.parametrize('log_x, alpha, d, log, expected', [
@@ -115,3 +120,9 @@ def test_gumbel_pdf(copula, U5):
 
     log_cdf = copula.pdf(U5, log=True)
     assert_array_almost_equal(log_cdf, np.log(expected_cdf), DP)
+
+
+def test_summary(fitted_gumbel):
+    smry = fitted_gumbel.summary()
+    assert isinstance(str(smry), str)
+    assert isinstance(smry.as_html(), str)
