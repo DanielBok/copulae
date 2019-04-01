@@ -23,6 +23,14 @@ def copula(residual_data: np.ndarray):
     return cop
 
 
+@pytest.fixture(scope='module')
+def fitted_student(residual_data):
+    dim = residual_data.shape[1]
+    cop = StudentCopula(dim)
+    cop.fit(residual_data)
+    return cop
+
+
 def test_fitted_log_likelihood_match_target(copula, residual_data):
     target_log_lik = 838.7959
     U = copula.pobs(residual_data)
@@ -31,12 +39,8 @@ def test_fitted_log_likelihood_match_target(copula, residual_data):
     assert np.isclose(log_lik, target_log_lik, atol=1e-2)
 
 
-def test_fitted_parameters_match_target(residual_data: np.ndarray):
-    dim = residual_data.shape[1]
-    cop = StudentCopula(dim)
-
-    cop.fit(residual_data)
-    params = cop.params
+def test_fitted_parameters_match_target(fitted_student):
+    params = fitted_student.params
 
     assert_array_almost_equal(target_rho, params.rho, DP)
     assert_almost_equal(target_df, params.df, DP)
@@ -54,3 +58,9 @@ def test_student_pdf(copula, residual_data):
 
     log_pdf = copula.pdf(U, log=True)
     assert_array_almost_equal(log_pdf, np.log(expected_pdf), DP)
+
+
+def test_summary(fitted_student):
+    summary = fitted_student.summary()
+    assert isinstance(str(summary), str)
+    assert isinstance(summary.as_html(), str)

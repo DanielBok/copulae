@@ -2,11 +2,11 @@ from typing import NamedTuple, Union
 
 import numpy as np
 
-from copulae.copula import TailDep
+from copulae.copula import Summary, TailDep
+from copulae.elliptical.abstract import AbstractEllipticalCopula
 from copulae.stats import multivariate_t as mvt, t
 from copulae.types import Array
 from copulae.utility import array_io
-from .abstract import AbstractEllipticalCopula
 
 
 class StudentParams(NamedTuple):
@@ -129,19 +129,7 @@ class StudentCopula(AbstractEllipticalCopula):
         return t.cdf(r, self._df)
 
     def summary(self):
-        return str(self)
-
-    def __str__(self):
-        msg = f"""
-Student T Copula with {self.dim} dimensions
-
-Degrees of Freedom: {self._df}
-
-Correlation Matrix (P):
-    {self.sigma}
-""".strip()
-
-        if self.fit_stats is not None:
-            msg += f'\n\n{self.fit_stats}'
-
-        return msg
+        return Summary(self, {
+            'Degree of Freedom': self.params.df,
+            'Correlation Matrix': self.sigma
+        })

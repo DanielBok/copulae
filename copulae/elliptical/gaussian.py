@@ -2,11 +2,11 @@ from typing import Union
 
 import numpy as np
 
-from copulae.copula import TailDep
+from copulae.copula import Summary, TailDep
+from copulae.elliptical.abstract import AbstractEllipticalCopula
 from copulae.stats import multivariate_normal as mvn, norm
 from copulae.types import Array
 from copulae.utility import array_io
-from .abstract import AbstractEllipticalCopula
 
 
 class GaussianCopula(AbstractEllipticalCopula):
@@ -87,17 +87,6 @@ class GaussianCopula(AbstractEllipticalCopula):
         return norm.cdf(r)
 
     def summary(self):
-        return str(self)
-
-    def __str__(self):
-        msg = f"""
-Gaussian Copula with {self.dim} dimensions
-
-Correlation Matrix (P):
-{self.sigma}
-        """.strip()
-
-        if self.fit_stats is not None:
-            msg += f'\n\n{self.fit_stats}'
-
-        return msg
+        return Summary(self, {
+            'Correlation Matrix': self.sigma
+        })
