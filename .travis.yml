@@ -6,7 +6,7 @@ language: python
 branches:
   only:
     - master
-    - release
+    - /\d*\.\d*\.\d*/
 
 env:
   global:
@@ -31,3 +31,13 @@ after_success:
     if [[ "$COVERAGE" = true ]]; then
       coveralls;
     fi
+
+deploy:
+  - provider: pypi
+    user: DannieBee
+    password:
+      secure: qv+9raDZSM8LzyCqQSa7IMcIOAWZuvhaoSmKcsTnJNYwB6+eZVHE+pt0PRdiQNmnxKUVdwdIEutwiME+S428NkzRytzIv5QiSAfv8Tc7+j0euSprO1cgVk3975hc7pL3ccopS2yaeX+8MIWYJXvEXKZv+RqV2QbUlHOaNb34EGavtXVUMWYSTxzZBlbLjE+qezraQGg5LIV8gXUFqAQiXCCK3EqaOSoIRLb3zbst+fgT26tQWfiUXUhOhNF4y7SchEtW/iP8uVzIWE+gWdzoq/Inw/vMC7pa2+WBmjZbwsLN6IEHF7Xxn20xj6yGlEwAtnKedS7drchP50b/WATfUlLbbNZ7Q3AhwjAWe9HYst8Udqb8T5//Ay9MuhzvgFVqGCbBE/cXSxlVuNjog6C5yl7OiVrxLRkN1BumkKIL8se1wiBbE9pHFEbz9/IJ7uEQSy/zeYIXfNGJ7FtJu1G85m5ii6/Kh3NtfAk94KBG98obNlaIRYJiBuAo3eErGI+FUbwo7qIR/UknOdjnEgWttVtL8yxDmLGJ1HVlzR9IaOleaQR3IbQSVhMHp4rtIin2G10ptW+HiZ3ht7X8O2aUzILcgZp+RPbbowuVotoRebhrNAZQrIS0x2/aP1jK3EUywMubVjb1JIFE7ZHhnc8+7HryTvmaqNA6SBtrllXgTLo=
+    distributions: "sdist bdist_wheel"
+    skip_existing: true
+    on:
+      tags: true
