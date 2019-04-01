@@ -31,7 +31,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         dim: int, optional
             Dimension of the copula
         """
-        super().__init__(dim, theta, 'clayton')
+        super().__init__(dim, theta, 'Clayton')
         assert not (dim != 2 and theta < 0), 'Clayton Copula parameter must be >= 0 when dimension == 2'
 
         self._bounds = (-1 + EPS) if dim == 2 else 0, np.inf
