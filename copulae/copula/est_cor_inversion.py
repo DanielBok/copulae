@@ -1,7 +1,7 @@
 import numpy as np
 
 from copulae.copula.abstract import AbstractCopula as Copula
-from copulae.copula.fit_stats import FitStats
+from copulae.copula.summary import FitSummary
 from copulae.copula.utils import fit_cor, is_archimedean, is_elliptical
 from copulae.core import rank_data
 
@@ -66,7 +66,7 @@ class CorrInversionEstimator:
             pass
         method = f"Inversion of {'Spearman Rho' if typ == 'irho' else 'Kendall Tau'} Correlation"
 
-        self.copula.fit_stats = FitStats(estimate, var_est, method, self.copula.log_lik(self.data), len(self.data))
+        self.copula.fit_smry = FitSummary(estimate, var_est, method, self.copula.log_lik(self.data), len(self.data))
 
         return estimate
 

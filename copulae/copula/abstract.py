@@ -3,7 +3,7 @@ from typing import Optional, Tuple, Union
 
 import numpy as np
 
-from copulae.copula.fit_stats import FitStats
+from copulae.copula.summary import FitSummary
 from copulae.types import Array, Numeric
 
 
@@ -16,7 +16,7 @@ class AbstractCopula(ABC):
 
         self.__dim = dim  # prevent others from messing around
         self.name = name
-        self.fit_stats: Optional[FitStats] = None
+        self.fit_smry: Optional[FitSummary] = None
         self._bounds: Tuple[Numeric, Numeric] = (0.0, 0.0)
 
     @property

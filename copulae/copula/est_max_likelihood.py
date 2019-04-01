@@ -2,7 +2,7 @@ import numpy as np
 from scipy.optimize import OptimizeResult, minimize
 
 from copulae.copula.abstract import AbstractCopula as Copula
-from copulae.copula.fit_stats import FitStats
+from copulae.copula.summary import FitSummary
 from copulae.copula.utils import warn_no_convergence, InitialParam
 
 
@@ -78,8 +78,8 @@ class MaxLikelihoodEstimator:
                 pass
 
         method = f"Maximum {'pseudo-' if method == 'mpl' else ''}likelihood"
-        self.copula.fit_stats = FitStats(estimate, var_est, method, res['fun'], len(self.data), self.optim_options,
-                                         res)
+        self.copula.fit_smry = FitSummary(estimate, var_est, method, res['fun'], len(self.data), self.optim_options,
+                                          res)
 
         return estimate
 
