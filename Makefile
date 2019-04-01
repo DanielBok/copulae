@@ -20,4 +20,4 @@ dist-wheel:
 
 
 test:
-	pytest tests/
+	python -m pytest tests/

@@ -21,7 +21,7 @@ matrix:
 
 install:
   - pip install coveralls pytest pytest-cov
-
+  - pip install -e .
 
 script:
   - make test
