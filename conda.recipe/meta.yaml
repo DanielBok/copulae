@@ -1,0 +1,53 @@
+{% set name = "copulae" %}
+{% set version = "0.3.0" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+  path: ..
+
+build:
+  number: 0
+  noarch: python
+  script:  "{{ PYTHON }} -m pip install . --no-deps -vv"
+
+requirements:
+  host:
+    - pip
+    - python >=3.6
+  run:
+    - numba >=0.43
+    - numpy >=1.15
+    - pandas >=0.23
+    - python >=3.6
+    - scipy >=1.1
+    - statsmodels >=0.9
+
+test:
+  imports:
+    - copulae
+    - copulae.archimedean
+    - copulae.copula
+    - copulae.core
+    - copulae.datasets
+    - copulae.elliptical
+    - copulae.estimators
+    - copulae.indep
+    - copulae.special
+    - copulae.stats
+    - copulae.utility
+
+about:
+  home: https://github.com/DanielBok/copulae
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: Python copulae library for dependency modelling
+  doc_url: https://copulae.readthedocs.io/en/latest/
+  dev_url: https://github.com/DanielBok/copulae
+
+extra:
+  recipe-maintainers:
+    - DanielBok
