@@ -1,8 +1,11 @@
 # Copulae
 
-Copulae is a package used to model complex dependency structures. Copulae implements common and
-popular copula structures to bind multiple univariate streams of data together. All copula 
-implemented are multivariate by default. 
+Copulae is a package used to model complex dependency structures. Copulae implements common and popular copula structures to bind multiple univariate streams of data together. All copula implemented are multivariate by default. 
+
+###### Versions
+
+[![Anaconda Version](https://anaconda.org/conda-forge/copulae/badges/version.svg)](https://anaconda.org/conda-forge/copulae/badges/version.svg)
+[![PyPI version](https://badge.fury.io/py/copulae.svg)](https://badge.fury.io/py/copulae)
 
 ###### Continuous Integration
 
@@ -50,49 +53,47 @@ cop.fit(data)
 cop.random(10)  # simulate random number
 
 # getting parameters
-print(cop.params)  
+p = cop.params
+# cop.params = ...  # you can override parameters too, even after it's fitted!  
 
-# overriding parameters
-cop[:] = np.eye(8)  # in this case,  setting to independent Gaussian Copula
+# get a summary of the copula. If it's fitted, fit details will be present too
+cop.summary()
+
+# overriding parameters, for Elliptical Copulae, you can override the correlation matrix
+cop[:] = np.eye(8)  # in this case, this will be equivalent to an Independent Copula
 ```
 
-I'll work on the docs and other copulas as soon as I can!
+Most of the copulae work roughly the same way. They share pretty much the same API. The major different lies in the way they are parameterized. Read the docs to learn more about them. 😊
 
 
 ## Acknowledgements
 
-Most of the code has been implemented by learning from others. Copulas are not the easiest
-beasts to understand but here are some items that helped me along the way. I would recommend
-all the works listed below.
+Most of the code has been implemented by learning from others. Copulas are not the easiest beasts to understand but here are some items that helped me along the way. I would recommend all the works listed below.
 
 #### [Elements of Copula Modeling with R](https://www.amazon.com/Elements-Copula-Modeling-Marius-Hofert/dp/3319896342/)
 
-I referred quite a lot to the textbook when first learning. The authors give a pretty thorough explanation 
-of copula from ground up. They go from describing when you can use copulas for modeling to the different 
-classes of copulas to how to fit them and more.
+I referred quite a lot to the textbook when first learning. The authors give a pretty thorough explanation of copula from ground up. They go from describing when you can use copulas for modeling to the different classes of copulas to how to fit them and more.
 
 #### [Blogpost from Thomas Wiecki](https://twiecki.io/blog/2018/05/03/copulas/) 
 
-This blogpost gives a very gentle introduction to copulas. Before diving into all the complex math you'd 
-find in textbooks, this is probably the best place to start. 
-
+This blogpost gives a very gentle introduction to copulas. Before diving into all the complex math you'd find in textbooks, this is probably the best place to start. 
 
 ## Motivations
 
-I started working on the copulae package because I couldn't find a good existing package that does
-multivariate copula modeling. Presently, I'm building up the package according to my needs at work.
-If you feel that you'll need some features, you can drop me a message. I'll see how I can schedule it. 😊
+I started working on the copulae package because I couldn't find a good existing package that does multivariate copula modeling. Presently, I'm building up the package according to my needs at work. If you feel that you'll need some features, you can drop me a message. I'll see how I can schedule it. 😊
+
 ## TODOS
 
-- [ ] Set up package for pip and conda installation
+- [x] Set up package for pip and conda installation
 - [ ] More documentation on usage and post docs on rtd
-- [ ] Elliptical Copulas
+    - [ ] Add sample problems
+- [x] Elliptical Copulas
     - [x] Gaussian (Normal)
     - [x] Student (T)
 - [ ] Implement in Archmedeans copulas
     - [x] Clayton
     - [x] Gumbel
-    - [ ] Frank
+    - [x] Frank
     - [ ] Joe
     - [ ] AMH 
 - [ ] Implement goodness of fit
