@@ -220,6 +220,9 @@ class GumbelCopula(AbstractArchimedeanCopula):
             raise RuntimeError('Clayton copula parameter cannot be nan')
 
         u = random_uniform(n, self.dim, seed)
+        if self.params - 1 < 1e-7:
+            return random_uniform(n, self.dim, seed)
+
         if np.isclose(self.params, 1):
             return u
 

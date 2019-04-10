@@ -161,10 +161,10 @@ class skew_stable:
 
             c = (1 + bt ** 2) ** (1 / (2 * alpha))
 
-            z = c * np.sin(at) \
-                * (np.cos(theta - at) / w) ** (1 / alpha - 1) \
-                / np.cos(theta) ** (1 / alpha) \
-                - bt
+            z = (c * np.sin(at)
+                 * (np.cos(theta) ** (-1 / alpha))
+                 * ((np.cos(theta - at) / w) ** ((1 - alpha) / alpha))
+                 - bt)
 
         return z * gamma + delta
 

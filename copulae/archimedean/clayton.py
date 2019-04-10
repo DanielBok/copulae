@@ -135,7 +135,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         if np.isnan(theta):
             raise RuntimeError('Clayton copula parameter cannot be nan')
 
-        if abs(theta) < 6.06e-6:  # magic number
+        if abs(theta) < 1e-7:
             return random_uniform(n, self.dim, seed)
 
         r = random_uniform(n, self.dim, seed)
