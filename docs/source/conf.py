@@ -13,6 +13,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
 import os
+import subprocess
 import sys
 
 sys.path.insert(0, os.path.abspath('../../copulae'))
@@ -26,7 +27,7 @@ author = 'Daniel Bok'
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = subprocess.getoutput('git describe --abbrev=0')
 
 # -- General configuration ---------------------------------------------------
 
