@@ -5,6 +5,8 @@ from copulae.core import valid_rows_in_u
 from copulae.special.debye import debye_1, debye_2
 from copulae.special.optimize import find_root
 from copulae.special.special_func import log1mexp, log1pexp, poly_log
+from copulae.stats import random_uniform
+from copulae.stats.log import random_log_series_ln1p
 from copulae.types import Array
 from copulae.utility import array_io, as_array
 from .abstract import AbstractArchimedeanCopula
@@ -141,6 +143,7 @@ class FrankCopula(AbstractArchimedeanCopula):
     def psi(self, s):
         assert not np.isnan(self.params), "Copula must have parameters to calculate psi"
 
+        s = np.asarray(s)
         if self.params <= -36:
             return -log1pexp(-s - self.params) / self.params
         elif self.params < 0:
@@ -149,12 +152,30 @@ class FrankCopula(AbstractArchimedeanCopula):
             return np.exp(-s)
         else:
             const = log1mexp(self.params)
-            if s < const:
-                return np.nan
-            return -log1mexp(s - log1mexp(self.params)) / self.params
+            m = np.less(s, const, where=~np.isnan(s))
+
+            s[m] = np.nan
+            s[~m] = -log1mexp(s[~m] - log1mexp(self.params)) / self.params
+            return s.item(0) if s.size == 1 else s
 
     def random(self, n: int, seed: int = None):
-        pass
+        u = random_uniform(n, self.dim, seed)
+        if abs(self.params) < 1e-7:
+            return u
+
+        if self.dim == 2:
+            v = u[:, 1]
+            a = -abs(self.params)
+            v = -1 / a * np.log1p(-v * np.expm1(-a) / (np.exp(-a * u[:, 0]) * (v - 1) - v))
+            u[:, 1] = 1 - v if self.params > 0 else v
+            return u
+
+        # alpha too large
+        if log1mexp(self.params) == 0:
+            return np.ones((n, self.dim))
+
+        fr = random_log_series_ln1p(-self.params, n)[:, None]
+        return self.psi(-np.log(u) / fr)
 
     @property
     def rho(self):

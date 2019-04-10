@@ -120,6 +120,10 @@ def test_psi(theta, expected):
         assert np.isnan(copula.psi(log1mexp(theta) - 1e-6))
 
 
+def test_gaussian_random_generates_correctly(copula):
+    assert copula.random(10).shape == (10, copula.dim)
+
+
 @pytest.mark.parametrize('theta, expected', [
     (1.295, 0.211156879535562),
     (1e-9, 1.66666666666667e-10)

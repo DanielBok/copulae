@@ -159,6 +159,10 @@ def test_psi(copula, U5):
     assert_array_almost_equal(psi, target, 3)
 
 
+def test_gaussian_random_generates_correctly(copula):
+    assert copula.random(5000).shape == (5000, copula.dim)
+
+
 def test_summary(fitted_clayton):
     smry = fitted_clayton.summary()
     assert isinstance(str(smry), str)

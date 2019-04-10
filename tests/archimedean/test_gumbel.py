@@ -122,6 +122,10 @@ def test_gumbel_pdf(copula, U5):
     assert_array_almost_equal(log_cdf, np.log(expected_cdf), DP)
 
 
+def test_gaussian_random_generates_correctly(copula):
+    assert copula.random(10).shape == (10, copula.dim)
+
+
 def test_summary(fitted_gumbel):
     smry = fitted_gumbel.summary()
     assert isinstance(str(smry), str)
