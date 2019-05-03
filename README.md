@@ -96,7 +96,16 @@ I started working on the copulae package because I couldn't find a good existing
     - [x] Frank
     - [ ] Joe
     - [ ] AMH 
-- [ ] Implement goodness of fit
+    - [ ] Implement Rho finding via cubatures
+- [ ] Implement Copulae Tests
+    - [ ] Radial Symmetry
+    - [ ] Exchangeability
+    - [ ] Goodness of Fit
+        - [ ] Pairwise Rosenblatt
+        - [ ] Multi-Independence
+        - [ ] General GOF
+    - [ ] Model Selection
+        - [ ] Cross-Validated AIC/BIC
 - [ ] Implement mixed copulas
 - [ ] Implement more solvers
 - [ ] Implement convenient graphing functions
