@@ -42,8 +42,9 @@ def pseudo_obs(data: np.ndarray, ties='average'):
     data: (N, D) ndarray
         Random variates to be converted to pseudo-observations
 
-    ties: { 'average', 'min', 'max', 'dense', 'ordinal' }, optional
-        String specifying how ranks should be computed if there are ties in any of the coordinate samples
+    ties: str, optional
+        String specifying how ranks should be computed if there are ties in any of the coordinate samples. Options
+        include 'average', 'min', 'max', 'dense', 'ordinal'.
 
     Returns
     -------
@@ -63,23 +64,7 @@ def rank_data(obs: np.ndarray, axis=0, ties='average'):
         Data to be ranked. Can only be 1 or 2 dimensional.
     axis: {0, 1}, optional
         The axis to perform the ranking. 0 means row, 1 means column.
-    ties
-
-    Returns
-    -------
-
-    """
-
-    """
-    
-
-    :param obs: numpy array
-        
-
-    :param axis: int, default 0
-        The axis to perform the ranking. 0 means row, 1 means column.
-
-    :param ties: str, default 'average'
+    ties: str, default 'average'
         The method used to assign ranks to tied elements. The options are 'average', 'min', 'max', 'dense' and
         'ordinal'.
         'average': The average of the ranks that would have been assigned to all the tied values is assigned to each
@@ -91,7 +76,9 @@ def rank_data(obs: np.ndarray, axis=0, ties='average'):
             assigned to the tied elements. 'ordinal': All values are given a distinct rank, corresponding to
             the order that the values occur in `a`.
 
-    :return: numpy array
+    Returns
+    -------
+    ndarray
         matrix or vector of the same dimension as X containing the pseudo observations
     """
     obs = np.asarray(obs)
