@@ -21,3 +21,9 @@ dist-wheel:
 
 test:
 	python -m pytest tests/
+
+
+clean:
+	# uninstall cli
+	python setup_cli.py develop --uninstall
+	rm -rf .pytest_cache/ *.egg-info dist/ .coverage
