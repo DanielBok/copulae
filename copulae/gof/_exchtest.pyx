@@ -1,6 +1,8 @@
 from libc.math cimport sqrt
-import numpy as np
+from libc.stdlib cimport rand, RAND_MAX
 
+import numpy as np
+from copulae.core import pseudo_obs
 
 
 cdef double cn(double[:] u, double[:] v, double x, double y, int n) nogil:
@@ -123,7 +125,7 @@ def exch_test_cn(double[:, :] u, double[:, :] g, int n, int m, int N, int random
         the null hypothesis.
 
     m: int
-        Number of rows in integrand grid
+        size of the integration grid
 
     N: int
         Number of multiplier or bootstrap iterations to be used to simulate realizations of the test statistic under
@@ -185,11 +187,11 @@ def exch_test_stat(double[:, :] u, double[:, :] g, int n, int m):
         number of rows in u
 
     m: int
-        number of rows in g
+        size of the integration grid
 
     Returns
     -------
-    float:
+    float
         Value of the test statistic for exchangeability test
     """
     cdef:
@@ -203,3 +205,60 @@ def exch_test_stat(double[:, :] u, double[:, :] g, int n, int m):
         s += diff * diff
 
     return s * n / m
+
+
+def exch_replication(int[:, :] ir, double[:, :] u, double[:, :] g, int n, int m, int ng):
+    """
+    One instance of the bootstrap replication
+
+    Parameters
+    ----------
+    ir: ndarray
+
+    u: ndarray
+        Data to test for exchangeability
+
+    g: ndarray
+        Integrand grid
+
+    n: int
+        number of rows in u
+
+    m: int
+        size of the integration grid
+
+    ng: int
+        number of rows in g
+
+    Returns
+    -------
+    float
+        Value of the test statistic for exchangeability test
+    """
+    cdef:
+        int i, j, s1, s2
+        int[:] order
+        double[:, :] ub = np.copy(u), tub
+
+    for i in range(n):
+        s1, s2 = (0, 1) if (<double>rand() / RAND_MAX) > 0.5 else (1, 0)
+        ub[i, 0] = u[i, s1]
+        ub[i, 1] = u[i, s2]
+
+    for i in range(2):
+        order = np.argsort(ub[:, i]).astype(int)
+
+        tub = np.copy(ub)
+        for j in range(n):
+            ub[j] = tub[order[j]]
+
+        tub = np.copy(ub)
+        for j in range(n):
+            ub[j, i] = tub[ir[j, i], i]
+
+    ub = pseudo_obs(ub)
+
+    if m == 0:
+        g = ub
+
+    return exch_test_stat(ub, g, n, ng)

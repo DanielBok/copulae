@@ -1,7 +1,7 @@
 import numpy as np
 
-from copulae.core import pseudo_obs
-from ._exchtest import exch_test_cn, exch_test_stat
+from copulae.core import pseudo_obs, rank_data
+from ._exchtest import exch_replication, exch_test_cn, exch_test_stat
 from .common import TestStatistic
 
 __all__ = ['exch_test']
@@ -37,7 +37,8 @@ def exch_test(x, y, N=1000, m=0, ties='average'):
 
     Returns
     -------
-
+    TestStatistic
+        Test statistics for the exchangeability test
     """
     x = pseudo_obs(x, ties)
     y = pseudo_obs(y, ties)
@@ -58,8 +59,12 @@ def exch_test(x, y, N=1000, m=0, ties='average'):
 
     s = exch_test_stat(u, g, n, ng)
 
-    if False:
-        pass
+    has_ties = len(np.unique(x)) != n or len(np.unique(y)) != n
+
+    if has_ties:
+        ir = np.floor(rank_data(np.sort(u, 0), axis=1)).astype(int) - 1
+        s0 = np.asarray([exch_replication(ir, u, g, n, m, ng) for _ in range(N)])
+
     else:
         s0 = exch_test_cn(u, g, n, ng, N)
 
