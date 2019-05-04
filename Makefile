@@ -15,8 +15,11 @@ dist:
 
 
 dist-wheel:
-	python setup.py build_ext --inplace
 	python setup.py bdist_wheel
+
+
+ext:
+	python setup.py build_ext --inplace
 
 
 test:
