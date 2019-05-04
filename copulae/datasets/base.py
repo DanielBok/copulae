@@ -2,9 +2,11 @@ import os
 
 import pandas as pd
 
-__all__ = ["load_danube", "load_residuals"]
+__all__ = ["load_danube", "load_residuals", "load_smi"]
 
-__module_path__ = os.path.dirname(__file__)
+
+def _load_file(fn: str):
+    return os.path.join(os.path.dirname(__file__), 'data', fn)
 
 
 def load_danube() -> pd.DataFrame:
@@ -36,7 +38,7 @@ def load_danube() -> pd.DataFrame:
     DataFrame
         A dataframe containing the Danube data
     """
-    return pd.read_csv(os.path.join(__module_path__, 'data', 'danube.csv'))
+    return pd.read_csv(_load_file('danube.csv'))
 
 
 def load_residuals() -> pd.DataFrame:
@@ -48,4 +50,27 @@ def load_residuals() -> pd.DataFrame:
     DataFrame
         A data frame of simulated regression residuals
     """
-    return pd.read_csv(os.path.join(__module_path__, 'data', 'residuals.csv'))
+
+    return pd.read_csv(_load_file('residuals.csv'))
+
+
+def load_smi(as_returns=False) -> pd.DataFrame:
+    """
+    Dataset contains the close prices of all 20 constituents of the Swiss Market Index (SMI) from
+    2011-09-09 to 2012-03-28.
+
+    Parameters
+    ----------
+    as_returns: bool
+        If true, transforms the price data to returns data
+
+    Returns
+    -------
+    DataFrame
+        A data frame of the closing prices of all 20 constituents of the Swiss Market Index
+    """
+
+    df = pd.read_csv(_load_file('smi.csv'), index_col=0, parse_dates=[0])
+    if as_returns:
+        df = df.pct_change().dropna()
+    return df
