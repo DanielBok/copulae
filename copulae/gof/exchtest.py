@@ -8,11 +8,30 @@ __all__ = ['exch_test']
 
 
 def exch_test(x, y, N=1000, m=0, ties='average'):
-    """
+    r"""
     Test for assessing the exchangeability of the underlying bivariate copula based on the empirical copula.
     The test statistics are defined in the first two references. Approximate p-values for the test statistics are
     obtained by means of a multiplier technique if there are no ties in the component series of the bivariate
     data, or by means of an appropriate bootstrap otherwise.
+
+    A random vector X is called exchangeable iff :math:`(X1, ..., Xd) = (X_{\pi(1)}, ..., X_{\pi(d)})`
+    for any permutation :math:`(\pi(1), \pi(2), \dots, \pi(d))` of :math:`(1, \dots, d)`.
+
+    A copula C is called exchangeable iff C is the distribution function of an exchangeable random vector
+    (with uniform marginal distributions on [0, 1]). For such a copula
+    :math:`C(u1, u2, ..., ud ) = C(u\pi(1), u\pi(2), ..., u\pi(d))` holds for any permutation
+    :math:`(\pi(1), \pi(2), \dots, \pi(d))` of :math:`(1, \dots, d)`.
+
+    Examples of exchangeable copulas:
+        Gumbel, Clayton, and also the Gaussian copula :math:`C_P^{Ga}` and the t-Copula :math:`C_{ν,P}^t`, if
+        P is an equicorrelation matrix, i.e. :math:`R = \rho J_d + (1 − \rho)I_d`. :math:`J_d \in R^{d×d}`
+        is a matrix consisting only of ones, and :math:`I_d \in R^{d×d}` is the d-dimensional identity matrix.
+
+    For bivariate exchangeable copulas we have:
+
+    .. math::
+
+        P(U_2 \leq u_2|U_1 = u_1) = P(U_1 \leq u_2|U_2 = u_1).
 
     Parameters
     ----------
