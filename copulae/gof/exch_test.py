@@ -1,7 +1,7 @@
 import numpy as np
 
 from copulae.core import pseudo_obs, rank_data
-from ._exchtest import exch_replication, exch_test_cn, exch_test_stat
+from ._exch_test import exch_replication, exch_test_cn, exch_test_stat
 from .common import TestStatistic
 
 __all__ = ['exch_test']
@@ -58,6 +58,14 @@ def exch_test(x, y, N=1000, m=0, ties='average'):
     -------
     TestStatistic
         Test statistics for the exchangeability test
+
+    Examples
+    --------
+    >>> from copulae.datasets import load_danube
+    >>> from copulae.gof import exch_test
+
+    >>> danube = load_danube().values
+    >>> exch_test(danube[:, 0], danube[:, 1])
     """
     x = pseudo_obs(x, ties)
     y = pseudo_obs(y, ties)
