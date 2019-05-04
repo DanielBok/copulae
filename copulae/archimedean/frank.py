@@ -225,18 +225,20 @@ def debye1(x):
     """
     x = as_array(x)
     fin = np.isfinite(x)
-    d = np.abs(x)
+    d = np.ravel(np.abs(x))
 
     with np.errstate(invalid='ignore'):
         if np.all(fin):
             d = debye_1(d)
         else:
             d[fin] = debye_1(d[fin])
+            d = np.ravel(d)
 
             pinf = np.isinf(x) & (x > 0)
             if np.any(pinf):
                 d[pinf] = 0  # set positive infinity to 0 (but not na, thus can't use ~fin)
 
+        d = np.ravel(d)
         d[x < 0] -= x[x < 0] / 2
         return d.item(0) if d.size == 1 else d
 
@@ -261,17 +263,19 @@ def debye2(x):
     """
     x = as_array(x)
     fin = np.isfinite(x)
-    d = np.abs(x)
+    d = np.ravel(np.abs(x))
 
     with np.errstate(invalid='ignore'):
         if np.all(fin):
             d = debye_2(d)
         else:
             d[fin] = debye_2(d[fin])
+            d = np.ravel(d)
 
-            pinf = np.isinf(x) & (x > 0)
+            pinf = np.isposinf(x)
             if np.any(pinf):
                 d[pinf] = 0  # set positive infinity to 0 (but not na, thus can't use ~fin)
 
+        d = np.ravel(d)
         d[x < 0] -= 2 / 3 * x[x < 0]
         return d.item(0) if d.size == 1 else d

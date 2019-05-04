@@ -141,8 +141,7 @@ def poly_log(z, s, method='default', log=False) -> Union[float, np.ndarray]:
     method = method.lower()
     assert method in ('default', 'neg-stirling', 'neg-eulerian')
     if s == 2 and method == 'default':
-        res = dilog_complex(z) if np.any(np.iscomplex(z)) else dilog(z)
-        return float(res) if res.shape == 1 else res
+        return dilog_complex(z) if np.any(np.iscomplex(z)) else dilog(z)
 
     elif method == 'default':
         method = 'neg-stirling'

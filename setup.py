@@ -1,5 +1,9 @@
 #!/usr/bin/env python
+import os
+import platform
 import sys
+import numpy as np
+import re
 
 from setuptools import Extension, find_packages, setup
 
@@ -61,23 +65,39 @@ def build_ext_modules():
     macros = [('NPY_NO_DEPRECATED_API', '1'),
               ('NPY_1_7_API_VERSION', '1')]
 
-    modules = [
-        {
-            'name': 'copulae.gof._exchtest',
-            'sources': ['copulae/gof/_exchtest'],
-        },
-    ]
+    if IS_DEV_MODE:
+        macros.append(('CYTHON_TRACE', '1'))
+
+    if platform.system() == 'Windows':
+        parallelism_options = {'extra_compile_args': ['/openmp']}
+    else:
+        parallelism_options = {'extra_compile_args': ['-fopenmp'],
+                               'extra_link_args': ['-fopenmp']}
 
     extensions = []
-    for m in modules:
-        # if not built with Cython, use the c or cpp files
-        language = m.get('language', 'c')
-        ext = '.pyx' if USE_CYTHON else f'.{language}'
+    for root, _, files in os.walk("copulae"):
+        path_parts = os.path.normcase(root).split(os.sep)
+        for file in files:
+            fn, ext = os.path.splitext(file)
 
-        for i, source in enumerate(m['sources']):
-            m['sources'][i] = source + ext
+            if ext == '.pyx':
+                module_path = '.'.join([*path_parts, fn])
+                _fp = os.path.join(*path_parts, fn)
+                pyx_c_file_path = _fp + ('.pyx' if USE_CYTHON else '.c')
 
-        extensions.append(Extension(**m, language=language, define_macros=macros))
+                include_dirs = []
+                with open(_fp + ext) as f:
+                    if re.search(r'^cimport numpy as c?np$', f.read(), re.MULTILINE) is not None:
+                        include_dirs.append(np.get_include())
+
+                extensions.append(Extension(
+                    module_path,
+                    [pyx_c_file_path],
+                    language='c',
+                    include_dirs=include_dirs,
+                    define_macros=macros,
+                    **parallelism_options
+                ))
 
     # compiler directives
     compiler_directives = {
