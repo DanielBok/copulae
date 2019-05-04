@@ -99,7 +99,7 @@ I started working on the copulae package because I couldn't find a good existing
     - [ ] Implement Rho finding via cubatures
 - [ ] Implement Copulae Tests
     - [ ] Radial Symmetry
-    - [ ] Exchangeability
+    - [x] Exchangeability
     - [ ] Goodness of Fit
         - [ ] Pairwise Rosenblatt
         - [ ] Multi-Independence
