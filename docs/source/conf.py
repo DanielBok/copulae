@@ -12,11 +12,23 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
+import glob
 import os
+import shutil
 import subprocess
 import sys
 
-sys.path.insert(0, os.path.abspath('../../copulae'))
+sys.path.insert(0, os.path.abspath('../..'))
+
+# -- Copy Examples -----------------------------------------------------------
+
+root, _ = os.path.split(os.path.abspath(__file__))
+example_path = os.path.join(root, '..', '..', 'examples')
+examples = glob.glob(os.path.join(example_path, '*.ipynb'))
+for example in examples:
+    _, filename = os.path.split(example)
+    target = os.path.join(root, 'examples', filename)
+    shutil.copy(example, target)
 
 # -- Project information -----------------------------------------------------
 
@@ -39,6 +51,7 @@ release = subprocess.getoutput('git describe --abbrev=0')
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'nbsphinx',
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
     'sphinx.ext.doctest',

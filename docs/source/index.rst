@@ -9,10 +9,11 @@ Contents
 ========
 
 .. toctree::
-    :maxdepth: 3
+    :maxdepth: 2
 
     Getting Started <getting-started>
     Copulae <copulae/index>
+    Examples <examples/index>
 
 
 Indices and tables
