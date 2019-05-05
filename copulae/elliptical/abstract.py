@@ -81,6 +81,7 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
             self._rhos = value[tri_indices(d, 1, 'lower')]
             return
 
+        assert -1.0 <= value <= 1.0, "correlation value must be between -1 and 1"
         if isinstance(i, int):
             self._rhos[i] = value
 
