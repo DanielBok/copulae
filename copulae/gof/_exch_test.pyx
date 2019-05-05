@@ -2,6 +2,7 @@ from libc.math cimport sqrt
 from libc.stdlib cimport rand, RAND_MAX
 
 import numpy as np
+
 from copulae.core import pseudo_obs
 
 

@@ -57,7 +57,8 @@ def exch_test(x, y, N=1000, m=0, ties='average'):
     Returns
     -------
     TestStatistic
-        Test statistics for the exchangeability test
+        Test statistics for the exchangeability test. The null hypothesis assumes that the vectors are exchangeable.
+        Thus a small p-value will indicate evidence against exchangeability
 
     Examples
     --------
@@ -65,7 +66,21 @@ def exch_test(x, y, N=1000, m=0, ties='average'):
     >>> from copulae.gof import exch_test
 
     >>> danube = load_danube().values
-    >>> exch_test(danube[:, 0], danube[:, 1])
+    >>> test_stats = exch_test(danube[:, 0], danube[:, 1])
+    >>> print(test_stats.p_value)
+
+    A small p-value here indicates strong evidence against exchangeability
+
+    References
+    ----------
+    Genest, C., G. Nešlehová, J. and Quessy, J.-F. (2012). Tests of symmetry for bivariate copulas. Annals of the
+    Institute of Statistical Mathematics 64, 811–834.
+
+    Kojadinovic, I. and Yan, J. (2012). A nonparametric test of exchangeability for extreme-value and left-tail
+    decreasing bivariate copulas. The Scandinavian Journal of Statistics 39:3, 480–496.
+
+    Kojadinovic, I. (2017). Some copula inference procedures adapted to the presence of ties. Computational Statistics
+    and Data Analysis 112, 24–41, http://arxiv.org/abs/1609.05519.
     """
     x = pseudo_obs(x, ties)
     y = pseudo_obs(y, ties)
