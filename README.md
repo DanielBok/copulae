@@ -90,7 +90,7 @@ I started working on the copulae package because I couldn't find a good existing
 - [x] Elliptical Copulas
     - [x] Gaussian (Normal)
     - [x] Student (T)
-- [ ] Implement in Archmedeans copulas
+- [ ] Implement in Archimedean copulas
     - [x] Clayton
     - [x] Gumbel
     - [x] Frank
@@ -98,7 +98,7 @@ I started working on the copulae package because I couldn't find a good existing
     - [ ] AMH 
     - [ ] Implement Rho finding via cubatures
 - [ ] Implement Copulae Tests
-    - [ ] Radial Symmetry
+    - [x] Radial Symmetry
     - [x] Exchangeability
     - [ ] Goodness of Fit
         - [ ] Pairwise Rosenblatt
