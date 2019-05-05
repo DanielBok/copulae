@@ -9,6 +9,8 @@ __all__ = ['rad_sym_test']
 
 def rad_sym_test(x, N=1000, ties='average'):
     r"""
+    Test of Radial Symmetry for a Multivariate Copula.
+
     Test for assessing the radial symmetry of the underlying multivariate copula based on the empirical copula. The
     test statistic is a multivariate extension of the definition adopted in the first reference. An approximate
     p-value for the test statistic is obtained by means of a appropriate bootstrap which can take the presence of
@@ -21,7 +23,7 @@ def rad_sym_test(x, N=1000, ties='average'):
 
     Parameters
     ----------
-    x: array_like
+    x: {array_like, pandas.DataFrame}
         A matrix like data structure
 
     N: int
@@ -43,7 +45,7 @@ def rad_sym_test(x, N=1000, ties='average'):
     >>> from copulae.datasets import load_danube
     >>> from copulae.gof import rad_sym_test
 
-    >>> danube = load_danube().values
+    >>> danube = load_danube()
     >>> test_stats = rad_sym_test(danube)
     >>> print(test_stats.p_value)
 

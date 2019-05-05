@@ -9,6 +9,8 @@ __all__ = ['exch_test']
 
 def exch_test(x, y, N=1000, m=0, ties='average'):
     r"""
+    Test of Exchangeability for a Bivariate Copula.
+
     Test for assessing the exchangeability of the underlying bivariate copula based on the empirical copula.
     The test statistics are defined in the first two references. Approximate p-values for the test statistics are
     obtained by means of a multiplier technique if there are no ties in the component series of the bivariate
