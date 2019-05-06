@@ -13,6 +13,7 @@ Contents
 
     Getting Started <getting-started>
     Copulae <copulae/index>
+    Diagnostics, Tests and Model Selection <dtm/index>
     Examples <examples/index>
 
 
