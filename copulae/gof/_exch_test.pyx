@@ -208,7 +208,7 @@ def exch_test_stat(double[:, :] u, double[:, :] g, int n, int m):
     return s * n / m
 
 
-def exch_replication(int[:, :] ir, double[:, :] u, double[:, :] g, int n, int m, int ng):
+def exch_replication(long[:, :] ir, double[:, :] u, double[:, :] g, int n, int m, int ng):
     """
     One instance of the bootstrap replication
 
@@ -238,7 +238,7 @@ def exch_replication(int[:, :] ir, double[:, :] u, double[:, :] g, int n, int m,
     """
     cdef:
         int i, j, s1, s2
-        int[:] order
+        long[:] order
         double[:, :] ub = np.copy(u), tub
 
     for i in range(n):
@@ -247,11 +247,11 @@ def exch_replication(int[:, :] ir, double[:, :] u, double[:, :] g, int n, int m,
         ub[i, 1] = u[i, s2]
 
     for i in range(2):
-        order = np.argsort(ub[:, i]).astype(int)
+        order = np.argsort(ub[:, i])
 
         tub = np.copy(ub)
         for j in range(n):
-            ub[j] = tub[order[j]]
+            ub[j] = tub[<int>order[j]]
 
         tub = np.copy(ub)
         for j in range(n):

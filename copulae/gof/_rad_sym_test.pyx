@@ -36,11 +36,11 @@ def rad_sym_test_stat(const double[:] u, const int n, const int p):
     return s
 
 
-def rad_sym_replicate(double[:, :] u, int[:, :] ir, const int n, const int p, bint has_ties):
+def rad_sym_replicate(double[:, :] u, long[:, :] ir, const int n, const int p, bint has_ties):
     """One instance of bootstrap replication for radial symmetry test"""
     cdef:
         double[:, :] ub = np.copy(u), tub
-        int[:] order
+        long[:] order
         int i, j
 
     for i in range(n):
@@ -50,11 +50,11 @@ def rad_sym_replicate(double[:, :] u, int[:, :] ir, const int n, const int p, bi
 
     if has_ties:
         for i in range(p):
-            order = np.argsort(ub[:, i]).astype(int)
+            order = np.argsort(ub[:, i])
 
             tub = np.copy(ub)
             for j in range(n):
-                ub[j] = tub[order[j]]
+                ub[j] = tub[<int>order[j]]
 
             tub = np.copy(ub)
             for j in range(n):

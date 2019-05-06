@@ -1,7 +1,7 @@
-os: linux
-dist: xenial  # ubuntu 16.04
+language: bash
 
-language: python
+compiler:
+  - gcc
 
 branches:
   only:
@@ -14,13 +14,49 @@ env:
 
 matrix:
   include:
-    - python: 3.6
-    - python: 3.7
+    - python: "3.6"
+      os: osx
+      env:
+        - PYTHON: "3.6"
+    - python: "3.6"
+      os: linux
+      dist: xenial
+      env:
+        - PYTHON: "3.6"
+    - python: "3.7"
+      os: osx
+      env:
+        - PYTHON: "3.7"
+    - python: "3.7"
+      os: linux
+      dist: xenial
       env:
         - COVERAGE=true
+        - PYTHON: "3.7"
+
+before_install:
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+      chmod +x miniconda.sh;
+      bash miniconda.sh -b -p $HOME/miniconda;
+      export PATH="$HOME/miniconda/bin:$PATH";
+    else
+      wget http://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
+      chmod +x miniconda.sh;
+      bash miniconda.sh -b -p $HOME/miniconda;
+      export PATH="$HOME/miniconda/bin:$PATH";
+    fi
+  - conda config --set always_yes true
+  - conda config --prepend channels conda-forge
+  - conda config --append channels bashtage
+  - conda config --set anaconda_upload yes
+  - conda update --all --quiet
+  - conda create -n build_env python=${PYTHON} coveralls cython numpy pytest pytest-cov
+  - source activate build_env
 
 install:
-  - pip install coveralls pytest pytest-cov
+  - python setup.py build_ext --inplace
   - pip install -e .
 
 script:

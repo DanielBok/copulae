@@ -29,4 +29,4 @@ test:
 clean:
 	# uninstall cli
 	python setup_cli.py develop --uninstall
-	rm -rf .pytest_cache/ *.egg-info dist/ .coverage
+	rm -rf build/ .pytest_cache/ *.egg-info dist/ .coverage

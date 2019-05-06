@@ -45,7 +45,6 @@ with open('README.md') as f:
     long_description = f.read()
 
 requirements = [
-    'numba >=0.43',
     'numpy >=1.15',
     'scipy >=1.1',
     'pandas >=0.23',
@@ -70,9 +69,11 @@ def build_ext_modules():
 
     if platform.system() == 'Windows':
         parallelism_options = {'extra_compile_args': ['/openmp']}
-    else:
+    elif platform.system() == 'Linux':
         parallelism_options = {'extra_compile_args': ['-fopenmp'],
                                'extra_link_args': ['-fopenmp']}
+    else:  # Darwin, MACOS
+        parallelism_options = {}
 
     extensions = []
     for root, _, files in os.walk("copulae"):
