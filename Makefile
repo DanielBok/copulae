@@ -29,4 +29,10 @@ test:
 clean:
 	# uninstall cli
 	python setup_cli.py develop --uninstall
-	rm -rf build/ .pytest_cache/ *.egg-info dist/ .coverage
+	rm -rf build/ .pytest_cache/ *.egg-info dist/ .coverage __pycache__/
+
+
+manylinux:
+	docker image build -t danielbok/copulae_manylinux -f manylinux.Dockerfile .
+	rm -rf dist/*
+	docker container run --rm -v C:/Projects/copulae/dist:/dist danielbok/copulae_manylinux
