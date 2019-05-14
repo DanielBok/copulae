@@ -1,4 +1,5 @@
 from libc.math cimport sqrt
+from libc.stdint cimport int64_t
 from libc.stdlib cimport rand, RAND_MAX
 
 import numpy as np
@@ -238,7 +239,7 @@ def exch_replication(long[:, :] ir, double[:, :] u, double[:, :] g, int n, int m
     """
     cdef:
         int i, j, s1, s2
-        long[:] order
+        int64_t[:] order
         double[:, :] ub = np.copy(u), tub
 
     for i in range(n):

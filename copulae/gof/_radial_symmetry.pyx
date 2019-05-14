@@ -1,3 +1,4 @@
+from libc.stdint cimport int64_t
 from libc.stdlib cimport rand, RAND_MAX
 
 import numpy as np
@@ -40,7 +41,7 @@ def rad_sym_replicate(double[:, :] u, long[:, :] ir, const int n, const int p, b
     """One instance of bootstrap replication for radial symmetry test"""
     cdef:
         double[:, :] ub = np.copy(u), tub
-        long[:] order
+        int64_t[:] order
         int i, j
 
     for i in range(n):

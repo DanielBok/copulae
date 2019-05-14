@@ -1,7 +1,7 @@
 import numpy as np
 
 from copulae.core import pseudo_obs, rank_data
-from ._rad_sym_test import rad_sym_test_stat, rad_sym_replicate
+from ._radial_symmetry import rad_sym_test_stat, rad_sym_replicate
 from .common import TestStatistic
 
 __all__ = ['rad_sym_test']

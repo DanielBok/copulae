@@ -1,7 +1,7 @@
 import numpy as np
 
 from copulae.core import pseudo_obs, rank_data
-from ._exch_test import exch_replication, exch_test_cn, exch_test_stat
+from ._exchangeability import exch_replication, exch_test_cn, exch_test_stat
 from .common import TestStatistic
 
 __all__ = ['exch_test']
