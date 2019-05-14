@@ -9,14 +9,11 @@ from setuptools import Extension, find_packages, setup
 
 import versioneer
 
-ENV = 'DEV'
+IS_DEV_MODE = False
 argv = sys.argv
 for e in argv:
-    if e.startswith('--env'):
-        _, ENV = e.upper().split('=')
-        argv.remove(e)
-
-IS_DEV_MODE = ENV == 'DEV'
+    if e.startswith('--dev'):
+        IS_DEV_MODE = True
 
 try:
     from Cython.Build import cythonize
