@@ -62,7 +62,7 @@ def cov2corr(cov, return_std=False) -> Union[np.ndarray, Tuple[np.ndarray, np.nd
         return corr
 
 
-def is_psd(M: np.ndarray, strict=False, tol=1e-8) -> bool:
+def is_psd(M: np.ndarray, strict=False, tol=1e-12) -> bool:
     """
     Tests if matrix is positive semi-definite
 
@@ -72,7 +72,7 @@ def is_psd(M: np.ndarray, strict=False, tol=1e-8) -> bool:
         Matrix to be tested for positive semi-definiteness
 
     strict: bool
-        If True, tests for posotive definiteness
+        If True, tests for positive definiteness
 
     tol: float
         Numeric tolerance to check for equality
@@ -83,16 +83,16 @@ def is_psd(M: np.ndarray, strict=False, tol=1e-8) -> bool:
         True if matrix is positive (semi-)definite, else False
     """
     if isinstance(M, (int, float)):
-        return M >= 0
+        return M > -tol if strict else M >= -tol
 
     M = np.asarray(M)
     if not is_symmetric(M, tol):
         return False
 
     if strict:
-        return (la.eigvalsh(M) > 0).all()
+        return (la.eigvalsh(M) > -tol).all()
     else:
-        return (la.eigvalsh(M) >= 0).all()
+        return (la.eigvalsh(M) >= -tol).all()
 
 
 def is_symmetric(M: np.ndarray, tol=1e-8) -> bool:
