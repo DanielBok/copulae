@@ -38,7 +38,9 @@ def load_danube() -> pd.DataFrame:
     DataFrame
         A dataframe containing the Danube data
     """
-    return pd.read_csv(_load_file('danube.csv'))
+    df = pd.read_csv(_load_file('danube.csv'))
+    df.columns = df.columns.str.strip()
+    return df
 
 
 def load_residuals() -> pd.DataFrame:
@@ -50,8 +52,9 @@ def load_residuals() -> pd.DataFrame:
     DataFrame
         A data frame of simulated regression residuals
     """
-
-    return pd.read_csv(_load_file('residuals.csv'))
+    df = pd.read_csv(_load_file('residuals.csv'))
+    df.columns = df.columns.str.strip()
+    return df
 
 
 def load_smi(as_returns=False) -> pd.DataFrame:
@@ -69,8 +72,10 @@ def load_smi(as_returns=False) -> pd.DataFrame:
     DataFrame
         A data frame of the closing prices of all 20 constituents of the Swiss Market Index
     """
-
     df = pd.read_csv(_load_file('smi.csv'), index_col=0, parse_dates=[0])
+    df.index.name = df.index.name.strip()
+
     if as_returns:
         df = df.pct_change().dropna()
+
     return df
