@@ -111,43 +111,38 @@ def build_ext_modules():
     return cythonize(extensions, compiler_directives=compiler_directives)
 
 
-def run_setup():
-    setup(
-        name='copulae',
-        author=AUTHOR,
-        author_email=EMAIL,
-        maintainer=AUTHOR,
-        maintainer_email=EMAIL,
-        packages=find_packages(include=['copulae', 'copulae.*']),
-        license="MIT",
-        version=versioneer.get_version(),
-        description='Python copulae library for dependency modelling',
-        long_description=long_description,
-        long_description_content_type='text/markdown',
-        url='https://github.com/DanielBok/copulae',
-        keywords=['copula', 'copulae', 'dependency modelling', 'dependence structures', 'archimdean', 'elliptical',
-                  'finance'],
-        classifiers=[
-            'Development Status :: 3 - Alpha',
-            'Intended Audience :: End Users/Desktop',
-            'Intended Audience :: Financial and Insurance Industry',
-            'Programming Language :: Python :: 3.6',
-            'Programming Language :: Python :: 3.7',
-            'License :: OSI Approved :: MIT License',
-            'Operating System :: MacOS :: MacOS X',
-            'Operating System :: Microsoft :: Windows',
-            'Operating System :: POSIX',
-            'Programming Language :: Python',
-            'Topic :: Scientific/Engineering',
-        ],
-        install_requires=requirements,
-        extras_require=extras_require,
-        include_package_data=True,
-        python_requires='>=3.6',
-        zip_safe=False,
-        ext_modules=build_ext_modules(),
-    )
-
-
-if __name__ == '__main__':
-    run_setup()
+setup(
+    name='copulae',
+    author=AUTHOR,
+    author_email=EMAIL,
+    maintainer=AUTHOR,
+    maintainer_email=EMAIL,
+    packages=find_packages(include=['copulae', 'copulae.*']),
+    license="MIT",
+    version=versioneer.get_version(),
+    description='Python copulae library for dependency modelling',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    url='https://github.com/DanielBok/copulae',
+    keywords=['copula', 'copulae', 'dependency modelling', 'dependence structures', 'archimdean', 'elliptical',
+              'finance'],
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: End Users/Desktop',
+        'Intended Audience :: Financial and Insurance Industry',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX',
+        'Programming Language :: Python',
+        'Topic :: Scientific/Engineering',
+    ],
+    install_requires=requirements,
+    extras_require=extras_require,
+    include_package_data=True,
+    python_requires='>=3.6',
+    zip_safe=False,
+    ext_modules=build_ext_modules(),
+)
