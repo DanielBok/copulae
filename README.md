@@ -63,7 +63,7 @@ cop.summary()
 cop[:] = np.eye(8)  # in this case, this will be equivalent to an Independent Copula
 ```
 
-Most of the copulae work roughly the same way. They share pretty much the same API. The major different lies in the way they are parameterized. Read the docs to learn more about them. 😊
+Most of the copulae work roughly the same way. They share pretty much the same API. The difference lies in the way they are parameterized. Read the docs to learn more about them. 😊
 
 
 ## Acknowledgements
