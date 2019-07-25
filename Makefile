@@ -5,10 +5,6 @@ OUTPUT_DIR := dist
 all: dist
 
 
-cli:
-	python setup_cli.py develop
-
-
 dist:
 	python setup.py sdist
 	python setup.py bdist_wheel
@@ -27,8 +23,6 @@ test:
 
 
 clean:
-	# uninstall cli
-	python setup_cli.py develop --uninstall
 	rm -rf build/ .pytest_cache/ *.egg-info dist/ .coverage __pycache__/
 
 

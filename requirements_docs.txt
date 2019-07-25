@@ -1,6 +1,0 @@
-cython
-copulae
-nbsphinx==0.4.2
-setuptools>=41
-Sphinx==2.0.1
-sphinx-rtd-theme==0.4.3
