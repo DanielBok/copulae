@@ -1,5 +1,5 @@
 {% set name = "copulae" %}
-{% set version = "0.3.0" %}
+  {% set version = "0.4.1" %}
 
 package:
   name: "{{ name|lower }}"
@@ -10,13 +10,16 @@ source:
 
 build:
   number: 0
-  noarch: python
-  script:  "{{ PYTHON }} -m pip install . --no-deps -vv"
+  script: "{{ PYTHON }} -m pip install . --no-deps -vv"
 
 requirements:
+  build:
+    - {{ compiler('c') }}
   host:
     - pip
     - python >=3.6
+    - cython
+    - numpy
   run:
     - numpy >=1.15
     - pandas >=0.23
@@ -32,7 +35,6 @@ test:
     - copulae.core
     - copulae.datasets
     - copulae.elliptical
-    - copulae.estimators
     - copulae.indep
     - copulae.special
     - copulae.stats

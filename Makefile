@@ -23,10 +23,13 @@ test:
 
 
 clean:
-	rm -rf build/ .pytest_cache/ *.egg-info dist/ .coverage __pycache__/
+	rm -rf build/ .pytest_cache/ *.egg-info dist/ .coverage __pycache__/ dist/
 
 
 manylinux:
 	docker image build -t danielbok/copulae_manylinux -f manylinux.Dockerfile .
 	rm -rf dist/*
 	docker container run --rm -v C:/Projects/copulae/dist:/dist danielbok/copulae_manylinux
+
+conda:
+	conda build --output-dist dist conda.recipe
