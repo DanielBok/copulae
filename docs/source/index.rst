@@ -14,6 +14,7 @@ Contents
     Getting Started <getting-started>
     Copulae <copulae/index>
     Diagnostics, Tests and Model Selection <dtm/index>
+    Utility Functions <utility_functions/index>
     Examples <examples/index>
 
 
