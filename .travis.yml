@@ -52,7 +52,7 @@ before_install:
   - conda config --append channels bashtage
   - conda config --set anaconda_upload yes
   - conda update --all --quiet
-  - conda create -n build_env python=${PYTHON} coveralls cython numpy pytest pytest-cov
+  - conda create -n build_env python=${PYTHON} coveralls cython numpy pytest pytest-cov scipy
   - source activate build_env
 
 install:
