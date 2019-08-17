@@ -1,12 +1,13 @@
-from typing import Iterable, Union
+from typing import Iterable, Optional, Union
 
 import numpy as np
 from scipy.stats import logistic as logis
 
 from copulae.special.combinatorics import comb
 from copulae.special.dilog import dilog, dilog_complex
+from copulae.utility import as_array
 
-__all__ = ['eulerian', 'eulerian_all', 'log1mexp', 'log1pexp', 'poly_log', 'polyn_eval', 'sign_ff',
+__all__ = ['eulerian', 'eulerian_all', 'log1mexp', 'log1pexp', 'log_sum', 'poly_log', 'polyn_eval', 'sign_ff',
            'stirling_first', 'stirling_first_all', 'stirling_second', 'stirling_second_all']
 
 
@@ -106,6 +107,53 @@ def log1pexp(x):
         Results of :math:`\log(1 - e^{-x})`
     """
     return np.log(1 + np.exp(x))
+
+
+def log_sum(log_x: np.ndarray, offset: Optional[Union[Iterable[float], float]] = None) -> Union[np.ndarray, float]:
+    r"""
+    Calculates the sum of a log vector or matrix.
+
+    If the input array is a matrix, the sum is taken along the columns.
+
+    Notes
+    -----
+    Given a vector, :math:`V`,
+
+    .. math::
+
+        V = [x_1, x_2, \dots, x_n]
+
+    where :math:`x_i` is the log value at row :math:`i`, the function will calculate the sum of this vector. If data
+    is a matrix, it will calculate the sum of the column vectors.
+
+
+    Parameters
+    ----------
+    log_x
+        a vector or matrix of log values
+
+    offset
+        the offset to subtract and re-add. This is done to avoid corner cases where the log values are extremely large
+
+    Returns
+    -------
+    ndarray or float
+        sum of log values
+    """
+    log_x = as_array(log_x)
+    if log_x.ndim == 1:
+        log_x = log_x.reshape(-1, 1)
+    elif log_x.ndim > 2:
+        raise ValueError("Input must be a vector or matrix.")
+
+    if offset is None:
+        offset = log_x.max(0)  # maximum from each column
+    elif hasattr(offset, "__iter__"):
+        offset = np.asarray(offset)
+        assert len(offset) == log_x.shape[1], "Offset must match data dimensions"
+
+    res = offset + np.log(np.exp(log_x - offset).sum(0))
+    return res if len(res) > 1 else res[0]
 
 
 def poly_log(z, s, method='default', log=False) -> Union[float, np.ndarray]:
