@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple, Union, TypeVar
 
 import numpy as np
 
 from copulae.copula.summary import FitSummary
 from copulae.types import Array, Numeric
+
+Copula = TypeVar('Copula', bound="AbstractCopula")
 
 
 class AbstractCopula(ABC):
@@ -24,7 +26,8 @@ class AbstractCopula(ABC):
         return self.__dim
 
     @abstractmethod
-    def fit(self, data: np.ndarray, method='mpl', x0: np.ndarray = None, verbose=1, optim_options: dict = None):
+    def fit(self, data: np.ndarray, method='mpl', x0: np.ndarray = None, verbose=1,
+            optim_options: dict = None) -> Copula:
         pass
 
     @abstractmethod

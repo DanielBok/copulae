@@ -19,7 +19,7 @@ class BaseCopula(AbstractCopula, ABC):
         super().__init__(dim, name)
 
     @abstractmethod
-    def cdf(self, x: Array, log=False) -> np.ndarray:
+    def cdf(self, x: Array, log=False) -> Union[np.ndarray, float]:
         """
         Returns the cumulative distribution function (CDF) of the copulae.
 
@@ -79,6 +79,8 @@ class BaseCopula(AbstractCopula, ABC):
             raise ValueError('Dimension of data does not match copula')
 
         CopulaEstimator(self, data, x0=x0, method=method, est_var=est_var, verbose=verbose, optim_options=optim_options)
+
+        return self
 
     @abstractmethod
     def drho(self, x=None):
@@ -225,7 +227,7 @@ class BaseCopula(AbstractCopula, ABC):
         return self._bounds
 
     @abstractmethod
-    def pdf(self, u: Array, log=False):
+    def pdf(self, u: Array, log=False) -> Union[np.ndarray, float]:
         """
         Returns the probability distribution function (PDF) of the copulae.
 
@@ -268,7 +270,7 @@ class BaseCopula(AbstractCopula, ABC):
         return pseudo_obs(data, ties)
 
     @abstractmethod
-    def random(self, n: int, seed: int = None):
+    def random(self, n: int, seed: int = None) -> Union[np.ndarray, float]:
         """
         Generate random observations for the copula
 

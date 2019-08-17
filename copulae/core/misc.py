@@ -43,8 +43,16 @@ def pseudo_obs(data: np.ndarray, ties='average'):
         Random variates to be converted to pseudo-observations
 
     ties: str, optional
-        String specifying how ranks should be computed if there are ties in any of the coordinate samples. Options
-        include 'average', 'min', 'max', 'dense', 'ordinal'.
+        The method used to assign ranks to tied elements. The options are 'average', 'min', 'max', 'dense'
+        and 'ordinal'.
+        'average': The average of the ranks that would have been assigned to all the tied values is assigned to each
+            value.
+        'min': The minimum of the ranks that would have been assigned to all the tied values is assigned to each
+            value. (This is also referred to as "competition" ranking.)
+        'max': The maximum of the ranks that would have been assigned to all the tied values is assigned to each value.
+        'dense': Like 'min', but the rank of the next highest element is assigned the rank immediately after those
+            assigned to the tied elements. 'ordinal': All values are given a distinct rank, corresponding to
+            the order that the values occur in `a`.
 
     Returns
     -------
@@ -65,8 +73,8 @@ def rank_data(obs: np.ndarray, axis=0, ties='average'):
     axis: {0, 1}, optional
         The axis to perform the ranking. 0 means row, 1 means column.
     ties: str, default 'average'
-        The method used to assign ranks to tied elements. The options are 'average', 'min', 'max', 'dense' and
-        'ordinal'.
+        The method used to assign ranks to tied elements. The options are 'average', 'min', 'max', 'dense'
+        and 'ordinal'.
         'average': The average of the ranks that would have been assigned to all the tied values is assigned to each
             value.
         'min': The minimum of the ranks that would have been assigned to all the tied values is assigned to each
@@ -82,15 +90,18 @@ def rank_data(obs: np.ndarray, axis=0, ties='average'):
         matrix or vector of the same dimension as X containing the pseudo observations
     """
     obs = np.asarray(obs)
+    ties = ties.lower()
+    assert obs.ndim in (1, 2), "Data can only be 1 or 2 dimensional"
 
     if obs.ndim == 1:
         return stats.rankdata(obs, ties)
     elif obs.ndim == 2:
         if axis == 0:
             return np.array([stats.rankdata(obs[i, :], ties) for i in range(obs.shape[0])])
-        return np.array([stats.rankdata(obs[:, i], ties) for i in range(obs.shape[1])]).T
-    else:
-        raise ValueError('Can only rank data which is 1 or 2 dimensions')
+        elif axis == 1:
+            return np.array([stats.rankdata(obs[:, i], ties) for i in range(obs.shape[1])]).T
+        else:
+            raise ValueError(f"No axis named 3 for object type {type(obs)}")
 
 
 def tri_indices(n: int, m=0, side='both'):

@@ -119,7 +119,7 @@ setup(
     maintainer_email=EMAIL,
     packages=find_packages(include=['copulae', 'copulae.*']),
     license="MIT",
-    version=versioneer.get_version(),
+    version=versioneer.get_version().split('+')[0],
     description='Python copulae library for dependency modelling',
     long_description=long_description,
     long_description_content_type='text/markdown',

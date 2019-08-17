@@ -23,10 +23,18 @@ test:
 
 
 clean:
-	rm -rf build/ .pytest_cache/ *.egg-info dist/ .coverage __pycache__/
+	rm -rf build/ .pytest_cache/ *.egg-info dist/ __pycache__/ dist/
 
+	# delete cython linker files
+	find . -type f -name '*.pyd' -delete
+
+	# delete pytest coverage file
+	find . -type f -name '*.coverage' -print
 
 manylinux:
 	docker image build -t danielbok/copulae_manylinux -f manylinux.Dockerfile .
 	rm -rf dist/*
 	docker container run --rm -v C:/Projects/copulae/dist:/dist danielbok/copulae_manylinux
+
+conda:
+	conda build --output-dist dist conda.recipe

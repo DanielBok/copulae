@@ -2,7 +2,7 @@ from functools import wraps
 
 import numpy as np
 
-__all__ = ['array_io', 'as_array', 'merge_dict', 'merge_dicts', ]
+__all__ = ['array_io', 'as_array', 'merge_dict', 'merge_dicts']
 
 
 def array_io(func=None, dim=0, optional=False):
