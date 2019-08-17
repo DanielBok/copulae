@@ -94,6 +94,7 @@ I started working on the copulae package because I couldn't find a good existing
     - [x] Clayton
     - [x] Gumbel
     - [x] Frank
+    - [x] Empirical
     - [ ] Joe
     - [ ] AMH 
     - [ ] Implement Rho finding via cubatures

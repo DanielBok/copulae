@@ -1,4 +1,5 @@
 OUTPUT_DIR := dist
+CURDIR := $(shell pwd)
 
 .PHONY: cli dist dist-wheel test
 
@@ -10,7 +11,7 @@ dist:
 	python setup.py bdist_wheel
 
 
-dist-wheel:
+dist-wheel: clean ext
 	python setup.py bdist_wheel
 
 
@@ -31,10 +32,9 @@ clean:
 	# delete pytest coverage file
 	find . -type f -name '*.coverage' -print
 
-manylinux:
-	docker image build -t danielbok/copulae_manylinux -f manylinux.Dockerfile .
+linux:
 	rm -rf dist/*
-	docker container run --rm -v C:/Projects/copulae/dist:/dist danielbok/copulae_manylinux
+	docker container run --rm -v $(CURDIR):/copulae danielbok/manylinux2010_x86_64 /copulae/manylinux-build.sh
 
 conda:
 	conda build --output-dist dist conda.recipe
