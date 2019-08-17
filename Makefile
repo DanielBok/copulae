@@ -31,7 +31,6 @@ clean:
 	# delete pytest coverage file
 	find . -type f -name '*.coverage' -print
 
-
 manylinux:
 	docker image build -t danielbok/copulae_manylinux -f manylinux.Dockerfile .
 	rm -rf dist/*
