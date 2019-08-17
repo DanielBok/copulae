@@ -23,7 +23,13 @@ test:
 
 
 clean:
-	rm -rf build/ .pytest_cache/ *.egg-info dist/ .coverage __pycache__/ dist/
+	rm -rf build/ .pytest_cache/ *.egg-info dist/ __pycache__/ dist/
+
+	# delete cython linker files
+	find . -type f -name '*.pyd' -delete
+
+	# delete pytest coverage file
+	find . -type f -name '*.coverage' -print
 
 
 manylinux:

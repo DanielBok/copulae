@@ -89,17 +89,19 @@ def corr(x: np.ndarray, y: np.ndarray = None, method='pearson', use='everything'
     use = _validate_use(use)
     corr_func = _get_corr_func(method)
 
+    def compute_corr(u, v):
+        return np.nan if any(~np.isfinite(u) | ~np.isfinite(v)) else corr_func(u, v)[0]
+
     if y is not None:
-        x, y = _form_xy_vector(x, y, use)
         c = np.identity(2)
-        c[0, 1] = c[1, 0] = corr_func(x, y)[0]
+        c[0, 1] = c[1, 0] = compute_corr(*_form_xy_vector(x, y, use))
 
     else:
         if len(x.shape) != 2:
             raise ValueError('x must be a matrix with dimension 2')
         c = np.identity(x.shape[1])
         for (i, j), (c1, c2) in _yield_vectors(x, use):
-            c[i, j] = c[j, i] = corr_func(c1, c2)[0]
+            c[i, j] = c[j, i] = compute_corr(c1, c2)
 
     return c
 
