@@ -4,7 +4,7 @@ from copulae.elliptical import *
 from copulae.empirical import *
 from copulae.indep import *
 
-__version__ = get_versions().get('version', '0.0.0').split('+')[0]
+__version__ = get_versions()['version']
 del get_versions
 
 
