@@ -193,7 +193,7 @@ class BaseCopula(AbstractCopula, ABC):
             Log Likelihood
 
         """
-        return self.pdf(self.pobs(data), log=True).sum()
+        return self.pdf(data, log=True).sum()
 
     @property
     @abstractmethod
