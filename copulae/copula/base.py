@@ -176,7 +176,7 @@ class BaseCopula(AbstractCopula, ABC):
         """
         raise NotImplementedError
 
-    def log_lik(self, data: np.ndarray) -> float:
+    def log_lik(self, data: np.ndarray, *, to_pobs=True) -> float:
         r"""
          Returns the log likelihood (LL) of the copula given the data.
 
@@ -186,6 +186,8 @@ class BaseCopula(AbstractCopula, ABC):
         ----------
         data: ndarray
             Data set used to calculate the log likelihood
+        to_pobs: bool
+            If True, converts the data input to pseudo observations.
 
         Returns
         -------
@@ -193,6 +195,8 @@ class BaseCopula(AbstractCopula, ABC):
             Log Likelihood
 
         """
+        data = self.pobs(data) if to_pobs else data
+
         return self.pdf(data, log=True).sum()
 
     @property
