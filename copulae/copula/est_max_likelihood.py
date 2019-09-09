@@ -100,7 +100,7 @@ class MaxLikelihoodEstimator:
         """
         try:
             self.copula.params = param
-            return -self.copula.log_lik(self.data)
+            return -self.copula.log_lik(self.data, to_pobs=False)
         except ValueError:  # error encountered when setting invalid parameters
             return np.inf
 

@@ -51,7 +51,7 @@ class IndepCopula(BaseCopula):
     def lambda_(self):
         return TailDep(0, 0)
 
-    def log_lik(self, data: np.ndarray):
+    def log_lik(self, data: np.ndarray, *, to_pobs=True):
         print('Log Likelihood not available for indepedence copula')
         return
 

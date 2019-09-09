@@ -33,14 +33,14 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
     def itau(self, tau):
         return np.sin(np.asarray(tau) * np.pi / 2)
 
-    def log_lik(self, data: np.ndarray):
+    def log_lik(self, data: np.ndarray, *, to_pobs=True):
         if not is_psd(self.sigma):
             return -np.inf
 
         if hasattr(self, '_df') and self._df <= 0:  # t copula
             return -np.inf
 
-        return super().log_lik(data)
+        return super().log_lik(data, to_pobs=to_pobs)
 
     @property
     def rho(self):

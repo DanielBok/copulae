@@ -55,7 +55,7 @@ class AbstractCopula(ABC):
         pass
 
     @abstractmethod
-    def log_lik(self, data: Array) -> float:
+    def log_lik(self, data: Array, *, to_pobs=True) -> float:
         pass
 
     @property
