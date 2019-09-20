@@ -42,7 +42,8 @@ def emp_dist_func(x: np.ndarray, y: np.ndarray, smoothing: Optional[str] = "none
 
     Returns
     -------
-
+    ndarray
+        Computes the CDF of the empirical copula
     """
     smoothing = _map_smoothing(smoothing)
     x, y, ncol = _validate_inputs(x, y, ties)
