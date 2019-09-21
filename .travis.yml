@@ -77,4 +77,4 @@ deploy:
     skip_existing: true
     on:
       tags: true
-      condition: "$OSTYPE" == "darwin"
+      condition: $TRAVIS_OS_NAME = osx
