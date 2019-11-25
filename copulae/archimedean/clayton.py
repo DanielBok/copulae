@@ -2,10 +2,11 @@ import numpy as np
 import numpy.random as rng
 
 from copulae.copula import Summary, TailDep
-from copulae.core import EPS, valid_rows_in_u
+from copulae.core import EPS
 from copulae.stats import random_uniform
 from copulae.types import Array
 from copulae.utility import array_io
+from ._shared import valid_rows_in_u
 from .abstract import AbstractArchimedeanCopula
 
 

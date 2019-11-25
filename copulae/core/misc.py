@@ -3,7 +3,7 @@ import warnings
 import numpy as np
 from scipy import stats
 
-__all__ = ['create_cov_matrix', 'EPS', 'valid_rows_in_u', 'pseudo_obs', 'rank_data', 'tri_indices']
+__all__ = ['create_cov_matrix', 'EPS', 'pseudo_obs', 'rank_data', 'tri_indices']
 
 EPS = np.finfo('float').eps
 """Machine Epsilon"""
@@ -119,15 +119,21 @@ def tri_indices(n: int, m=0, side='both'):
 
     Examples
     --------
-    >>> from copulae.core import tri_indices
-    >>> x = np.arange(9).reshape(3, 3)
+    >>>  import numpy as np
+
+from copulae.core import tri_indices
+x = np.arange(9).reshape(3, 3)
 
     To get lower indices of matrix
     >>> x[tri_indices(3, 1, 'lower')]
-
+    array([3, 6, 7])
     # To form covariance matrix
     >>> c = np.eye(3)
     >>> c[tri_indices(3, 1)] = np.tile([0.1, 0.2, 0.3], 2)
+    >>> c
+    array([[1. , 0.1, 0.2],
+           [0.1, 1. , 0.3],
+           [0.2, 0.3, 1. ]])
     """
 
     side = side.lower()
@@ -155,17 +161,3 @@ def tri_indices(n: int, m=0, side='both'):
             return tuple(np.array(x) for x in u_i)
 
     return tuple(np.array([*u_i[i], *l_i[i]]) for i in range(2))
-
-
-def valid_rows_in_u(U: np.ndarray) -> np.ndarray:
-    """
-    Checks that the matrix U supplied has elements between 0 and 1 inclusive.
-
-    :param U: ndarray, matrix
-        matrix where rows is the number of data points and columns is the dimension
-    :return: ndarray
-        a boolean vector that indicates which rows are okay
-    """
-
-    warnings.filterwarnings("ignore", category=RuntimeWarning)
-    return (~np.isnan(U) & (0 <= U) & (U <= 1)).all(1)

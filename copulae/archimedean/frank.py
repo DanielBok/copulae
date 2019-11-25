@@ -1,7 +1,6 @@
 import numpy as np
 
 from copulae.copula import Summary, TailDep
-from copulae.core import valid_rows_in_u
 from copulae.special.debye import debye_1, debye_2
 from copulae.special.optimize import find_root
 from copulae.special.special_func import log1mexp, log1pexp, poly_log
@@ -9,6 +8,7 @@ from copulae.stats import random_uniform
 from copulae.stats.log import random_log_series_ln1p
 from copulae.types import Array
 from copulae.utility import array_io, as_array
+from ._shared import valid_rows_in_u
 from .abstract import AbstractArchimedeanCopula
 
 

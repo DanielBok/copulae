@@ -6,12 +6,12 @@ import numpy as np
 from scipy.special import gammaln
 
 from copulae.copula import Summary, TailDep
-from copulae.core import valid_rows_in_u
-from copulae.special.special_func import polyn_eval, sign_ff, stirling_second_all, stirling_first_all
+from copulae.special.special_func import polyn_eval, sign_ff, stirling_first_all, stirling_second_all
 from copulae.special.trig import cospi2
 from copulae.stats import poisson, random_uniform, skew_stable
 from copulae.types import Array, Numeric
 from copulae.utility import array_io
+from ._shared import valid_rows_in_u
 from .abstract import AbstractArchimedeanCopula
 from .auxiliary import dsum_sibuya
 
