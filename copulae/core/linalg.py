@@ -4,6 +4,8 @@ import numpy as np
 import numpy.linalg as la
 from statsmodels.stats.correlation_tools import cov_nearest
 
+from .exceptions import NonSymmetricMatrixError
+
 __all__ = ["corr2cov", "cov2corr", "is_psd", "is_symmetric", "near_psd"]
 
 
@@ -163,7 +165,7 @@ def near_psd(cov, method='clipped', threshold=1e-15, n_fact=100) -> np.ndarray:
     cov = np.asarray(cov)
 
     if not is_symmetric(cov):
-        raise ValueError('covariance matrix must be symmetric')
+        raise NonSymmetricMatrixError('Covariance matrix must be symmetric')
 
     if is_psd(cov):
         return cov
