@@ -3,12 +3,12 @@ from typing import Optional
 import numpy as np
 
 from copulae.copula.abstract import AbstractCopula as Copula
-from copulae.copula.est_cor_inversion import CorrInversionEstimator
-from copulae.copula.est_max_likelihood import MaxLikelihoodEstimator
 from copulae.copula.utils import is_elliptical
 from copulae.core import tri_indices
 from copulae.stats import pearson_rho
 from copulae.utility import merge_dict
+from .corr_inversion import CorrInversionEstimator
+from .max_likelihood import MaxLikelihoodEstimator
 
 
 class CopulaEstimator:
@@ -116,6 +116,9 @@ class CopulaEstimator:
 
     @property
     def optim_options(self):
+        def method_is(method: str):
+            return options['method'].casefold() == method.casefold()
+
         data = self.data
         verbose = self._verbose
         options = self.__optim_options
@@ -124,7 +127,6 @@ class CopulaEstimator:
         disp = verbose >= 2
 
         options.setdefault('method', 'SLSQP')
-        method_is = _method_is(options['method'])
 
         if isinstance(self.copula.params_bounds[0], (int, float)):
             bounds = [self.copula.params_bounds]
@@ -176,10 +178,3 @@ class CopulaEstimator:
             }, options)
         else:
             return options
-
-
-def _method_is(method: str):
-    def compare(b: str):
-        return method.casefold() == b.casefold()
-
-    return compare
