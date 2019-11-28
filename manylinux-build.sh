@@ -7,8 +7,15 @@ mkdir -p ${WORKDIR} && cd ${WORKDIR}
 
 # Compile wheels
 for PY_VER in "36" "37" "38"; do
-  "/opt/python/cp${PY_VER}-cp${PY_VER}m/bin/pip" install numpy cython scipy
-  "/opt/python/cp${PY_VER}-cp${PY_VER}m/bin/pip" wheel ${WORKDIR} -w /wheelhouse
+
+  if [[ $PY_VER == "38" ]]; then
+    INNER_VER=$PY_VER
+  else
+    INNER_VER=${PY_VER}m
+  fi
+
+  "/opt/python/cp${PY_VER}-cp${INNER_VER}/bin/pip" install numpy cython scipy
+  "/opt/python/cp${PY_VER}-cp${INNER_VER}/bin/pip" wheel ${WORKDIR} -w /wheelhouse
 done
 
 mkdir -p ${WORKDIR}/dist
