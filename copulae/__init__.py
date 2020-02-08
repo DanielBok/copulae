@@ -1,11 +1,9 @@
-from copulae._version import get_versions
 from copulae.archimedean import *
 from copulae.elliptical import *
 from copulae.empirical import *
 from copulae.indep import *
 
-__version__ = get_versions()['version']
-del get_versions
+__version__ = "0.5.1"
 
 
 def doc():

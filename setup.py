@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 import os
 import platform
-import sys
-import numpy as np
 import re
+import sys
 
+import numpy as np
 from setuptools import Extension, find_packages, setup
-
-import versioneer
 
 IS_DEV_MODE = False
 argv = sys.argv
@@ -37,6 +35,9 @@ except ImportError:
 
 AUTHOR = 'Daniel Bok'
 EMAIL = 'daniel.bok@outlook.com'
+
+with open('copulae/__init__.py') as f:
+    version = re.search(r'__version__ = "(.*?)"', f.read()).group(1)
 
 with open('README.md') as f:
     long_description = f.read()
@@ -119,7 +120,7 @@ setup(
     maintainer_email=EMAIL,
     packages=find_packages(include=['copulae', 'copulae.*']),
     license="MIT",
-    version=versioneer.get_version().split('+')[0],
+    version=version,
     description='Python copulae library for dependency modelling',
     long_description=long_description,
     long_description_content_type='text/markdown',
