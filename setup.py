@@ -142,7 +142,7 @@ setup(
     install_requires=requirements,
     extras_require=extras_require,
     include_package_data=True,
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     zip_safe=False,
     ext_modules=build_ext_modules(),
 )

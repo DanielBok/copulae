@@ -14,15 +14,6 @@ env:
 
 matrix:
   include:
-    - python: "3.6"
-      os: osx
-      env:
-        - PYTHON: "3.6"
-    - python: "3.6"
-      os: linux
-      dist: xenial
-      env:
-        - PYTHON: "3.6"
     - python: "3.7"
       os: osx
       env:

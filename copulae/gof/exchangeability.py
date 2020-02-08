@@ -66,7 +66,6 @@ def exch_test(x, y, N=1000, m=0, ties='average'):
     --------
     >>> from copulae.datasets import load_danube
     >>> from copulae.gof import exch_test
-
     >>> danube = load_danube().values
     >>> test_stats = exch_test(danube[:, 0], danube[:, 1])
     >>> print(test_stats.p_value)
