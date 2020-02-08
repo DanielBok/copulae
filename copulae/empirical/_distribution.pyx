@@ -11,7 +11,7 @@ ctypedef double (*func_type)(double, double, int) nogil
 def emp_copula_dist(cnp.ndarray[cnp.npy_float64, ndim=2] X,
                     cnp.ndarray[cnp.npy_float64, ndim=2] Y,
                     double offset,
-                    int typ):
+                    int typ):  # Cn_C
     cdef:
         int i
         double v
@@ -21,7 +21,7 @@ def emp_copula_dist(cnp.ndarray[cnp.npy_float64, ndim=2] X,
 
     for i in range(nrow_X):
         if typ == 0:  # default empirical copula
-            res[i] = multivariate_emp_cop(U, V, nrow_X, nrow_Y, ncol, i, offset)
+            res[i] = multivariate_emp_cop_dist_func(U, V, nrow_X, nrow_Y, ncol, i, offset, emp_cop)
 
         if typ == 1:  # empirical beta copula
             res[i] = multivariate_emp_cop_dist_func(U, V, nrow_X, nrow_Y, ncol, i, offset, emp_beta_cop)
@@ -39,7 +39,7 @@ cdef double multivariate_emp_cop_dist_func(double[::1] X,
                                            int ncol,
                                            int k,
                                            double offset,
-                                           func_type f) nogil:
+                                           func_type f) nogil:  # Cn_f
     cdef:
         double sum_prod = 0.0, prod
         int i, j
@@ -51,15 +51,6 @@ cdef double multivariate_emp_cop_dist_func(double[::1] X,
         sum_prod += prod
 
     return sum_prod / (nrow_Y + offset)
-
-cdef double multivariate_emp_cop(double[::1] X,
-                                 double[::1] Y,
-                                 int nrow_X,
-                                 int nrow_Y,
-                                 int ncol,
-                                 int k,
-                                 double offset) nogil:
-    return multivariate_emp_cop_dist_func(X, Y, nrow_X, nrow_Y, ncol, k, offset, emp_cop)
 
 
 cdef inline double emp_cop(double u, double v, int n) nogil:

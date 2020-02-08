@@ -13,12 +13,11 @@ __all__ = ["gof_copula"]
 
 
 def gof_copula(copula: Type[AbstractCopula], data: Union[pd.DataFrame, np.ndarray], reps: int, ties="average",
-               fit_ties="average", multiprocess=False, method="parametric", **fit_options):
+               fit_ties="average", multiprocess=False, **fit_options):
     r"""
     Computes the goodness of fit statistic for the class of copula.
 
-
-    Performs the "Sn" gof test, described in Genest et al. (2009)
+    Performs the "Sn" gof test, described in Genest et al. (2009) for the parametric case.
 
     Compares the empirical copula against a parametric estimate of the copula derived under the null hypothesis.
 
@@ -71,10 +70,6 @@ def gof_copula(copula: Type[AbstractCopula], data: Union[pd.DataFrame, np.ndarra
         if the time taken to fit each empirical copula os short, running multiprocess could be slower than
         running the tests in a single-process fashion.
 
-    method
-        Either 'parametric' or 'multiplier'. If parametric, uses the parametric bootstrap to fit determine the
-        statistics. For large sample sizes, the multiplier resampling method can be used to speed up the test.
-
     fit_options
         Arguments to pass into the :code:`.fit()` method of the copula
 
@@ -85,14 +80,7 @@ def gof_copula(copula: Type[AbstractCopula], data: Union[pd.DataFrame, np.ndarra
         Test statistics
     """
     data = GofData(data, ties, fit_ties)
-    method = method.lower()
-
-    if method == "parametric":
-        return GofParametricBootstrap(copula, data, reps, multiprocess, **fit_options).fit()
-    elif method == "multiplier":
-        raise NotImplementedError
-    else:
-        raise ValueError(f"Unknown method: '{method}'. Use either 'parametric' or 'multiplier'")
+    return GofParametricBootstrap(copula, data, reps, multiprocess, **fit_options).fit()
 
 
 class GofParametricBootstrap:
