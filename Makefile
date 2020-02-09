@@ -6,12 +6,11 @@ CURDIR := $(shell pwd)
 all: dist
 
 
-dist:
+dist: wheel
 	python setup.py sdist
-	python setup.py bdist_wheel
 
 
-dist-wheel: clean ext
+wheel: clean ext
 	python setup.py bdist_wheel
 
 
