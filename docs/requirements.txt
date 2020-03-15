@@ -1,0 +1,6 @@
+copulae==0.5.1
+nbsphinx==0.5.1
+sphinx>=2.3
+sphinx-autodoc-typehints==1.10.3
+sphinx_rtd_theme==0.4.3
+setuptools>=42

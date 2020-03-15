@@ -17,6 +17,7 @@ import os
 import shutil
 import subprocess
 import sys
+from datetime import datetime
 
 sys.path.insert(0, os.path.abspath('../../copulae'))
 
@@ -33,7 +34,7 @@ for example in examples:
 # -- Project information -----------------------------------------------------
 
 project = 'Copulae'
-copyright = '2019, Daniel Bok'
+copyright = f'2019 - {datetime.now().year}, Daniel Bok and everyone who helped out :)'
 author = 'Daniel Bok'
 
 # The short X.Y version
