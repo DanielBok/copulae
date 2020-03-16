@@ -70,11 +70,7 @@ class AbstractCopula(ABC):
 
     @property
     @abstractmethod
-    def params_bounds(self):
-        pass
-
-    @params_bounds.setter
-    def params_bounds(self, bounds: Tuple[Array, Array]):
+    def bounds(self):
         pass
 
     @abstractmethod

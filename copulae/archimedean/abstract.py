@@ -74,7 +74,7 @@ class AbstractArchimedeanCopula(BaseCopula, ABC):
 
     @array_io
     def irho(self, rho):
-        lower, upper = self.params_bounds
+        lower, upper = self.bounds
         assert np.isscalar(lower) and np.isscalar(upper), "Archimedean copula bounds must be scalar"
 
         lower = max(-np.sqrt(np.finfo(float).max), lower)

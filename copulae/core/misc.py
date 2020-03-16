@@ -1,5 +1,3 @@
-import warnings
-
 import numpy as np
 from scipy import stats
 
@@ -119,12 +117,10 @@ def tri_indices(n: int, m=0, side='both'):
 
     Examples
     --------
-    >>>  import numpy as np
-
-from copulae.core import tri_indices
-x = np.arange(9).reshape(3, 3)
-
-    To get lower indices of matrix
+    >>> import numpy as np
+    >>> from copulae.core import tri_indices
+    >>> x = np.arange(9).reshape(3, 3)
+    # To get lower indices of matrix
     >>> x[tri_indices(3, 1, 'lower')]
     array([3, 6, 7])
     # To form covariance matrix

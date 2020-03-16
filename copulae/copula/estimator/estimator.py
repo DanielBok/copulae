@@ -12,7 +12,6 @@ from .max_likelihood import MaxLikelihoodEstimator
 
 
 class CopulaEstimator:
-
     def __init__(self, copula: Copula, data: np.ndarray, x0: np.ndarray = None, method='ml', est_var=False,
                  verbose=1, optim_options: Optional[dict] = None):
         """
@@ -128,10 +127,13 @@ class CopulaEstimator:
 
         options.setdefault('method', 'SLSQP')
 
-        if isinstance(self.copula.params_bounds[0], (int, float)):
-            bounds = [self.copula.params_bounds]
+        lb, ub = self.copula.bounds
+        if isinstance(lb, (int, float)) and isinstance(ub, (int, float)):
+            bounds = [self.copula.bounds]
         else:
-            bounds = [(l, u) for l, u in zip(*self.copula.params_bounds)]
+            # lower and upper bounds are arrays
+            bounds = [(l, u) for l, u in zip(lb, ub)]
+
         if method_is('Nelder-Mead'):
             return merge_dict({
                 'options': {

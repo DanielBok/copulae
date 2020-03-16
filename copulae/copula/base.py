@@ -219,7 +219,7 @@ class BaseCopula(AbstractCopula, ABC):
         raise NotImplementedError
 
     @property
-    def params_bounds(self):
+    def bounds(self):
         """
         Gets the bounds for the parameters
 
