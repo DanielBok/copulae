@@ -14,7 +14,7 @@ for PY_VER in "37" "38"; do
     INNER_VER=${PY_VER}m
   fi
 
-  "/opt/python/cp${PY_VER}-cp${INNER_VER}/bin/pip" wheel ${WORKDIR} -w /wheelhouse
+  "/opt/python/cp${PY_VER}-cp${INNER_VER}/bin/python" setup.py bdist_wheel --dist-dir=/wheelhouse
 done
 
 mkdir -p ${WORKDIR}/dist

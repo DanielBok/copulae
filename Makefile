@@ -6,7 +6,7 @@ CURDIR := $(shell pwd)
 all: dist
 
 
-dist: wheel
+dist: wheel clean
 	python setup.py sdist
 
 
@@ -33,7 +33,7 @@ clean:
 
 linux:
 	rm -rf dist/*
-	docker container run --rm -v $(CURDIR):/copulae danielbok/manylinux1_x86_64 /copulae/manylinux-build.sh
+	docker container run --rm -v $(CURDIR):/copulae danielbok/manylinux1 /copulae/manylinux-build.sh
 
 conda:
 	conda build --output-dist dist conda.recipe
