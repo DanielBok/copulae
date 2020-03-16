@@ -48,7 +48,8 @@ class StudentCopula(AbstractEllipticalCopula):
         self._df = df
         self._rhos = np.zeros(n)
 
-        lower, upper = np.repeat(-1., n + 1), np.repeat(1., n + 1)
+        eps = 1e-6
+        lower, upper = np.repeat(-1., n + 1) - eps, np.repeat(1., n + 1) + eps
         lower[0], upper[0] = 0, np.inf  # bounds for df, the rest are correlation
         self._bounds = (lower, upper)
 
@@ -62,6 +63,8 @@ class StudentCopula(AbstractEllipticalCopula):
     def fit(self, data: np.ndarray, x0: np.ndarray = None, method='mpl', fix_df=False, est_var=False, verbose=1,
             optim_options: dict = None):
         if fix_df:
+            if optim_options is None:
+                optim_options = {'constraints': []}
             optim_options['constraints'].append({'type': 'eq', 'fun': lambda x: x[0] - self._df})  # df doesn't change
 
         return super().fit(data, x0, method, est_var, verbose, optim_options)

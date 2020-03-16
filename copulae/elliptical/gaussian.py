@@ -41,7 +41,8 @@ class GaussianCopula(AbstractEllipticalCopula):
         super().__init__(dim, "Gaussian")
         n = sum(range(dim))
         self._rhos = np.zeros(n)
-        self._bounds = np.repeat(-1., n), np.repeat(1., n)
+        eps = 1e-6
+        self._bounds = np.repeat(-1., n) - eps, np.repeat(1., n) + eps
 
     @array_io(dim=2)
     def cdf(self, x: np.ndarray, log=False):
