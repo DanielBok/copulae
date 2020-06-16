@@ -65,8 +65,7 @@ class BaseCopula(ABC):
         """
         raise NotImplementedError
 
-    def fit(self, data: np.ndarray, x0: np.ndarray = None, method='mpl', est_var=False, verbose=1,
-            optim_options: dict = None):
+    def fit(self, data: np.ndarray, x0: np.ndarray = None, method='mpl', verbose=1, optim_options: dict = None):
         """
         Fit the copula with specified data
 
@@ -81,9 +80,6 @@ class BaseCopula(ABC):
         method: { 'ml', 'mpl', 'irho', 'itau' }, optional
             Method of fitting. Supported methods are: 'ml' - Maximum Likelihood, 'mpl' - Maximum Pseudo-likelihood,
             'irho' - Inverse Spearman Rho, 'itau' - Inverse Kendall Tau
-
-        est_var: bool, optional
-            If True, estimates variance of the fitted copula.
 
         verbose: int, optional
             Log level for the estimator. The higher the number, the more verbose it is. 0 prints nothing.
@@ -101,7 +97,7 @@ class BaseCopula(ABC):
         elif self.dim != data.shape[1]:
             raise ValueError('Dimension of data does not match copula')
 
-        CopulaEstimator(self, data, x0=x0, method=method, est_var=est_var, verbose=verbose, optim_options=optim_options)
+        CopulaEstimator(self, data, x0=x0, method=method, verbose=verbose, optim_options=optim_options)
 
         return self
 

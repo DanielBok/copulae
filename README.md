@@ -104,7 +104,7 @@ I started working on the copulae package because I couldn't find a good existing
     - [ ] Goodness of Fit
         - [ ] Pairwise Rosenblatt
         - [ ] Multi-Independence
-        - [ ] General GOF
+        - [x] General GOF
     - [ ] Model Selection
         - [ ] Cross-Validated AIC/BIC
 - [ ] Implement mixed copulas

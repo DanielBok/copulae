@@ -36,8 +36,7 @@ class IndepCopula(BaseCopula):
     def dtau(self, x=None):
         return 0
 
-    def fit(self, data: np.ndarray, x0: np.ndarray = None, method='mpl', est_var=False, verbose=1,
-            optim_options: dict = None):
+    def fit(self, data: np.ndarray, x0: np.ndarray = None, method='mpl', verbose=1, optim_options: dict = None):
         print('Fitting not required for independence copula')
         return
 

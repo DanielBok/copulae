@@ -8,8 +8,7 @@ from copulae.copula.summary import FitSummary
 
 
 class MaxLikelihoodEstimator:
-    def __init__(self, copula, data: np.ndarray, initial_params: Union[float, Collection[float]],
-                 optim_options: dict, est_var: bool, verbose: int):
+    def __init__(self, copula, data: np.ndarray, initial_params: np.ndarray, optim_options: dict, verbose: int):
         """
         Maximum likelihood estimator
 
@@ -27,9 +26,6 @@ class MaxLikelihoodEstimator:
         optim_options: dict
             optimizer options
 
-        est_var: bool
-            If True, calculates the variance estimates
-
         verbose: int
             Verbosity level for the optimizer
 
@@ -38,8 +34,7 @@ class MaxLikelihoodEstimator:
         self.data = data
         self.initial_params = initial_params
         self.optim_options = optim_options
-        self._verbose = verbose
-        self._est_var = est_var
+        self.verbose = verbose
 
     def fit(self, method):
         """
@@ -60,26 +55,15 @@ class MaxLikelihoodEstimator:
         res: OptimizeResult = minimize(self.copula_log_lik, self.initial_params, **self.optim_options)
 
         if not res['success']:
-            if self._verbose >= 1:
+            if self.verbose >= 1:
                 warn_no_convergence()
             return
 
         estimate = res['x']
         self.copula.params = estimate
 
-        d = self.copula.dim
-
-        var_est = np.full((d, d), np.nan)
-        if self._est_var:
-            # TODO calculate variance estimate [ml]
-            if method == 'ml':
-                pass
-            else:  # method == 'mpl'
-                pass
-
         method = f"Maximum {'pseudo-' if method == 'mpl' else ''}likelihood"
-        self.copula.fit_smry = FitSummary(estimate, var_est, method, res['fun'], len(self.data), self.optim_options,
-                                          res)
+        self.copula.fit_smry = FitSummary(estimate, method, res['fun'], len(self.data), self.optim_options, res)
 
         return estimate
 

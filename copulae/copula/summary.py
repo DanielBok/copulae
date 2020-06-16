@@ -14,9 +14,6 @@ class FitSummary:
     params: named tuple, numpy array
         parameters of the copula after fitting
 
-    var_est: numpy array
-        estimate of the variance
-
     method: str
         method used to fit the copula
 
@@ -33,10 +30,9 @@ class FitSummary:
         optimization results
     """
 
-    def __init__(self, params: np.ndarray, var_est: np.ndarray, method: str, log_lik: float, nsample: int,
-                 setup: Optional[dict] = None, results: Optional[dict] = None):
+    def __init__(self, params: np.ndarray, method: str, log_lik: float, nsample: int, setup: Optional[dict] = None,
+                 results: Optional[dict] = None):
         self.params = params
-        self.var_est = var_est
         self.method = method
         self.log_lik = log_lik
         self.nsample = nsample

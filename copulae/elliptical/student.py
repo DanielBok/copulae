@@ -60,14 +60,14 @@ class StudentCopula(AbstractEllipticalCopula):
         q = t.ppf(x, df)
         return mvt.logcdf(q, cov=sigma, df=df) if log else mvt.cdf(q, cov=sigma, df=df)
 
-    def fit(self, data: np.ndarray, x0: np.ndarray = None, method='mpl', fix_df=False, est_var=False, verbose=1,
+    def fit(self, data: np.ndarray, x0: np.ndarray = None, method='mpl', fix_df=False, verbose=1,
             optim_options: dict = None):
         if fix_df:
             if optim_options is None:
                 optim_options = {'constraints': []}
             optim_options['constraints'].append({'type': 'eq', 'fun': lambda x: x[0] - self._df})  # df doesn't change
 
-        return super().fit(data, x0, method, est_var, verbose, optim_options)
+        return super().fit(data, x0, method, verbose, optim_options)
 
     def irho(self, rho: Array):
         """

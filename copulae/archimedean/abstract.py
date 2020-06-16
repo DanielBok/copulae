@@ -11,12 +11,7 @@ from copulae.utility import array_io
 class AbstractArchimedeanCopula(BaseCopula, ABC):
     def __init__(self, dim: int, theta: float, family: str):
         family = family.lower()
-
-        try:
-            self._theta = float(theta)
-        except ValueError:  # pragma: no cover
-            raise ValueError('theta must be a float')
-
+        self._theta = float(theta)
         families = ('clayton', 'frank', 'amh', 'gumbel', 'joe')
         assert family in families, f"Unknown family of Archimedean copula: {family}. Use one of {', '.join(families)}"
 
