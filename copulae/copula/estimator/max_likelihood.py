@@ -1,20 +1,21 @@
+from typing import Collection, Union
+
 import numpy as np
 from scipy.optimize import OptimizeResult, minimize
 
-from copulae.copula.abstract import AbstractCopula as Copula
+from copulae.copula.estimator.misc import warn_no_convergence
 from copulae.copula.summary import FitSummary
-from copulae.copula.utils import warn_no_convergence, InitialParam
 
 
 class MaxLikelihoodEstimator:
-    def __init__(self, copula: Copula, data: np.ndarray, initial_params: InitialParam, optim_options, est_var: bool,
-                 verbose: int):
+    def __init__(self, copula, data: np.ndarray, initial_params: Union[float, Collection[float]],
+                 optim_options: dict, est_var: bool, verbose: int):
         """
-
+        Maximum likelihood estimator
 
         Parameters
         ----------
-        copula: AbstractCopula
+        copula:
             Copula whose parameters are to be estimated
 
         data: ndarray
@@ -33,7 +34,6 @@ class MaxLikelihoodEstimator:
             Verbosity level for the optimizer
 
         """
-
         self.copula = copula
         self.data = data
         self.initial_params = initial_params
@@ -57,7 +57,7 @@ class MaxLikelihoodEstimator:
 
         """
 
-        res = self._optimize()
+        res: OptimizeResult = minimize(self.copula_log_lik, self.initial_params, **self.optim_options)
 
         if not res['success']:
             if self._verbose >= 1:
@@ -83,7 +83,7 @@ class MaxLikelihoodEstimator:
 
         return estimate
 
-    def copula_log_lik(self, param: np.ndarray) -> float:
+    def copula_log_lik(self, param: Union[float, Collection[float]]) -> float:
         """
         Calculates the log likelihood after setting the new parameters (inserted from the optimizer) of the copula
 
@@ -103,6 +103,3 @@ class MaxLikelihoodEstimator:
             return -self.copula.log_lik(self.data, to_pobs=False)
         except ValueError:  # error encountered when setting invalid parameters
             return np.inf
-
-    def _optimize(self) -> OptimizeResult:
-        return minimize(self.copula_log_lik, self.initial_params, **self.optim_options)

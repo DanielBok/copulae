@@ -1,19 +1,20 @@
 import numpy as np
 
-from copulae.copula.abstract import AbstractCopula as Copula
+from copulae.copula.estimator.misc import is_archimedean, is_elliptical
 from copulae.copula.summary import FitSummary
-from copulae.copula.utils import fit_cor, is_archimedean, is_elliptical
+from copulae.core import create_cov_matrix, near_psd, tri_indices
 from copulae.core import rank_data
+from copulae.stats import kendall_tau, spearman_rho
 
 
 class CorrInversionEstimator:
-    def __init__(self, copula: Copula, data: np.ndarray, est_var: bool, verbose: int):
+    def __init__(self, copula, data: np.ndarray, est_var: bool, verbose: int):
         """
         Inversion of Spearman's rho or Kendall's tau Estimator
 
         Parameters
         ----------
-        copula: AbstractCopula
+        copula:
             Copula whose parameters are to be estimated
 
         data: ndarray
@@ -108,3 +109,39 @@ class CorrInversionEstimator:
         # TODO complete rest of function GETL
 
         raise NotImplementedError
+
+
+def fit_cor(copula, data: np.ndarray, typ: str) -> np.ndarray:
+    """
+    Constructs parameter matrix from matrix of Kendall's Taus or Spearman's Rho
+
+    Parameters
+    ----------
+    copula: BaseCopula
+        Copula instance
+
+    data: ndarray
+        Data to fit copula with
+    typ: {'irho', 'itau'}
+        The type of rank correlation measure to use. 'itau' uses Kendall's tau while 'irho' uses Spearman's rho
+
+    Returns
+    -------
+    ndarray
+        Parameter matrix is copula is elliptical. Otherwise, a vector
+    """
+
+    indices = tri_indices(copula.dim, 1, 'lower')
+    if typ == 'itau':
+        tau = kendall_tau(data)[indices]
+        theta = copula.itau(tau)
+    elif typ == 'irho':
+        rho = spearman_rho(data)[indices]
+        theta = copula.irho(rho)
+    else:
+        raise ValueError("Correlation Inversion must be either 'itau' or 'irho'")
+
+    if is_elliptical(copula):
+        theta = near_psd(create_cov_matrix(theta))[indices]
+
+    return theta

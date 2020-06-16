@@ -1,18 +1,20 @@
 import os
 from concurrent.futures import ProcessPoolExecutor
-from typing import Type, Union
+from typing import Type, TypeVar, Union
 
 import numpy as np
 import pandas as pd
 
-from copulae.copula import AbstractCopula
+from copulae.copula import BaseCopula
 from copulae.empirical.distribution import emp_dist_func
 from .utils import GofData, GofStat
 
 __all__ = ["gof_copula"]
 
+Copula = TypeVar("Copula", bound=BaseCopula, covariant=True)
 
-def gof_copula(copula: Type[AbstractCopula], data: Union[pd.DataFrame, np.ndarray], reps: int, ties="average",
+
+def gof_copula(copula: Type[Copula], data: Union[pd.DataFrame, np.ndarray], reps: int, ties="average",
                fit_ties="average", multiprocess=False, **fit_options):
     r"""
     Computes the goodness of fit statistic for the class of copula.
@@ -84,7 +86,7 @@ def gof_copula(copula: Type[AbstractCopula], data: Union[pd.DataFrame, np.ndarra
 
 
 class GofParametricBootstrap:
-    def __init__(self, copula: Type[AbstractCopula], data: GofData, reps, multiprocess, **fit_options):
+    def __init__(self, copula: Type[Copula], data: GofData, reps, multiprocess, **fit_options):
         self._cop_factory = copula
         self.data = data
 
@@ -117,12 +119,12 @@ class GofParametricBootstrap:
         cop = self.new_copula()
         return self.t_stat(cop, data)
 
-    def t_stat(self, copula: AbstractCopula, data: GofData):
+    def t_stat(self, copula: Copula, data: GofData):
         """Calculates the T statistic"""
         copula.fit(data.fitted_pobs, **self.fit_options)
         return gof_t_stat(copula, data.pobs, self.data.ties)
 
-    def new_copula(self) -> AbstractCopula:
+    def new_copula(self) -> Copula:
         return self._cop_factory(dim=self.data.n_dim)
 
     def _sort_data_by_column_inplace(self, data: np.ndarray):
@@ -138,7 +140,7 @@ class GofParametricBootstrap:
         return data
 
 
-def gof_t_stat(copula: AbstractCopula, data: np.ndarray, ties="average") -> float:
+def gof_t_stat(copula: Copula, data: np.ndarray, ties="average") -> float:
     """Computes the T Statistic of the copula"""
     cop_cdf = copula.cdf(data)
     emp_cdf = emp_dist_func(data, data, smoothing='none', ties=ties)

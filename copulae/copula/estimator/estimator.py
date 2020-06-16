@@ -2,8 +2,7 @@ from typing import Optional
 
 import numpy as np
 
-from copulae.copula.abstract import AbstractCopula as Copula
-from copulae.copula.utils import is_elliptical
+from copulae.copula.estimator.misc import is_elliptical
 from copulae.core import tri_indices
 from copulae.stats import pearson_rho
 from copulae.utility import merge_dict
@@ -12,7 +11,7 @@ from .max_likelihood import MaxLikelihoodEstimator
 
 
 class CopulaEstimator:
-    def __init__(self, copula: Copula, data: np.ndarray, x0: np.ndarray = None, method='ml', est_var=False,
+    def __init__(self, copula, data: np.ndarray, x0: np.ndarray = None, method='ml', est_var=False,
                  verbose=1, optim_options: Optional[dict] = None):
         """
         Estimator for any copula
@@ -57,7 +56,7 @@ class CopulaEstimator:
             raise ValueError("number of data (rows) must be greater than its dimension")
 
         # default optim options is the first dictionary. We have set the default options for Nelder-Mead
-        self.__optim_options = optim_options or {}
+        self._optim_options = optim_options or {}
 
         self._x0 = x0
         self._verbose = verbose
@@ -120,7 +119,7 @@ class CopulaEstimator:
 
         data = self.data
         verbose = self._verbose
-        options = self.__optim_options
+        options = self._optim_options
 
         max_iter = min(len(data) * 250, 20000)
         disp = verbose >= 2

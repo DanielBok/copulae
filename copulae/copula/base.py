@@ -1,22 +1,45 @@
 from abc import ABC, abstractmethod
-from typing import NamedTuple, Union
+from numbers import Number
+from typing import NamedTuple, Tuple, Union
 
 import numpy as np
 
-from copulae.copula.abstract import AbstractCopula
 from copulae.copula.estimator import CopulaEstimator
+from copulae.copula.exceptions import NotFittedError
+from copulae.copula.summary import FitSummary
 from copulae.core import pseudo_obs
 from copulae.types import Array, Numeric
 
 
-class BaseCopula(AbstractCopula, ABC):
+class BaseCopula(ABC):
     """
     The base copula object. All implemented copulae should inherit this class as it creates a common API for the fit
     method.
     """
 
-    def __init__(self, dim: int, name: str):
-        super().__init__(dim, name)
+    def __init__(self, dim: int, name: str, bounds: Tuple[Number, Number] = (0, 0)):
+        assert dim >= 2, 'Copula must have more than 2 dimensions'
+        assert isinstance(dim, int), 'Copula dimension must be an integer'
+
+        self._dim = dim  # prevent others from messing around
+        self.name = name
+        self.fit_smry = None
+        self._bounds = bounds
+
+    @property
+    def dim(self):
+        return self._dim
+
+    @property
+    def fit_smry(self):
+        if self._fit_smry is None:
+            raise NotFittedError
+        return self._fit_smry
+
+    @fit_smry.setter
+    def fit_smry(self, summary: FitSummary):
+        assert isinstance(summary, FitSummary) or summary is None, "Setting invalid object as fit summary"
+        self._fit_smry = summary
 
     @abstractmethod
     def cdf(self, x: Array, log=False) -> Union[np.ndarray, float]:
