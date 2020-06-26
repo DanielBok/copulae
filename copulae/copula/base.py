@@ -5,7 +5,7 @@ from typing import NamedTuple, Tuple, Union
 import numpy as np
 
 from copulae.copula.estimator import CopulaEstimator
-from copulae.copula.exceptions import NotFittedError
+from copulae.copula.exceptions import InputDataError, NotFittedError
 from copulae.copula.summary import FitSummary
 from copulae.core import pseudo_obs
 from copulae.types import Array, Numeric
@@ -65,7 +65,8 @@ class BaseCopula(ABC):
         """
         raise NotImplementedError
 
-    def fit(self, data: np.ndarray, x0: np.ndarray = None, method='mpl', verbose=1, optim_options: dict = None):
+    def fit(self, data: np.ndarray, x0: np.ndarray = None, method='mpl', verbose=1, optim_options: dict = None,
+            ties='average'):
         """
         Fit the copula with specified data
 
@@ -87,15 +88,19 @@ class BaseCopula(ABC):
         optim_options: dict, optional
             Keyword arguments to pass into scipy.optimize.minimize
 
+        ties: { 'average', 'min', 'max', 'dense', 'ordinal' }, optional
+            Specifies how ranks should be computed if there are ties in any of the coordinate samples. This is
+            effective only if the data has not been converted to its pseudo observations form
+
         See Also
         --------
         :code:`scipy.optimize.minimize`: the `scipy minimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize>`_ function use for optimization
         """
-        data = self.pobs(data)
+        data = self.pobs(data, ties)
         if data.ndim != 2:
-            raise ValueError('Data must be a matrix of dimension (n x d)')
+            raise InputDataError('Data must be a matrix of dimension (n x d)')
         elif self.dim != data.shape[1]:
-            raise ValueError('Dimension of data does not match copula')
+            raise InputDataError('Dimension of data does not match copula')
 
         CopulaEstimator(self, data, x0=x0, method=method, verbose=verbose, optim_options=optim_options)
 
@@ -195,7 +200,7 @@ class BaseCopula(ABC):
         """
         raise NotImplementedError
 
-    def log_lik(self, data: np.ndarray, *, to_pobs=True) -> float:
+    def log_lik(self, data: np.ndarray, *, to_pobs=True, ties='average') -> float:
         r"""
          Returns the log likelihood (LL) of the copula given the data.
 
@@ -205,8 +210,13 @@ class BaseCopula(ABC):
         ----------
         data: ndarray
             Data set used to calculate the log likelihood
+
         to_pobs: bool
             If True, converts the data input to pseudo observations.
+
+        ties: { 'average', 'min', 'max', 'dense', 'ordinal' }, optional
+            Specifies how ranks should be computed if there are ties in any of the coordinate samples. This is
+            effective only if :code:`to_pobs` is True.
 
         Returns
         -------
@@ -214,8 +224,8 @@ class BaseCopula(ABC):
             Log Likelihood
 
         """
-        data = self.pobs(data) if to_pobs else data
-
+        if to_pobs:
+            data = self.pobs(data, ties)
         return self.pdf(data, log=True).sum()
 
     @property
@@ -283,7 +293,7 @@ class BaseCopula(ABC):
             Random variates to be converted to pseudo-observations
 
         ties: { 'average', 'min', 'max', 'dense', 'ordinal' }, optional
-            String specifying how ranks should be computed if there are ties in any of the coordinate samples
+            Specifies how ranks should be computed if there are ties in any of the coordinate samples
 
         Returns
         -------
