@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.testing import assert_allclose
 
-from copulae.mixtures.gmc.marginals import approximate_pnorm, p_gmm_marginal
+from copulae.mixtures.gmc.marginals import gmm_marginal_cdf, gmm_marginal_ppf
 from copulae.mixtures.gmc.param import GMCParam
 
 param = GMCParam(3, 2,
@@ -21,8 +21,8 @@ param = GMCParam(3, 2,
                  ])
 
 
-def test_p_gmm_marginal():
-    z = np.array([[-3.677231992, 2.3490822],
+def test_gmm_marginal_cdf():
+    x = np.array([[-3.677231992, 2.3490822],
                   [1.743806244, 1.6101606],
                   [-3.300399649, 1.8222931],
                   [-1.548997255, -1.7920712],
@@ -33,7 +33,7 @@ def test_p_gmm_marginal():
                   [-0.393638703, 0.1285267],
                   [0.004476217, 1.4794919]])
 
-    actual = p_gmm_marginal(z, param)
+    actual = gmm_marginal_cdf(x, param)
     expected = [[0.8975912, 0.9463591],
                 [0.9957476, 0.9460456],
                 [0.9117104, 0.9461722],
@@ -48,12 +48,28 @@ def test_p_gmm_marginal():
     assert_allclose(actual, expected)
 
 
-def test_approximate_pnorm():
-    z = np.array([0.22963699, 0.23681269, -0.45969365, 0.00589497, -0.35259482,
-                  0.80947113, 0.92117827, -0.79465278, 1.72367294, 0.35036349])
+def test_gmm_marginal_ppf():
+    q = np.array([[0.47500534, 0.60472974],
+                  [0.93067899, 0.17763292],
+                  [0.35212585, 0.08556876],
+                  [0.31126504, 0.50731277],
+                  [0.4984078, 0.76740582],
+                  [0.46674749, 0.83129661],
+                  [0.17920184, 0.0830783],
+                  [0.29490617, 0.74172201],
+                  [0.15278869, 0.68946309],
+                  [0.22882008, 0.97558944]])
 
-    actual = approximate_pnorm(z, z.mean(), z.std(ddof=1))
-    expected = [0.47991820, 0.48377117, 0.16382454, 0.36253368, 0.20197792,
-                0.76750486, 0.81087999, 0.07634973, 0.97511425, 0.54470796]
+    actual = gmm_marginal_ppf(q, param)
+    expected = [[-15.040304, -6.683230],
+                [-2.741889, -11.120678],
+                [-22.170614, -11.198161],
+                [-22.793233, -9.086236],
+                [-13.373482, -4.607316],
+                [-16.095925, -3.739740],
+                [-24.514575, -11.200815],
+                [-23.019905, -4.924568],
+                [-24.871327, -5.558387],
+                [-23.877367, 24.423672]]
 
-    assert_allclose(actual, expected)
+    assert_allclose(actual, expected, atol=6)
