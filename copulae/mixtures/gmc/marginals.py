@@ -3,35 +3,92 @@ Functions here calculate the probability distribution, density and quantile of
 the marginals
 """
 import numpy as np
+from scipy.interpolate import interp1d
 
 from .param import GMCParam
 
 
-def p_gmm_marginal(z: np.ndarray, p: GMCParam):
-    dist = np.zeros_like(z)
-    for mus, sigmas, prob in zip(p.means, p.covs, p.prob):  # type: np.ndarray, np.ndarray, float
-        for j in range(p.n_dim):
-            m = mus[j]
-            s = sigmas[j, j] ** 0.5
-            dist[:, j] = dist[:, j] + prob * approximate_pnorm(z[:, j], m, s)
-
-    return dist
-
-
-def approximate_pnorm(vec: np.ndarray, mu: float, sd: float):
+def gmm_marginal_ppf(q: np.ndarray, p: GMCParam, resolution=2000, spread=5, validate=False):
     """
-    Approximate univariate Gaussian CDF, applied marginally
-    Abramowitz, Stegun p. 299 (7.1.25) (using error function) improved.
+    Approximates the inverse cdf of the input given the GMC parameters
+
+    Parameters
+    ----------
+    q : np.ndarray
+        Marginal probability values. Must be between [0, 1]
+    p : GMCParam
+        The Gaussian Mixture Copula parameters
+    resolution : int
+        The number of values used for approximation. The higher the resolution, the finer the interpolation.
+        However, it also comes at higher computation cost
+    spread : int
+        The number of standard deviation to approximate the range of marginal probability
+    validate : bool
+        If True, validates that all input marginal probability vector are between [0, 1] and raises an
+        ValueError if condition isn't met.
+
+    Returns
+    -------
+    np.ndarray
+        Quantile corresponding to the lower tail probability q.
     """
+    if validate and ((q < 0).any() or (q > 1).any()):
+        raise ValueError("Invalid probability marginal values detected. Ensure that are values are between [0, 1]")
+
+    # number of samples for each cluster with a minimum of 2
+    n_samples = np.maximum(np.round(p.prob * resolution), 2).astype(int)
+
+    # create evaluation grid
+    grid = np.empty((n_samples.sum(), p.n_dim))
+    i = 0
+    for n, mu, sigma2 in zip(n_samples, p.means, p.covs):
+        sigma = np.sqrt(np.diag(sigma2))
+        grid[i:(i + n)] = np.linspace(mu - spread * sigma, mu + spread * sigma, n)
+        i += n
+
+    dist = gmm_marginal_cdf(grid, p)
+
+    ppf = np.empty_like(q)
+    for i in range(p.n_dim):
+        # does an inverse cdf, ppf, to get the marginals
+        ppf[:, i] = interp1d(dist[:, i], grid[:, i])(q[:, i])
+
+    is_nan = np.isnan(ppf)
+    if is_nan.any():
+        ppf[is_nan & (q >= 1)] = np.inf  # infinity cause marginal is greater or equal to 1
+        ppf[is_nan & (q <= 0)] = -np.inf  # infinity cause marginal is greater or equal to 1
+
+    return ppf
+
+
+def gmm_marginal_cdf(x: np.ndarray, p: GMCParam):
+    """
+    Approximates the inverse cdf of the input given the GMC parameters
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Vector of quantiles
+    p : GMCParam
+        The Gaussian Mixture Copula parameters
+
+    Returns
+    -------
+    np.ndarray
+        Cumulative distribution function evaluated at `x`
+    """
+
+    sigmas = np.repeat(np.sqrt([np.diag(c) for c in p.covs]).T[np.newaxis, ...], len(x), axis=0)
+    means = np.repeat(p.means.T[np.newaxis, ...], len(x), axis=0)
+
     a1 = 0.3480242
     a2 = -0.0958798
     a3 = 0.7478556
-    p = 0.47047
+    rho = 0.47047
     sqrt2 = 1.4142136
 
-    z = (vec - mu) / (sd * sqrt2)
-    zi = np.abs(z)
-    t = 1 / (1 + p * zi)
-    chunk = 0.5 * (a1 * t + a2 * t ** 2 + a3 * t ** 3) * np.exp(-(zi ** 2))
-
-    return np.where(z < 0, chunk, 1 - chunk)
+    zi = (np.repeat(x[..., np.newaxis], p.n_clusters, axis=2) - means) / (sigmas * sqrt2)
+    za = np.abs(zi)
+    t = 1 / (1 + rho * za)
+    chunk = 0.5 * (a1 * t + a2 * t ** 2 + a3 * t ** 3) * np.exp(-(za ** 2))
+    return np.where(zi < 0, chunk, 1 - chunk) @ p.prob
