@@ -2,7 +2,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 
 from copulae.mixtures.gmc.marginals import gmm_marginal_cdf, gmm_marginal_ppf
-from copulae.mixtures.gmc.param import GMCParam
+from copulae.mixtures.gmc.parameter import GMCParam
 
 param = GMCParam(3, 2,
                  prob=[0.48923563, 0.05350188, 0.45726249],
