@@ -1,6 +1,8 @@
+from functools import lru_cache
 from typing import Collection as C, Union
 
 import numpy as np
+from scipy.linalg import cholesky
 
 
 class GMCParam:
@@ -15,6 +17,82 @@ class GMCParam:
         self.prob = prob
         self.means = means
         self.covs = covs
+
+    def to_vector(self):
+        """
+        Converts GMCParam to a 1-D vector representation. Vector representation enables GMCParam to be
+        updated via scipy's optimize module.
+        """
+
+        def trans_upper_tri(x: np.ndarray, diag: bool):
+            if diag:  # includes diagonal elements, thus do something about them
+                x[np.diag_indices(self.n_dim)] = np.log(np.diag(x))
+            return x[tri_indices(self.n_dim, diag)]
+
+        scale = np.sqrt(np.diag(self.covs[0]))  # scale factor
+        means = self.means / scale
+        means = (means - means[0])[1:]
+
+        # cholesky decomposition and rescaling
+        vscale = scale[:, None] @ scale[None, :]  # variance scale factor
+        covs = [cholesky(c) for c in (self.covs / vscale)]
+        covs[0] = trans_upper_tri(covs[0], False)
+        covs[1:] = [trans_upper_tri(c, True) for c in covs[1:]]
+
+        # logit probs
+        probs = np.log(self.prob / (1 - self.prob))
+
+        return np.array([
+            *probs,
+            *means.ravel(),
+            *np.ravel(covs[0]),
+            *np.ravel(covs[1:])
+        ])
+
+    @classmethod
+    def from_vector(cls, vector: Union[np.ndarray, C[float]], n_clusters: int, n_dim: int):
+        """
+        Converts a 1-D vector encoding to GMCParam
+
+        Parameters
+        ----------
+        vector : np.ndarray
+            Vector encoding which represents GMCParam
+        n_clusters : int
+            Number of components in copula mixture model
+        n_dim : int
+            Number of dimensions for each Gaussian component
+        """
+        m, d = n_clusters, n_dim
+        vector = np.array(vector)
+        prob = np.exp(vector[:m]) / (1 + np.exp(vector[:m]))
+
+        means = np.zeros((m, d))
+        means[1:] = vector[m:m + d * (m - 1)].reshape(m - 1, d)
+
+        covs = []
+        i = start = m + d * (m - 1)  # start of covariance index
+        while i < len(vector):
+            is_first = i == start
+            if is_first:
+                # indicator component, first sigma is the indicator component
+                ind = tri_indices(d, False)  # upper triangle index
+            else:
+                ind = tri_indices(d, True)
+
+            n = len(ind[0])
+            um = np.zeros((d, d))  # upper matrix
+            um[ind] = vector[i:i + n]
+
+            if is_first:
+                um[np.diag_indices(d)] = np.sqrt(1 - (um ** 2).sum(0))
+            else:
+                um[np.diag_indices(d)] = np.exp(np.diag(um))
+
+            covs.append(um.T @ um)
+            i += n
+
+        return cls(m, d, prob, means, covs)
 
     @property
     def prob(self) -> np.ndarray:
@@ -112,6 +190,29 @@ GMCParam(
 {covs_repr}
     ]
 )""".strip()
+
+
+@lru_cache(maxsize=128)
+def tri_indices(dim: int, diag: bool):
+    """Custom method to get upper triangle indices which goes column wise first"""
+    r, c = [], []
+    if diag:
+        for i in range(dim):
+            for j in range(dim):
+                r.append(j)
+                c.append(i)
+                if i == j:
+                    break
+
+    else:
+        for i in range(dim):
+            for j in range(dim):
+                if i == j:
+                    break
+                r.append(j)
+                c.append(i)
+
+    return np.array(r), np.array(c)
 
 
 class GMCParamError(Exception):
