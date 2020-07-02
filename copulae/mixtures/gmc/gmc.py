@@ -1,11 +1,12 @@
 from typing import Collection, Optional, Union
 
 import numpy as np
+from scipy.stats import multivariate_normal as mvn
 
 from copulae.core import pseudo_obs
 from copulae.types import Array
 from .estimators import expectation_maximization, gradient_descent, k_means
-from .exception import GMCFitMethodError, GMCParamMismatchError
+from .exception import GMCFitMethodError, GMCNotFittedError, GMCParamMismatchError
 from .parameter import GMCParam
 from .random import random_gmcm
 
@@ -13,12 +14,68 @@ __all__ = ['GaussianMixtureCopula']
 
 
 class GaussianMixtureCopula:
-    def __init__(self, n_clusters: int, ndim: int, initial_param: GMCParam = None):
+    r"""
+    The Gaussian Mixture Copula (GMC).
+
+    A Gaussian Copula has many normal marginal densities bound together by a single multivariate and uni-model
+    Gaussian density. However, if a dataset has multiple modes (peaks) with different dependence structure, the
+    applicability of the Gaussian Copula gets severely limited. A Gaussian Mixture Copula on the other hand
+    allows modeling of data with many modes (peaks).
+
+    The GMC's dependence structure is obtained from a Gaussian Mixture Model (GMM). For a GMC with :math:`M`
+    components and :math:`d` dimensions, the density (PDF) is given by
+
+    .. math::
+
+        \phi = \sum_i^M w_i \phi_i (x_1, x_2, \dots, x_d; \theta_i)
+
+        \text{s.t.}
+
+        \sum^M_i w_i = 1
+
+        0 \leq w_i \leq 1 \forall i \in [1, \dots, M]
+
+        \text{where}
+
+        w_i = \text{weight of the marginal density}
+
+        \phi_i = \text{marginal density}
+
+        \theta_i = \text{parameters of the Gaussian marginal}
+
+    The Gaussian Mixture Copula is thus given by
+
+    .. math::
+
+        C(u_1, u_2, \dots, u_d; \Theta) = \frac{\phi(\Phi_1^{-1}(u_1), \Phi_2^{-1}(u_2), \dots, \Phi_d^{-1}(u_d); \Theta}
+            {\phi_1(\Phi_1^{-1}(u_1)) \cdot \phi_2(\Phi_2^{-1}(u_2)) \cdots \phi_d(\Phi_1^{-1}(u_d))}
+
+        \text{where}
+
+        \Phi_i = \text{Inverse function of GMM marginal CDF}
+
+        \Theta = (\w_i, \theta_i) \forall i \in [1, \dots, M]
+    """
+
+    def __init__(self, n_clusters: int, ndim: int, param: Union[GMCParam, np.ndarray, Collection[float]] = None):
+        """
+        Creates a Gaussian Mixture Copula
+
+        Parameters
+        ----------
+        n_clusters : int
+            The number of clusters
+        ndim : int
+            The number of dimension for each Gaussian component
+
+        param : GMCParam, optional
+            The initial parameter for the model
+        """
         self.n_clusters = n_clusters
         self.n_dim = ndim
-        self._param = initial_param
+        self.params = param
 
-    def cdf(self, x: Array, log=False) -> Union[np.ndarray, float]:
+    def cdf(self, data: Array, log=False) -> Union[np.ndarray, float]:
         """
         Returns the cumulative distribution function (CDF) of the copulae.
 
@@ -27,19 +84,26 @@ class GaussianMixtureCopula:
 
         Parameters
         ----------
-        x: ndarray
+        data : ndarray
             Vector or matrix of the observed data. This vector must be (n x d) where `d` is the dimension of
             the copula
 
-        log: bool
+        log : bool
             If True, the log of the probability is returned
 
         Returns
         -------
-        ndarray
+        np.ndarray or float
             The CDF of the random variates
         """
-        raise NotImplementedError
+        if self.params is None:
+            raise GMCNotFittedError
+
+        out = np.zeros(len(data))
+        for prob, mean, cov in self.params:
+            out += prob * (mvn.logcdf(data, mean, cov) if log else mvn.logcdf(data, mean, cov))
+
+        return out
 
     def fit(self, data: np.ndarray, x0: Union[Collection[float], np.ndarray, GMCParam] = None, method='em',
             optim_options: dict = None, ties='average', max_iter=3000, criteria='GMCM', eps=1e-4):
@@ -77,6 +141,11 @@ class GaussianMixtureCopula:
 
         eps : float
             The epsilon value for which any absolute delta will mean that the model has converged
+
+        Notes
+        -----
+        Maximizing the exact likelihood of GMCM is technically intractable using expectation maximization. The
+        pseudo-likelihood
 
         See Also
         --------
@@ -126,15 +195,14 @@ class GaussianMixtureCopula:
         return self.pdf(data, log=True).sum()
 
     @property
-    def params(self):
+    def params(self) -> GMCParam:
         """
         The parameter set which describes the copula
 
         Returns
         -------
-        ndarray or tuple or float
-            parameters of the copulae. If copula is Archimedean, this will be a float. Otherwise, it could either be
-            a tuple or ndarray
+        GMCParam
+            The model parameter
         """
         raise self._param
 
@@ -152,7 +220,7 @@ class GaussianMixtureCopula:
         else:
             raise GMCParamMismatchError("Unsupported params type for GaussianMixtureCopula")
 
-    def pdf(self, u: Array, log=False) -> Union[np.ndarray, float]:
+    def pdf(self, data: Array, log=False) -> Union[np.ndarray, float]:
         """
         Returns the probability distribution function (PDF) of the copulae.
 
@@ -161,7 +229,7 @@ class GaussianMixtureCopula:
 
         Parameters
         ----------
-        u: ndarray
+        data: ndarray
             Vector or matrix of observed data
 
         log: bool, optional
@@ -169,10 +237,17 @@ class GaussianMixtureCopula:
 
         Returns
         -------
-        ndarray or float
+        np.ndarray or float
             The density (PDF) of the RV
         """
-        raise NotImplementedError
+        if self.params is None:
+            raise GMCNotFittedError
+
+        out = np.zeros(len(data))
+        for prob, mean, cov in self.params:
+            out += prob * (mvn.logpdf(data, mean, cov) if log else mvn.pdf(data, mean, cov))
+
+        return out
 
     @staticmethod
     def pobs(data, ties='average'):
