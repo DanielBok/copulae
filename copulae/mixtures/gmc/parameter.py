@@ -1,4 +1,4 @@
-from typing import Collection as C, Union
+from typing import Collection as C, Iterable, Tuple, Union
 
 import numpy as np
 
@@ -104,6 +104,10 @@ class GMCParam:
             raise GMCParamError(f"covariance array should have shape {shape}")
 
         self._covs = value
+
+    def __iter__(self) -> Iterable[Tuple[float, Union[float, np.ndarray], np.ndarray]]:
+        for i in range(self.n_clusters):
+            yield self.prob[i], self.means[i], self.covs[i]
 
     def __str__(self):
         comps = []
