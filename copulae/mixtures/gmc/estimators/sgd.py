@@ -1,20 +1,38 @@
 import numpy as np
 from scipy.optimize import minimize
 
+from copulae.mixtures.gmc.loglik import gmcm_log_likelihood
 from copulae.mixtures.gmc.parameter import GMCParam
-from ..loglik import gmcm_log_likelihood
 
 __all__ = ['gradient_descent']
 
 
-def gradient_descent(u: np.ndarray, param: GMCParam, method="nelder-mead", max_iter=3000, disp=False, options=None,
-                     **kwargs):
+def gradient_descent(u: np.ndarray, param: GMCParam, **kwargs):
+    """
+    Uses gradient descent to determine the optimal GMCParam
+
+    Parameters
+    ----------
+    u : np.ndarray
+        Pseudo observations
+    param : GMCParam
+        GMC model parameters
+    kwargs :
+        Other arguments to be passed into the minimize function
+
+    Returns
+    -------
+    GMCParam
+        Optimal Gaussian Mixture Copula Model parameter
+    """
     f = create_objective_function(u, param.n_clusters, param.n_dim)
+    method = kwargs.pop("method", "nelder-mead")
+    max_iter = kwargs.pop("max_iter", 3000)
+    disp = kwargs.pop("disp", False)
+    kwargs["options"] = kwargs.pop("options", get_default_option(method, disp, max_iter))
+    kwargs.pop('args', ())  # drop args cause it's not needed
 
-    if options is None:
-        options = get_default_option(method, disp, max_iter)
-
-    optimal = minimize(f, param.to_vector(), method=method, options=options, **kwargs)
+    optimal = minimize(f, param.to_vector(), args=(), method=method, **kwargs)
     return GMCParam.from_vector(optimal.x, param.n_clusters, param.n_dim)
 
 
