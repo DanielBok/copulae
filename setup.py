@@ -46,6 +46,7 @@ requirements = [
     'numpy >=1.15',
     'scipy >=1.1',
     'pandas >=0.23',
+    'scikit-learn >=0.23',
     'statsmodels >=0.9'
 ]
 
