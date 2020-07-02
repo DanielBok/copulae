@@ -9,6 +9,7 @@ from .estimators import expectation_maximization, gradient_descent, k_means
 from .exception import GMCFitMethodError, GMCNotFittedError, GMCParamMismatchError
 from .parameter import GMCParam
 from .random import random_gmcm
+from .summary import Summary
 
 __all__ = ['GaussianMixtureCopula']
 
@@ -74,6 +75,7 @@ class GaussianMixtureCopula:
         self.n_clusters = n_clusters
         self.n_dim = ndim
         self.params = param
+        self._fit_details = {"method": None}
 
     def cdf(self, data: Array, log=False) -> Union[np.ndarray, float]:
         """
@@ -105,7 +107,7 @@ class GaussianMixtureCopula:
 
         return out
 
-    def fit(self, data: np.ndarray, x0: Union[Collection[float], np.ndarray, GMCParam] = None, method='em',
+    def fit(self, data: np.ndarray, x0: Union[Collection[float], np.ndarray, GMCParam] = None, method='pem',
             optim_options: dict = None, ties='average', max_iter=3000, criteria='GMCM', eps=1e-4):
         """
         Fit the copula with specified data
@@ -119,8 +121,9 @@ class GaussianMixtureCopula:
         x0 : ndarray
             Initial starting point. If value is None, best starting point will be estimated
 
-        method : { 'em' }, optional
-            Method of fitting. Supported methods are: 'em' - Expectation Maximization, 'kmean' - K-means
+        method : { 'pem' }, optional
+            Method of fitting. Supported methods are: 'em' - Expectation Maximization with pseudo log-likelihood,
+            'kmeans' - K-means, 'sgd' - stochastic gradient descent
 
         optim_options : dict, optional
             Keyword arguments to pass into scipy.optimize.minimize. Only applicable for gradient-descent
@@ -153,10 +156,8 @@ class GaussianMixtureCopula:
         """
         method = method.lower()
 
-        if x0 is None or method == 'kmeans':
+        if x0 is None:
             self.params = k_means(data, self.n_clusters, self.n_dim)
-            if method == 'kmeans':
-                return self
         elif isinstance(x0, Collection):
             self.params = GMCParam.from_vector(x0, self.n_clusters, self.n_dim)
 
@@ -166,9 +167,13 @@ class GaussianMixtureCopula:
         elif method == 'sgd':
             u = pseudo_obs(data, ties)
             self.params = gradient_descent(u, self.params, max_iter=max_iter, **optim_options)
+        elif method == 'kmeans':
+            if x0 is not None:  # otherwise already fitted by default
+                self.params = k_means(data, self.n_clusters, self.n_dim)
         else:
             raise GMCFitMethodError(f"Invalid method: {method}. Use one of (kmeans, pem, sgd)")
 
+        self._fit_details["method"] = method
         return self
 
     def log_lik(self, data: np.ndarray, *, to_pobs=True) -> float:
@@ -204,7 +209,7 @@ class GaussianMixtureCopula:
         GMCParam
             The model parameter
         """
-        raise self._param
+        return self._param
 
     @params.setter
     def params(self, params: Optional[Union[GMCParam, np.ndarray, Collection]]):
@@ -293,4 +298,4 @@ class GaussianMixtureCopula:
 
     def summary(self):
         """Constructs the summary information about the copula"""
-        raise NotImplementedError
+        return Summary(self.params, self._fit_details)
