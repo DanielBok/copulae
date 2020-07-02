@@ -66,6 +66,7 @@ class GMCParam:
         m, d = n_clusters, n_dim
         vector = np.array(vector)
         prob = np.exp(vector[:m]) / (1 + np.exp(vector[:m]))
+        prob /= prob.sum()
 
         means = np.zeros((m, d))
         means[1:] = vector[m:m + d * (m - 1)].reshape(m - 1, d)
