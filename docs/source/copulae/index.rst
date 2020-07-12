@@ -9,4 +9,6 @@ This section contains a simple overview of what a copula is along with the API o
         Introduction <introduction>
         Archimedean Copulas <archimedean/index>
         Elliptical Copulas <elliptical/index>
-        Empirical Copulas <empirical/index>
+        Empirical Copula <empirical/index>
+        Independent Copula <independent/index>
+        Mixture Copula <mixtures/index>

@@ -299,6 +299,11 @@ class BaseCopula(ABC):
         -------
         ndarray
             matrix or vector of the same dimension as `data` containing the pseudo observations
+
+        See Also
+        --------
+        :py:func:`~copulae.core.misc.pseudo_obs`
+            The pseudo-observations function
         """
         return pseudo_obs(data, ties)
 

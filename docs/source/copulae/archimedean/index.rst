@@ -30,7 +30,7 @@ One such function is the exponential function. In fact, if we let :math:`\psi(x)
 
 
 .. toctree::
-    :hidden:
+    :caption: Archimedean Copulas
 
     Clayton Copula <clayton>
     Frank Copula <frank>

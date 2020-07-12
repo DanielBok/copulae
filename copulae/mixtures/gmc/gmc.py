@@ -28,34 +28,35 @@ class GaussianMixtureCopula:
 
     .. math::
 
-        \phi = \sum_i^M w_i \phi_i (x_1, x_2, \dots, x_d; \theta_i)
+        \phi &= \sum_i^M w_i \phi_i (x_1, x_2, \dots, x_d; \theta_i)
 
-        \text{s.t.}
+        &\text{s.t.}
 
-        \sum^M_i w_i = 1
+        &\sum^M_i w_i = 1
 
-        0 \leq w_i \leq 1 \forall i \in [1, \dots, M]
+        &0 \leq w_i \leq 1 \quad \forall i \in [1, \dots, M]
 
-        \text{where}
+        &\text{where}
 
-        w_i = \text{weight of the marginal density}
+        w_i &= \text{weight of the marginal density}
 
-        \phi_i = \text{marginal density}
+        \phi_i &= \text{marginal density}
 
-        \theta_i = \text{parameters of the Gaussian marginal}
+        \theta_i &= \text{parameters of the Gaussian marginal}
 
     The Gaussian Mixture Copula is thus given by
 
     .. math::
 
-        C(u_1, u_2, \dots, u_d; \Theta) = \frac{\phi(\Phi_1^{-1}(u_1), \Phi_2^{-1}(u_2), \dots, \Phi_d^{-1}(u_d); \Theta}
+        C(u_1, u_2, \dots, u_d; \Theta) &=
+            \frac{\phi(\Phi_1^{-1}(u_1), \Phi_2^{-1}(u_2), \dots, \Phi_d^{-1}(u_d); \Theta}
             {\phi_1(\Phi_1^{-1}(u_1)) \cdot \phi_2(\Phi_2^{-1}(u_2)) \cdots \phi_d(\Phi_1^{-1}(u_d))}
 
-        \text{where}
+        & \text{where}
 
-        \Phi_i = \text{Inverse function of GMM marginal CDF}
+        \Phi_i &= \text{Inverse function of GMM marginal CDF}
 
-        \Theta = (\w_i, \theta_i) \forall i \in [1, \dots, M]
+        \Theta &= (w_i, \theta_i) \forall i \in [1, \dots, M]
     """
 
     def __init__(self, n_clusters: int, ndim: int, param: Union[GMCParam, np.ndarray, Collection[float]] = None):
@@ -66,6 +67,7 @@ class GaussianMixtureCopula:
         ----------
         n_clusters : int
             The number of clusters
+
         ndim : int
             The number of dimension for each Gaussian component
 

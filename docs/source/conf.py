@@ -19,7 +19,7 @@ import subprocess
 import sys
 from datetime import datetime
 
-sys.path.insert(0, os.path.abspath('../../copulae'))
+sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Copy Examples -----------------------------------------------------------
 
@@ -61,6 +61,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
+    'sphinx_autodoc_typehints'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -203,4 +204,9 @@ epub_title = project
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
 
+
 # -- Extension configuration -------------------------------------------------
+
+
+def setup(app):
+    app.add_stylesheet('styles.css')
