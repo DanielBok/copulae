@@ -166,7 +166,7 @@ class GaussianMixtureCopula:
             self.params = expectation_maximization(u, self.params, max_iter, criteria, eps)
         elif method == 'sgd':
             u = pseudo_obs(data, ties)
-            self.params = gradient_descent(u, self.params, max_iter=max_iter, **optim_options)
+            self.params = gradient_descent(u, self.params, max_iter=max_iter, **(optim_options or {}))
         elif method == 'kmeans':
             if x0 is not None:  # otherwise already fitted by default
                 self.params = k_means(data, self.n_clusters, self.n_dim)
