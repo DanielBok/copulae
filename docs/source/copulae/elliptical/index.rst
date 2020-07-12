@@ -17,7 +17,7 @@ correspond to the univariate margins.
 
 
 .. toctree::
-    :hidden:
+    :caption: Elliptical Copulas
 
     Gaussian Copula <gaussian>
     Student Copula <student>

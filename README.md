@@ -98,6 +98,9 @@ I started working on the copulae package because I couldn't find a good existing
     - [ ] Joe
     - [ ] AMH 
     - [ ] Implement Rho finding via cubatures
+- [ ] Mixture copulas
+    - [X] Gaussian Mixture Copula
+    - [ ] Generic Mixture Copula
 - [ ] Implement Copulae Tests
     - [x] Radial Symmetry
     - [x] Exchangeability

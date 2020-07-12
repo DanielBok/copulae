@@ -1,6 +1,8 @@
 Empirical Copula
 ================
 
+.. py:currentmodule:: copulae.empirical
+
 The empirical distribution function is a natural nonparametric estimator of a distribution function. Given a copula :math:`C`, a non-parametric estimator of :math:`C` is given by
 
 .. math::
@@ -24,7 +26,7 @@ Another smooth version of the empirical copula estimator is the "checkerboard" c
 
     C^\#_n(\mathbf{u}) = \frac{1}{n} \sum^n_{i=1} \prod^d_{j=1} \min\{\max\{nu_j - R_{i,j} + 1, 0\}, 1\}  \quad \mathbf{u} \in [0, 1]^d
 
-.. toctree::
-    :hidden:
 
-    Empirical Copula <empirical>
+.. autoclass:: EmpiricalCopula
+    :members:
+    :inherited-members:

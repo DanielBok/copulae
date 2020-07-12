@@ -162,5 +162,3 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-docs/source/_static/
-docs/source/_templates/
