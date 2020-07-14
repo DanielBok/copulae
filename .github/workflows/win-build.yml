@@ -1,0 +1,58 @@
+name: Windows Build
+
+on:
+  push:
+    branches:
+      - master
+      - develop/*
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    name: Test Windows Package
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies and build extensions
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r build-requirements.txt
+          python setup.py build_ext --inplace
+
+      - name: Test package
+        run:
+          python -m pytest tests/
+
+#  build-src:
+#    needs: test
+#    steps:
+#      - name: Build SDist Package
+#        if:
+#          python-version == 3.8
+#
+#  build-wheel:
+#    needs: test
+#    steps:
+#      - name: Build BDist Package
+#
+#  deploy-test:
+#    needs: [build-src, build-wheel]
+#    steps:
+#      - name: Deploy to test pypi using twine
+#
+#  deploy:
+#    needs: deploy-test
+#    steps:
+#      - name: Deploy to pypi when tag
