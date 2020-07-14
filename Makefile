@@ -1,7 +1,6 @@
-OUTPUT_DIR := dist
 CURDIR := $(shell pwd)
 
-.PHONY: cli dist dist-wheel test
+.PHONY: clean dist ext wheel linux test
 
 all: dist
 
@@ -26,14 +25,11 @@ clean:
 	rm -rf build/ .pytest_cache/ *.egg-info dist/ __pycache__/ dist/
 
 	# delete cython linker files
-	find . -type f -name '*.pyd' -delete
+	find . -type f -name "*.pyd" -print -delete
 
 	# delete pytest coverage file
-	find . -type f -name '*.coverage' -print
+	find . -type f -name "*.coverage" -print -delete
 
 linux:
 	rm -rf dist/*
 	docker container run --rm -v $(CURDIR):/copulae danielbok/manylinux1 /copulae/manylinux-build.sh
-
-conda:
-	conda build --output-dist dist conda.recipe
