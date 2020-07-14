@@ -2,6 +2,8 @@ from typing import Collection as C, Iterable, Tuple, Union
 
 import numpy as np
 
+from copulae.core import near_psd
+
 
 class GMCParam:
     def __init__(self,
@@ -103,7 +105,7 @@ class GMCParam:
         if value.shape != shape:
             raise GMCParamError(f"covariance array should have shape {shape}")
 
-        self._covs = value
+        self._covs = np.array([near_psd(cov) for cov in value])  # forces covariance matrix to be psd
 
     def __iter__(self) -> Iterable[Tuple[float, Union[float, np.ndarray], np.ndarray]]:
         for i in range(self.n_clusters):
