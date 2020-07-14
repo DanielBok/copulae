@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Union
 
 import numpy as np
@@ -42,12 +41,12 @@ class GofData:
         return len(self.data)
 
 
-@dataclass
 class GofStat:
-    method: str
-    parameter: Union[float, np.ndarray]
-    statistic: float
-    pvalue: float
+    def __init__(self, method: str, parameter: Union[float, np.ndarray], statistic: float, pvalue: float):
+        self.method = method
+        self.parameter = parameter
+        self.statistic = statistic
+        self.pvalue = pvalue
 
     def __str__(self):
         return self.__repr__()
