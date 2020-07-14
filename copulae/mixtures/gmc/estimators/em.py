@@ -74,7 +74,7 @@ def e_step(q: np.ndarray, param: GMCParam):
     kappa = np.empty((len(q), param.n_clusters))
 
     for i, (p, m, s) in enumerate(zip(param.prob, param.means, param.covs)):
-        kappa[:, i] = p * mvn.pdf(q, m, s)
+        kappa[:, i] = p * mvn.pdf(q, m, s, allow_singular=True)
 
     kappa /= kappa.sum(1)[:, None]
     kappa[np.isnan(kappa)] = 0

@@ -28,7 +28,7 @@ def gmm_log_likelihood(x: np.ndarray, param: GMCParam) -> float:
     marginals = np.zeros(len(x))
 
     for i, prob in enumerate(param.prob):
-        marginals += prob * mvn.pdf(x, param.means[i], param.covs[i])
+        marginals += prob * mvn.pdf(x, param.means[i], param.covs[i], allow_singular=True)
 
     return np.log(marginals).sum()
 

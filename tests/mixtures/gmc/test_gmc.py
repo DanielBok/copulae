@@ -28,6 +28,7 @@ def cop():
 
 @pytest.fixture
 def rvs(cop):
+    np.random.seed(8)
     return cop.random(1000) + np.random.random((1000, 2))
 
 

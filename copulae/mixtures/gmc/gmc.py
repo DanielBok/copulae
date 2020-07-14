@@ -160,7 +160,9 @@ class GaussianMixtureCopula:
 
         if x0 is None:
             self.params = k_means(data, self.n_clusters, self.n_dim)
-        elif isinstance(x0, Collection):
+        elif isinstance(x0, GMCParam):
+            self.params = x0
+        else:
             self.params = GMCParam.from_vector(x0, self.n_clusters, self.n_dim)
 
         if method == 'pem':
