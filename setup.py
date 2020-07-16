@@ -58,6 +58,12 @@ extras_require = {
     ]
 }
 
+setup_requires = [
+    'cython',
+    'numpy',
+    'scipy'
+]
+
 
 def build_ext_modules():
     macros = [('NPY_NO_DEPRECATED_API', '1'),
@@ -141,6 +147,7 @@ setup(
         'Programming Language :: Python',
         'Topic :: Scientific/Engineering',
     ],
+    setup_requires=setup_requires,
     install_requires=requirements,
     extras_require=extras_require,
     include_package_data=True,
