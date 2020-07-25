@@ -3,6 +3,8 @@ import os
 import platform
 import re
 import sys
+from pathlib import Path
+from subprocess import getoutput
 
 import numpy as np
 from setuptools import Extension, find_packages, setup
@@ -33,15 +35,6 @@ except ImportError:
     class Options:
         pass
 
-AUTHOR = 'Daniel Bok'
-EMAIL = 'daniel.bok@outlook.com'
-
-with open('copulae/__init__.py') as f:
-    version = re.search(r'__version__ = "(.*?)"', f.read()).group(1)
-
-with open('README.md') as f:
-    long_description = f.read()
-
 requirements = [
     'numpy >=1.15',
     'scipy >=1.1',
@@ -49,14 +42,6 @@ requirements = [
     'scikit-learn >=0.23',
     'statsmodels >=0.9'
 ]
-
-extras_require = {
-    'dev': [
-        'pytest',
-        'pytest-cov',
-        'twine'
-    ]
-}
 
 setup_requires = [
     'cython',
@@ -119,39 +104,25 @@ def build_ext_modules():
     return cythonize(extensions, compiler_directives=compiler_directives)
 
 
+def get_git_version():
+    version = getoutput("git describe --tags --abbrev=0")
+
+    # side effect to update version string line
+    file = Path(__file__).parent / "copulae" / "__init__.py"
+    with open(file, 'r') as f:
+        content = re.sub(r'__version__ = "\S+"', f'__version__ = "{version}"', f.read())
+
+    with open(file, 'w') as f:
+        f.write(content)
+
+    return version
+
+
 setup(
-    name='copulae',
-    author=AUTHOR,
-    author_email=EMAIL,
-    maintainer=AUTHOR,
-    maintainer_email=EMAIL,
     packages=find_packages(include=['copulae', 'copulae.*']),
-    license="MIT",
-    version=version,
-    description='Python copulae library for dependency modelling',
-    long_description=long_description,
-    long_description_content_type='text/markdown',
-    url='https://github.com/DanielBok/copulae',
-    keywords=['copula', 'copulae', 'dependency modelling', 'dependence structures', 'archimdean', 'elliptical',
-              'finance'],
-    classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: End Users/Desktop',
-        'Intended Audience :: Financial and Insurance Industry',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: MacOS :: MacOS X',
-        'Operating System :: Microsoft :: Windows',
-        'Operating System :: POSIX',
-        'Programming Language :: Python',
-        'Topic :: Scientific/Engineering',
-    ],
+    version=get_git_version(),  # get latest tagged version
     setup_requires=setup_requires,
     install_requires=requirements,
-    extras_require=extras_require,
-    include_package_data=True,
-    python_requires='>=3.6',
     zip_safe=False,
     ext_modules=build_ext_modules(),
 )
