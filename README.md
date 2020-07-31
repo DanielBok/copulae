@@ -9,7 +9,10 @@ Copulae is a package used to model complex dependency structures. Copulae implem
 
 ###### Continuous Integration
 
-[![Build Status](https://travis-ci.com/DanielBok/copulae.svg?branch=master)](https://travis-ci.com/DanielBok/copulae)
+[![Build Status](https://travis-ci.com/DanielBok/copulae.svg?branch=master)](https://travis-ci.com/DanielBok/copulae) 
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/copulae/badges/latest_release_date.svg)](https://anaconda.org/conda-forge/copulae)
+[![Downloads](https://pepy.tech/badge/copulae)](https://pepy.tech/project/copulae)
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/copulae/badges/downloads.svg)](https://anaconda.org/conda-forge/copulae)
 
 ###### Documentation
 
