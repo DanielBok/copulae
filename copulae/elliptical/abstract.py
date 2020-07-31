@@ -1,10 +1,10 @@
 from abc import ABC
-from typing import Tuple
+from typing import Collection, Tuple, Union
 
 import numpy as np
 
 from copulae.copula.base import BaseCopula
-from copulae.core import create_cov_matrix, is_psd, near_psd, tri_indices
+from copulae.core import EPS, create_cov_matrix, is_psd, near_psd, tri_indices
 from copulae.utility import array_io
 
 
@@ -33,14 +33,14 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
     def itau(self, tau):
         return np.sin(np.asarray(tau) * np.pi / 2)
 
-    def log_lik(self, data: np.ndarray, *, to_pobs=True):
+    def log_lik(self, data: np.ndarray, *, to_pobs=True, ties="average"):
         if not is_psd(self.sigma):
             return -np.inf
 
         if hasattr(self, '_df') and self._df <= 0:  # t copula
             return -np.inf
 
-        return super().log_lik(data, to_pobs=to_pobs)
+        return super().log_lik(data, to_pobs=to_pobs, ties=ties)
 
     @property
     def rho(self):
@@ -60,49 +60,68 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
     def tau(self):
         return 2 * np.arcsin(self._rhos) / np.pi
 
-    def __getitem__(self, i):
-        if isinstance(i, int):
-            return self._rhos[i]
-        elif isinstance(i, (slice, tuple, list, np.ndarray)):
-            if len(i) == 2:
-                return self.sigma[i]
-            else:
+    def __getitem__(self, index: Union[int, Tuple[Union[slice, int], Union[slice, int]], slice]) \
+            -> Union[np.ndarray, float]:
+        if isinstance(index, slice):
+            return self.sigma
+        elif isinstance(index, int):
+            return self._rhos[index]
+        elif isinstance(index, tuple):
+            if len(index) != 2:
                 raise IndexError('only 2-dimensional indices supported')
-        raise IndexError("only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean "
-                         "arrays are valid indices")
+            return self.sigma[index]
+        raise IndexError("invalid index type")
 
-    def __setitem__(self, i, value):
+    def __setitem__(self,
+                    index: Union[int, Tuple[Union[slice, int], Union[slice, int]], slice],
+                    value: Union[float, Collection[float], np.ndarray]):
         d = self.dim
 
-        if isinstance(i, slice):
+        if np.isscalar(value):
+            if value < -1 or value > 1:
+                raise ValueError("correlation value must be between -1 and 1")
+        else:
+            value = np.asarray(value)
+            if not np.all((value >= -1 - EPS) & (value <= 1 + EPS)):
+                raise ValueError("correlation value must be between -1 and 1")
+
+        if isinstance(index, slice):
             value = near_psd(value)
             if value.shape != (d, d):
-                return IndexError(f"The value being set should be a matrix of dimension ({d}, {d})")
+                raise ValueError(f"The value being set should be a matrix of dimension ({d}, {d})")
             self._rhos = value[tri_indices(d, 1, 'lower')]
             return
 
-        assert -1.0 <= value <= 1.0, "correlation value must be between -1 and 1"
-        if isinstance(i, int):
-            self._rhos[i] = value
+        if isinstance(index, int):
+            self._rhos[index] = value
 
         else:
-            i = _get_rho_index(d, i)
-            self._rhos[i] = value
+            index = tuple(index)
+            if len(index) != 2:
+                raise IndexError('index can only be 1 or 2-dimensional')
 
-        self._force_psd()
+            x, y = index
+            # having 2 slices for indices is equivalent to self[:]
+            if isinstance(x, slice) and isinstance(y, slice):
+                self[:] = value
+                return
+            elif isinstance(x, slice) or isinstance(y, slice):
+                value = np.repeat(value, d) if np.isscalar(value) else np.asarray(value)
+                if len(value) != d:
+                    raise ValueError(f"value must be a scalar or be a vector with length {d}")
 
-    def __delitem__(self, i):
-        d = self.dim
+                # one of the item is
+                for i, v in enumerate(value):
+                    idx = (i, y) if isinstance(x, slice) else (x, i)
+                    if idx[0] == idx[1]:  # skip diagonals
+                        continue
 
-        if isinstance(i, slice):
-            self._rhos = np.zeros(len(self._rhos))
-
-        elif isinstance(i, int):
-            self._rhos[i] = 0
-
-        else:
-            i = _get_rho_index(d, i)
-            self._rhos[i] = 0
+                    idx = _get_rho_index(d, idx)
+                    self._rhos[idx] = v
+            else:
+                # both are integers
+                idx = _get_rho_index(d, index)
+                self._rhos[idx] = float(value)
 
         self._force_psd()
 
@@ -115,25 +134,17 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
         self._rhos = cov[tri_indices(self.dim, 1, 'lower')]
 
 
-def _get_rho_index(d: int, i: Tuple[int, int]) -> int:
-    i = tuple(i)
-    if not isinstance(i, tuple):
-        raise IndexError("only integers, slices (`:`), ellipsis (`...`), numpy.newaxis (`None`) and integer or boolean "
-                         "arrays are valid indices")
-
-    if len(i) != 2:
-        raise IndexError('only 2-dimensional indices supported')
-
-    x, y = i
+def _get_rho_index(dim: int, index: Tuple[int, int]) -> int:
+    x, y = index
     if x < 0 or y < 0:
         raise IndexError('Only positive indices are supported')
-    elif x >= d or y >= d:
+    elif x >= dim or y >= dim:
         raise IndexError('Index cannot be greater than dimension of copula')
     elif x == y:
         raise IndexError('Cannot set values along the diagonal')
 
-    for j, v in enumerate(zip(*tri_indices(d, 1, 'upper' if x < y else 'lower'))):
-        if i == v:
+    for j, v in enumerate(zip(*tri_indices(dim, 1, 'upper' if x < y else 'lower'))):
+        if (x, y) == v:
             return j
 
-    raise IndexError(f"Unable to find index {i}")
+    raise IndexError(f"Unable to find index {(x, y)}")
