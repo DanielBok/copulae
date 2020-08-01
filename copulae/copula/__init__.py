@@ -1,2 +1,2 @@
-from .base import BaseCopula, TailDep
+from .base import *
 from .summary import Summary

@@ -1,7 +1,7 @@
 import inspect
 
 
-class NotApplicableError(Exception):
+class MethodNotAvailableError(Exception):
     """Raised when a method of a class instance is called but when such class should not call the method"""
 
     def __init__(self, *args):
@@ -11,4 +11,4 @@ class NotApplicableError(Exception):
             _method = stack.function
             args = [f"'{_method}' is not defined for {_class}"]
 
-        super(NotApplicableError, self).__init__(*args)
+        super().__init__(*args)

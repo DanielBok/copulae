@@ -40,7 +40,8 @@ requirements = [
     'scipy >=1.1',
     'pandas >=0.23',
     'scikit-learn >=0.23',
-    'statsmodels >=0.9'
+    'statsmodels >=0.9',
+    "typing-extensions >=3.7.4.2; python_version < '3.8'"
 ]
 
 setup_requires = [

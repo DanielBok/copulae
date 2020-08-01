@@ -1,6 +1,6 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from numbers import Number
-from typing import NamedTuple, Tuple, Union
+from typing import Collection, NamedTuple, Tuple, TypeVar, Union
 
 import numpy as np
 
@@ -10,36 +10,37 @@ from copulae.copula.summary import FitSummary
 from copulae.core import pseudo_obs
 from copulae.types import Array, Numeric
 
+try:
+    from typing import Protocol
+except ImportError:
+    from typing_extensions import Protocol
 
-class BaseCopula(ABC):
+__all__ = ["BaseCopula", "CopulaCorrProtocol", "Param", "TailDep"]
+
+Param = TypeVar("Param")
+
+
+class BaseCopula(Protocol[Param]):
     """
-    The base copula object. All implemented copulae should inherit this class as it creates a common API for the fit
-    method.
+    The base copula object. All implemented copulae should inherit this class as it creates a common API
+    such as the :py:meth:`BaseCopula.fit` method.
     """
-
-    def __init__(self, dim: int, name: str, bounds: Tuple[Number, Number] = (0, 0)):
-        assert dim >= 2, 'Copula must have more than 2 dimensions'
-        assert isinstance(dim, int), 'Copula dimension must be an integer'
-
-        self._dim = dim  # prevent others from messing around
-        self.name = name
-        self.fit_smry = None
-        self._bounds = bounds
+    _dim: int
+    _name: str
+    _fit_smry: FitSummary = None
+    _bounds: Tuple[Number, Number] = (0, 0)
 
     @property
-    def dim(self):
-        return self._dim
+    def bounds(self):
+        """
+        Gets the bounds for the parameters
 
-    @property
-    def fit_smry(self):
-        if self._fit_smry is None:
-            raise NotFittedError
-        return self._fit_smry
-
-    @fit_smry.setter
-    def fit_smry(self, summary: FitSummary):
-        assert isinstance(summary, FitSummary) or summary is None, "Setting invalid object as fit summary"
-        self._fit_smry = summary
+        Returns
+        -------
+        (scalar or array_like, scalar or array_like)
+            Lower and upper bound of the copula's parameters
+        """
+        return self._bounds
 
     @abstractmethod
     def cdf(self, x: Array, log=False) -> Union[np.ndarray, float]:
@@ -65,8 +66,12 @@ class BaseCopula(ABC):
         """
         raise NotImplementedError
 
-    def fit(self, data: np.ndarray, x0: np.ndarray = None, method='mpl', verbose=1, optim_options: dict = None,
-            ties='average'):
+    @property
+    def dim(self):
+        return self._dim
+
+    def fit(self, data: np.ndarray, x0: Union[Collection[float], np.ndarray] = None, method='mpl',
+            optim_options: dict = None, ties='average', verbose=1):
         """
         Fit the copula with specified data
 
@@ -82,15 +87,15 @@ class BaseCopula(ABC):
             Method of fitting. Supported methods are: 'ml' - Maximum Likelihood, 'mpl' - Maximum Pseudo-likelihood,
             'irho' - Inverse Spearman Rho, 'itau' - Inverse Kendall Tau
 
-        verbose: int, optional
-            Log level for the estimator. The higher the number, the more verbose it is. 0 prints nothing.
-
         optim_options: dict, optional
-            Keyword arguments to pass into scipy.optimize.minimize
+            Keyword arguments to pass into :func:`scipy.optimize.minimize`
 
         ties: { 'average', 'min', 'max', 'dense', 'ordinal' }, optional
             Specifies how ranks should be computed if there are ties in any of the coordinate samples. This is
             effective only if the data has not been converted to its pseudo observations form
+
+        verbose: int, optional
+            Log level for the estimator. The higher the number, the more verbose it is. 0 prints nothing.
 
         See Also
         --------
@@ -102,9 +107,141 @@ class BaseCopula(ABC):
         elif self.dim != data.shape[1]:
             raise InputDataError('Dimension of data does not match copula')
 
+        x0 = np.asarray(x0) if x0 is not None and not isinstance(x0, np.ndarray) and isinstance(x0, Collection) else x0
         CopulaEstimator(self, data, x0=x0, method=method, verbose=verbose, optim_options=optim_options)
 
         return self
+
+    @property
+    def fit_smry(self):
+        if self._fit_smry is None:
+            raise NotFittedError
+        return self._fit_smry
+
+    @fit_smry.setter
+    def fit_smry(self, summary: FitSummary):
+        assert isinstance(summary, FitSummary) or summary is None, "Setting invalid object as fit summary"
+        self._fit_smry = summary
+
+    def init_validate(self):
+        assert isinstance(self.dim, int) and self.dim >= 2, 'Copula must have more than 2 dimensions'
+
+    def log_lik(self, data: np.ndarray, *, to_pobs=True, ties='average') -> float:
+        r"""
+         Returns the log likelihood (LL) of the copula given the data.
+
+        The greater the LL (closer to :math:`\infty`) the better.
+
+        Parameters
+        ----------
+        data: ndarray
+            Data set used to calculate the log likelihood
+
+        to_pobs: bool
+            If True, converts the data input to pseudo observations.
+
+        ties: { 'average', 'min', 'max', 'dense', 'ordinal' }, optional
+            Specifies how ranks should be computed if there are ties in any of the coordinate samples. This is
+            effective only if :code:`to_pobs` is True.
+
+        Returns
+        -------
+        float
+            Log Likelihood
+
+        """
+        data = self.pobs(data, ties) if to_pobs else data
+        return self.pdf(data, log=True).sum()
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    @abstractmethod
+    def params(self) -> Param:
+        """The parameter set which describes the copula"""
+        raise NotImplementedError
+
+    @params.setter
+    @abstractmethod
+    def params(self, params: Numeric):
+        raise NotImplementedError
+
+    @abstractmethod
+    def pdf(self, u: Array, log=False) -> Union[np.ndarray, float]:
+        """
+        Returns the probability distribution function (PDF) of the copulae.
+
+        The PDF is also the density of the RV at for the particular distribution. Equivalent to the 'd' generic function
+        in R.
+
+        Parameters
+        ----------
+        u: ndarray
+            Vector or matrix of observed data
+
+        log: bool, optional
+            If True, the density 'd' is given as log(d)
+
+        Returns
+        -------
+        ndarray or float
+            The density (PDF) of the RV
+        """
+        raise NotImplementedError
+
+    @staticmethod
+    def pobs(data, ties='average'):
+        """
+        Compute the pseudo-observations for the given data matrix
+
+        Parameters
+        ----------
+        data: { array_like, DataFrame }
+            Random variates to be converted to pseudo-observations
+
+        ties: { 'average', 'min', 'max', 'dense', 'ordinal' }, optional
+            Specifies how ranks should be computed if there are ties in any of the coordinate samples
+
+        Returns
+        -------
+        ndarray
+            matrix or vector of the same dimension as `data` containing the pseudo observations
+
+        See Also
+        --------
+        :py:func:`~copulae.core.misc.pseudo_obs`
+            The pseudo-observations function
+        """
+        return pseudo_obs(data, ties)
+
+    def random(self, n: int, seed: int = None) -> Union[np.ndarray, float]:
+        """
+        Generate random observations for the copula
+
+        Parameters
+        ----------
+        n: int
+            Number of observations to be generated
+
+        seed: int, optional
+            Seed for the random generator
+
+        Returns
+        -------
+        ndarray
+            array of generated observations
+        """
+        raise NotImplementedError
+
+    def summary(self):
+        """Constructs the summary information about the copula"""
+        raise NotImplementedError
+
+
+class CopulaCorrProtocol(Protocol):
+    """Additional protocol methods for the copula related to the correlation structure"""
 
     @abstractmethod
     def drho(self, x=None):
@@ -200,134 +337,8 @@ class BaseCopula(ABC):
         """
         raise NotImplementedError
 
-    def log_lik(self, data: np.ndarray, *, to_pobs=True, ties='average') -> float:
-        r"""
-         Returns the log likelihood (LL) of the copula given the data.
-
-        The greater the LL (closer to :math:`\infty`) the better.
-
-        Parameters
-        ----------
-        data: ndarray
-            Data set used to calculate the log likelihood
-
-        to_pobs: bool
-            If True, converts the data input to pseudo observations.
-
-        ties: { 'average', 'min', 'max', 'dense', 'ordinal' }, optional
-            Specifies how ranks should be computed if there are ties in any of the coordinate samples. This is
-            effective only if :code:`to_pobs` is True.
-
-        Returns
-        -------
-        float
-            Log Likelihood
-
-        """
-        if to_pobs:
-            data = self.pobs(data, ties)
-        return self.pdf(data, log=True).sum()
-
     @property
     @abstractmethod
-    def params(self):
-        """
-        The parameter set which describes the copula
-
-        Returns
-        -------
-        ndarray or tuple or float
-            parameters of the copulae. If copula is Archimedean, this will be a float. Otherwise, it could either be
-            a tuple or ndarray
-        """
-        raise NotImplementedError
-
-    @params.setter
-    @abstractmethod
-    def params(self, params: Numeric):
-        raise NotImplementedError
-
-    @property
-    def bounds(self):
-        """
-        Gets the bounds for the parameters
-
-        Returns
-        -------
-        (scalar or array_like, scalar or array_like)
-            Lower and upper bound of the copula's parameters
-        """
-        return self._bounds
-
-    @abstractmethod
-    def pdf(self, u: Array, log=False) -> Union[np.ndarray, float]:
-        """
-        Returns the probability distribution function (PDF) of the copulae.
-
-        The PDF is also the density of the RV at for the particular distribution. Equivalent to the 'd' generic function
-        in R.
-
-        Parameters
-        ----------
-        u: ndarray
-            Vector or matrix of observed data
-
-        log: bool, optional
-            If True, the density 'd' is given as log(d)
-
-        Returns
-        -------
-        ndarray or float
-            The density (PDF) of the RV
-        """
-        raise NotImplementedError
-
-    @staticmethod
-    def pobs(data, ties='average'):
-        """
-        Compute the pseudo-observations for the given data matrix
-
-        Parameters
-        ----------
-        data: {array_like, DataFrame}
-            Random variates to be converted to pseudo-observations
-
-        ties: { 'average', 'min', 'max', 'dense', 'ordinal' }, optional
-            Specifies how ranks should be computed if there are ties in any of the coordinate samples
-
-        Returns
-        -------
-        ndarray
-            matrix or vector of the same dimension as `data` containing the pseudo observations
-
-        See Also
-        --------
-        :py:func:`~copulae.core.misc.pseudo_obs`
-            The pseudo-observations function
-        """
-        return pseudo_obs(data, ties)
-
-    @abstractmethod
-    def random(self, n: int, seed: int = None) -> Union[np.ndarray, float]:
-        """
-        Generate random observations for the copula
-
-        Parameters
-        ----------
-        n: int
-            Number of observations to be generated
-
-        seed: int, optional
-            Seed for the random generator
-
-        Returns
-        -------
-        ndarray
-            array of generated observations
-        """
-        raise NotImplementedError
-
-    @property
     def rho(self):
         """
         Computes the Spearman's Rho for bivariate copulae
@@ -339,12 +350,8 @@ class BaseCopula(ABC):
         """
         raise NotImplementedError
 
-    @abstractmethod
-    def summary(self):
-        """Constructs the summary information about the copula"""
-        raise NotImplementedError
-
     @property
+    @abstractmethod
     def tau(self):
         """
         Computes the Kendall's Tau for bivariate copulae
