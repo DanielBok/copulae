@@ -2,20 +2,21 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from copulae.copula.base import BaseCopula
+from copulae.copula import BaseCopula, CopulaCorrProtocol
 from copulae.special.optimize import find_root
 from copulae.types import Array
 from copulae.utility import array_io
 
 
-class AbstractArchimedeanCopula(BaseCopula, ABC):
+class AbstractArchimedeanCopula(BaseCopula[float], CopulaCorrProtocol, ABC):
     def __init__(self, dim: int, theta: float, family: str):
         family = family.lower()
         self._theta = float(theta)
-        families = ('clayton', 'frank', 'amh', 'gumbel', 'joe')
+        families = ('clayton', 'frank', 'gumbel')  # amh, joe not implemented
         assert family in families, f"Unknown family of Archimedean copula: {family}. Use one of {', '.join(families)}"
 
-        super().__init__(dim, family)
+        self._dim = dim
+        self._name = family
 
     @array_io(dim=2)
     def cdf(self, u: Array, log=False) -> np.ndarray:

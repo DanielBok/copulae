@@ -3,19 +3,21 @@ from typing import Collection, Tuple, Union
 
 import numpy as np
 
-from copulae.copula.base import BaseCopula
+from copulae.copula import BaseCopula, CopulaCorrProtocol, Param
 from copulae.core import EPS, create_cov_matrix, is_psd, near_psd, tri_indices
 from copulae.utility import array_io
 
 
-class AbstractEllipticalCopula(BaseCopula, ABC):
+class AbstractEllipticalCopula(BaseCopula[Param], CopulaCorrProtocol, ABC):
     """
     The abstract base class for Elliptical Copulas
     """
 
     def __init__(self, dim: int, name: str):
-        super().__init__(dim, name)
+        self._dim = dim
+        self._name = name
         self._rhos = np.zeros(sum(range(dim)))
+        self.init_validate()
 
     @array_io(optional=True)
     def drho(self, x=None):
@@ -37,7 +39,7 @@ class AbstractEllipticalCopula(BaseCopula, ABC):
         if not is_psd(self.sigma):
             return -np.inf
 
-        if hasattr(self, '_df') and self._df <= 0:  # t copula
+        if hasattr(self, '_df') and getattr(self, "_df", 0) <= 0:  # t copula
             return -np.inf
 
         return super().log_lik(data, to_pobs=to_pobs, ties=ties)

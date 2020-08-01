@@ -14,7 +14,7 @@ class StudentParams(NamedTuple):
     rho: np.ndarray
 
 
-class StudentCopula(AbstractEllipticalCopula):
+class StudentCopula(AbstractEllipticalCopula[StudentParams]):
     r"""
     The Student (T) Copula. It is elliptical and symmetric which gives it nice analytical properties. The
     Student copula is determined by its correlation matrix and the degrees of freedom. Student copulas have
@@ -60,14 +60,47 @@ class StudentCopula(AbstractEllipticalCopula):
         q = t.ppf(x, df)
         return mvt.logcdf(q, cov=sigma, df=df) if log else mvt.cdf(q, cov=sigma, df=df)
 
-    def fit(self, data: np.ndarray, x0: np.ndarray = None, method='mpl', fix_df=False, verbose=1,
-            optim_options: dict = None):
+    def fit(self, data: np.ndarray, x0: np.ndarray = None, method='mpl', optim_options: dict = None, ties='average',
+            verbose=1, fix_df=False):
+        """
+        Fit the copula with specified data
+
+        Parameters
+        ----------
+        data: ndarray
+            Array of data used to fit copula. Usually, data should be the pseudo observations
+
+        x0: ndarray
+            Initial starting point. If value is None, best starting point will be estimated
+
+        method: { 'ml', 'mpl', 'irho', 'itau' }, optional
+            Method of fitting. Supported methods are: 'ml' - Maximum Likelihood, 'mpl' - Maximum Pseudo-likelihood,
+            'irho' - Inverse Spearman Rho, 'itau' - Inverse Kendall Tau
+
+        optim_options: dict, optional
+            Keyword arguments to pass into :func:`scipy.optimize.minimize`
+
+        ties: { 'average', 'min', 'max', 'dense', 'ordinal' }, optional
+            Specifies how ranks should be computed if there are ties in any of the coordinate samples. This is
+            effective only if the data has not been converted to its pseudo observations form
+
+        verbose: int, optional
+            Log level for the estimator. The higher the number, the more verbose it is. 0 prints nothing.
+
+        fix_df: bool, optional
+            If True, the degree of freedom specified by the user (param) is fixed and will not change. Otherwise,
+            the degree of freedom is subject to changes during the fitting phase.
+
+        See Also
+        --------
+        :code:`scipy.optimize.minimize`: the `scipy minimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize>`_ function use for optimization
+        """
         if fix_df:
             if optim_options is None:
                 optim_options = {'constraints': []}
             optim_options['constraints'].append({'type': 'eq', 'fun': lambda x: x[0] - self._df})  # df doesn't change
 
-        return super().fit(data, x0, method, verbose, optim_options)
+        return super().fit(data, x0, method, optim_options, ties, verbose)
 
     def irho(self, rho: Array):
         """
@@ -87,18 +120,20 @@ class StudentCopula(AbstractEllipticalCopula):
         return TailDep(res, res)
 
     @property
-    def params(self) -> StudentParams:
+    def params(self):
         """
         The parameters of the Student copula. A tuple where the first value is the degrees of freedom and the
         subsequent values are the correlation matrix parameters
 
         Returns
         -------
-        df: float
-            Degrees of freedom
-        corr: ndarray
-            Correlation parameters
+        StudentParams:
+            A dataclass with 2 properties
 
+            df: float
+                Degrees of freedom
+            corr: ndarray
+                Correlation parameters
         """
         return StudentParams(self._df, self._rhos)
 

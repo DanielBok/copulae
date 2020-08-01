@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Collection, Union
 
 import numpy as np
 
@@ -9,7 +9,7 @@ from copulae.types import Array
 from copulae.utility import array_io
 
 
-class GaussianCopula(AbstractEllipticalCopula):
+class GaussianCopula(AbstractEllipticalCopula[np.ndarray]):
     r"""
     The Gaussian (Normal) copula. It is elliptical and symmetric which gives it nice analytical properties. The
     Gaussian copula is determined entirely by its correlation matrix.
@@ -60,18 +60,11 @@ class GaussianCopula(AbstractEllipticalCopula):
 
     @property
     def params(self):
-        """
-        The covariance parameters for the Gaussian copula
-
-        Returns
-        -------
-        ndarray
-            Correlation matrix of the Gaussian copula
-        """
+        """The covariance parameters for the Gaussian copula"""
         return self._rhos
 
     @params.setter
-    def params(self, params: Union[float, np.ndarray, list]):
+    def params(self, params: Union[float, np.ndarray, Collection[float]]):
         if isinstance(params, (float, int)):
             params = np.repeat(params, len(self._rhos))
         self._rhos = np.asarray(params)
@@ -88,6 +81,4 @@ class GaussianCopula(AbstractEllipticalCopula):
         return norm.cdf(r)
 
     def summary(self):
-        return Summary(self, {
-            'Correlation Matrix': self.sigma
-        })
+        return Summary(self, {'Correlation Matrix': self.sigma})

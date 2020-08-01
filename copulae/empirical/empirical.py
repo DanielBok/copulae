@@ -3,16 +3,15 @@ from typing import Optional
 import numpy as np
 from scipy.stats import beta
 
-from copulae.copula import BaseCopula, TailDep
+from copulae.copula import BaseCopula
+from copulae.copula import Summary
 from copulae.core import rank_data
-from copulae.errors import NotApplicableError
 from copulae.special import log_sum
 from copulae.types import Array
 from .distribution import emp_dist_func
-from copulae.copula import Summary
 
 
-class EmpiricalCopula(BaseCopula):
+class EmpiricalCopula(BaseCopula[None]):
     """
     Given pseudo-observations from a distribution with continuous margins and copula, the empirical copula is
     the (default) empirical distribution function of these pseudo-observations. It is thus a natural nonparametric
@@ -53,13 +52,13 @@ class EmpiricalCopula(BaseCopula):
         offset
             Used in scaling the result for the density and distribution functions. Defaults to 0.
         """
-        dim, data = self._validate_dim_and_data(dim, data)
-
-        super().__init__(dim, "EmpiricalCopula")
+        self._dim, data = self._validate_dim_and_data(dim, data)
+        self._name = "Empirical"
         self._smoothing = self._validate_smoothing(smoothing)
         self._ties = ties
         self._offset = offset
         self._data = self._validate_data(data)
+        self.init_validate()
 
     def cdf(self, x: Array, log=False) -> np.ndarray:
         cdf = emp_dist_func(self.pobs(x), self.data, self._smoothing, self._ties, self._offset)
@@ -73,25 +72,9 @@ class EmpiricalCopula(BaseCopula):
     def data(self, data: np.ndarray):
         self._data = self._validate_data(data)
 
-    def drho(self, x=None):
-        raise NotApplicableError
-
-    def dtau(self, x=None):
-        raise NotApplicableError
-
-    def irho(self, rho: Array):
-        raise NotApplicableError
-
-    def itau(self, tau):
-        raise NotApplicableError
-
-    @property
-    def lambda_(self) -> 'TailDep':
-        raise NotApplicableError
-
     @property
     def params(self):
-        raise NotApplicableError
+        return None
 
     def pdf(self, u: Array, log=False):
         assert self.smoothing == "beta", "Empirical Copula only has density (PDF) for smoothing = 'beta'"
@@ -126,10 +109,6 @@ class EmpiricalCopula(BaseCopula):
         return self.data[np.random.choice(np.arange(len(self.data)), size=n, replace=False)]
 
     @property
-    def rho(self):
-        raise NotApplicableError
-
-    @property
     def smoothing(self):
         return self._smoothing
 
@@ -144,10 +123,6 @@ class EmpiricalCopula(BaseCopula):
             "Offset": self._offset,
             "Smoothing": self._smoothing,
         })
-
-    @property
-    def tau(self):
-        raise NotApplicableError
 
     def _validate_data(self, data: np.ndarray):
         data = np.asarray(data)

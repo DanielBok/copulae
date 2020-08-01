@@ -3,6 +3,7 @@ from typing import Collection, Optional, Union
 import numpy as np
 from scipy.stats import multivariate_normal as mvn
 
+from copulae.copula import BaseCopula
 from copulae.core import pseudo_obs
 from copulae.types import Array
 from .estimators import expectation_maximization, gradient_descent, k_means
@@ -14,7 +15,7 @@ from .summary import Summary
 __all__ = ['GaussianMixtureCopula']
 
 
-class GaussianMixtureCopula:
+class GaussianMixtureCopula(BaseCopula[GMCParam]):
     r"""
     The Gaussian Mixture Copula (GMC).
 
@@ -180,31 +181,8 @@ class GaussianMixtureCopula:
         self._fit_details["method"] = method
         return self
 
-    def log_lik(self, data: np.ndarray, *, to_pobs=True) -> float:
-        r"""
-         Returns the log likelihood (LL) of the copula given the data.
-
-        The greater the LL (closer to :math:`\infty`) the better.
-
-        Parameters
-        ----------
-        data: ndarray
-            Data set used to calculate the log likelihood
-        to_pobs: bool
-            If True, converts the data input to pseudo observations.
-
-        Returns
-        -------
-        float
-            Log Likelihood
-
-        """
-        data = self.pobs(data) if to_pobs else data
-
-        return self.pdf(data, log=True).sum()
-
     @property
-    def params(self) -> GMCParam:
+    def params(self):
         """
         The parameter set which describes the copula
 
@@ -257,26 +235,6 @@ class GaussianMixtureCopula:
             out += prob * (mvn.logpdf(data, mean, cov) if log else mvn.pdf(data, mean, cov))
 
         return out
-
-    @staticmethod
-    def pobs(data, ties='average'):
-        """
-        Compute the pseudo-observations for the given data matrix
-
-        Parameters
-        ----------
-        data: {array_like, DataFrame}
-            Random variates to be converted to pseudo-observations
-
-        ties: { 'average', 'min', 'max', 'dense', 'ordinal' }, optional
-            Specifies how ranks should be computed if there are ties in any of the coordinate samples
-
-        Returns
-        -------
-        np.ndarray
-            matrix or vector of the same dimension as `data` containing the pseudo observations
-        """
-        return pseudo_obs(data, ties)
 
     def random(self, n: int, seed: int = None):
         """

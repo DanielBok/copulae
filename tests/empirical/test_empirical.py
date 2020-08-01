@@ -5,7 +5,6 @@ from numpy.testing import assert_almost_equal
 from copulae import EmpiricalCopula
 from copulae.copula import Summary
 from copulae.datasets import load_smi
-from copulae.errors import NotApplicableError
 
 
 @pytest.fixture
@@ -56,20 +55,9 @@ def test_empirical_pdf(smi, u, log):
     assert_almost_equal(pdf, expected, decimal=6)
 
 
-@pytest.mark.parametrize("func", [
-    "cop.drho()",
-    "cop.dtau()",
-    "cop.irho(np.arange(4))",
-    "cop.itau(np.arange(4))",
-    "cop.lambda_",
-    "cop.params",
-    "cop.rho",
-    "cop.tau",
-])
-def test_empirical_non_applicable_methods_raises_error(smi, func):
+def test_empirical_param_returns_none(smi):
     cop = EmpiricalCopula(data=smi)
-    with pytest.raises(NotApplicableError):
-        eval(func)
+    assert cop.params is None
 
 
 @pytest.mark.parametrize("seed", [None, 888])
