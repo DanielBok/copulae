@@ -1,16 +1,14 @@
 import pandas as pd
 
+from copulae.copula.summary import SummaryType
 from .parameter import GMCParam
 
 
-class Summary:
+class Summary(SummaryType):
     def __init__(self, params: GMCParam, fit_details: dict):
         self.name = "Gaussian Mixture Copula"
         self.params = params
         self.fit = fit_details
-
-    def as_html(self):
-        return self._repr_html_()
 
     def _repr_html_(self):
         params = [f"<strong>{title}</strong>" + pd.DataFrame(values).to_html(header=False, index=False)
@@ -41,9 +39,6 @@ class Summary:
 """.strip()
 
         return html
-
-    def __repr__(self):
-        return str(self)
 
     def __str__(self):
         return '\n'.join([
