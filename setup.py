@@ -4,7 +4,6 @@ import platform
 import re
 import sys
 from pathlib import Path
-from subprocess import getoutput
 
 import numpy as np
 from setuptools import Extension, find_packages, setup
@@ -106,17 +105,14 @@ def build_ext_modules():
 
 
 def get_git_version():
-    version = getoutput("git describe --tags --abbrev=0")
-
-    # side effect to update version string line
     file = Path(__file__).parent / "copulae" / "__init__.py"
     with open(file, 'r') as f:
-        content = re.sub(r'__version__ = "\S+"', f'__version__ = "{version}"', f.read())
+        matches = re.findall(r'__version__ = "(\S+)"', f.read())
 
-    with open(file, 'w') as f:
-        f.write(content)
+    if len(matches) != 1:
+        raise RuntimeError("could not find package version")
 
-    return version
+    return matches[0]
 
 
 setup(
