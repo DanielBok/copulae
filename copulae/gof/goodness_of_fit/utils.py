@@ -4,12 +4,13 @@ import numpy as np
 import pandas as pd
 
 from copulae.core import pseudo_obs, rank_data
+from copulae.types import Ties
 
 __all__ = ["GofData", "GofStat"]
 
 
 class GofData:
-    def __init__(self, data: Union[pd.DataFrame, np.ndarray], ties: str, fit_ties):
+    def __init__(self, data: Union[pd.DataFrame, np.ndarray], ties: Ties, fit_ties):
         self.data = data.to_numpy() if isinstance(data, pd.DataFrame) else np.asarray(data)
         self.ties = ties
         self.fit_ties = fit_ties

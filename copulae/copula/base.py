@@ -3,19 +3,20 @@ from numbers import Number
 from typing import Collection, NamedTuple, Tuple, TypeVar, Union
 
 import numpy as np
+import pandas as pd
 
-from copulae.copula.estimator import CopulaEstimator
+from copulae.copula.estimator import CopulaEstimator, EstimationMethod
 from copulae.copula.exceptions import InputDataError, NotFittedError
 from copulae.copula.summary import FitSummary, SummaryType
 from copulae.core import pseudo_obs
-from copulae.types import Array, Numeric
+from copulae.types import Array, Numeric, Ties
 
 try:
     from typing import Protocol
 except ImportError:
     from typing_extensions import Protocol
 
-__all__ = ["BaseCopula", "CopulaCorrProtocol", "Param", "TailDep"]
+__all__ = ["BaseCopula", "CopulaCorrProtocol", "Param", "EstimationMethod", "TailDep"]
 
 Param = TypeVar("Param")
 
@@ -70,8 +71,8 @@ class BaseCopula(Protocol[Param]):
     def dim(self):
         return self._dim
 
-    def fit(self, data: np.ndarray, x0: Union[Collection[float], np.ndarray] = None, method='mpl',
-            optim_options: dict = None, ties='average', verbose=1):
+    def fit(self, data: Union[pd.DataFrame, np.ndarray], x0: Union[Collection[float], np.ndarray] = None,
+            method: EstimationMethod = 'mpl', optim_options: dict = None, ties: Ties = 'average', verbose=1):
         """
         Fit the copula with specified data
 
@@ -192,7 +193,7 @@ class BaseCopula(Protocol[Param]):
         raise NotImplementedError
 
     @staticmethod
-    def pobs(data, ties='average'):
+    def pobs(data, ties: Ties = 'average'):
         """
         Compute the pseudo-observations for the given data matrix
 

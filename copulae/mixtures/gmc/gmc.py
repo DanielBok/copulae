@@ -1,18 +1,27 @@
 from typing import Collection, Optional, Union
 
 import numpy as np
+import pandas as pd
 from scipy.stats import multivariate_normal as mvn
 
 from copulae.copula import BaseCopula
 from copulae.core import pseudo_obs
-from copulae.types import Array
+from copulae.types import Array, Ties
 from .estimators import expectation_maximization, gradient_descent, k_means
+from .estimators.em import Criteria
 from .exception import GMCFitMethodError, GMCNotFittedError, GMCParamMismatchError
 from .parameter import GMCParam
 from .random import random_gmcm
 from .summary import Summary
 
-__all__ = ['GaussianMixtureCopula']
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
+__all__ = ['GaussianMixtureCopula', 'EstimateMethod']
+
+EstimateMethod = Literal["pem", "sgd", "kmeans"]
 
 
 class GaussianMixtureCopula(BaseCopula[GMCParam]):
@@ -110,22 +119,24 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
 
         return out
 
-    def fit(self, data: np.ndarray, x0: Union[Collection[float], np.ndarray, GMCParam] = None, method='pem',
-            optim_options: dict = None, ties='average', max_iter=3000, criteria='GMCM', eps=1e-4):
+    def fit(self, data: Union[pd.DataFrame, np.ndarray], x0: Union[Collection[float], np.ndarray, GMCParam] = None,
+            method: EstimateMethod = 'pem', optim_options: dict = None, ties: Ties = 'average', verbose=1,
+            max_iter=3000,
+            criteria: Criteria = 'GMCM', eps=1e-4):
         """
         Fit the copula with specified data
 
         Parameters
         ----------
-        data : ndarray
+        data
             Array of data used to fit copula. Usually, data should not be pseudo observations as this will
             skew the model parameters
 
-        x0 : ndarray
+        x0
             Initial starting point. If value is None, best starting point will be estimated
 
-        method : { 'pem' }, optional
-            Method of fitting. Supported methods are: 'em' - Expectation Maximization with pseudo log-likelihood,
+        method
+            Method of fitting. Supported methods are: 'pem' - Expectation Maximization with pseudo log-likelihood,
             'kmeans' - K-means, 'sgd' - stochastic gradient descent
 
         optim_options : dict, optional
@@ -135,6 +146,9 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
         ties : { 'average', 'min', 'max', 'dense', 'ordinal' }, optional
             Specifies how ranks should be computed if there are ties in any of the coordinate samples. This is
             effective only if the data has not been converted to its pseudo observations form
+
+        verbose:
+            Log level for the estimator. The higher the number, the more verbose it is. 0 prints nothing.
 
         max_iter : int
             Maximum number of iterations
@@ -168,7 +182,7 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
 
         if method == 'pem':
             u = pseudo_obs(data, ties)
-            self.params = expectation_maximization(u, self.params, max_iter, criteria, eps)
+            self.params = expectation_maximization(u, self.params, max_iter, criteria, verbose, eps)
         elif method == 'sgd':
             u = pseudo_obs(data, ties)
             self.params = gradient_descent(u, self.params, max_iter=max_iter, **(optim_options or {}))

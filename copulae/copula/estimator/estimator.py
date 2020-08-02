@@ -9,9 +9,16 @@ from copulae.utility import merge_dict
 from .corr_inversion import CorrInversionEstimator
 from .max_likelihood import MaxLikelihoodEstimator
 
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
+EstimationMethod = Literal['ml', 'mpl', 'irho', 'itau']
+
 
 class CopulaEstimator:
-    def __init__(self, copula, data: np.ndarray, x0: np.ndarray = None, method='ml', verbose=1,
+    def __init__(self, copula, data: np.ndarray, x0: np.ndarray = None, method: EstimationMethod = 'ml', verbose=1,
                  optim_options: Optional[dict] = None):
         """
         Estimator for any copula

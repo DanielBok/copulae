@@ -1,13 +1,14 @@
 import numpy as np
 
 from copulae.core import pseudo_obs, rank_data
-from ._radial_symmetry import rad_sym_test_stat, rad_sym_replicate
+from copulae.types import Ties
+from ._radial_symmetry import rad_sym_replicate, rad_sym_test_stat
 from .common import TestStatistic
 
 __all__ = ['rad_sym_test']
 
 
-def rad_sym_test(x, N=1000, ties='average'):
+def rad_sym_test(x, N=1000, ties: Ties = 'average'):
     r"""
     Test of Radial Symmetry for a Multivariate Copula.
 
@@ -30,7 +31,7 @@ def rad_sym_test(x, N=1000, ties='average'):
         Number of bootstrap iterations to be used to simulate realizations of the test statistic under the null
         hypothesis
 
-    ties: str, optional
+    ties
         String specifying how ranks should be computed if there are ties in any of the coordinate samples. Options
         include 'average', 'min', 'max', 'dense', 'ordinal'.
 

@@ -1,1 +1,1 @@
-from .estimator import CopulaEstimator
+from .estimator import CopulaEstimator, EstimationMethod
