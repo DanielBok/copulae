@@ -11,11 +11,13 @@ from .utils import GofData, GofStat
 
 __all__ = ["gof_copula"]
 
+from ...types import Ties
+
 Copula = TypeVar("Copula", bound=BaseCopula, covariant=True)
 
 
-def gof_copula(copula: Type[Copula], data: Union[pd.DataFrame, np.ndarray], reps: int, ties="average",
-               fit_ties="average", multiprocess=False, **fit_options):
+def gof_copula(copula: Type[Copula], data: Union[pd.DataFrame, np.ndarray], reps: int, ties: Ties = "average",
+               fit_ties: Ties = "average", multiprocess=False, **fit_options):
     r"""
     Computes the goodness of fit statistic for the class of copula.
 
@@ -122,7 +124,7 @@ class GofParametricBootstrap:
     def t_stat(self, copula: Copula, data: GofData):
         """Calculates the T statistic"""
         copula.fit(data.fitted_pobs, **self.fit_options)
-        return gof_t_stat(copula, data.pobs, self.data.ties)
+        return gof_t_stat(copula, data.pobs)
 
     def new_copula(self) -> Copula:
         return self._cop_factory(dim=self.data.n_dim)
@@ -140,8 +142,8 @@ class GofParametricBootstrap:
         return data
 
 
-def gof_t_stat(copula: Copula, data: np.ndarray, ties="average") -> float:
+def gof_t_stat(copula: Copula, data: np.ndarray) -> float:
     """Computes the T Statistic of the copula"""
     cop_cdf = copula.cdf(data)
-    emp_cdf = emp_dist_func(data, data, smoothing='none', ties=ties)
+    emp_cdf = emp_dist_func(data, data, smoothing='none')
     return sum((emp_cdf - cop_cdf) ** 2)
