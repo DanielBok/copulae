@@ -8,3 +8,4 @@ scipy>=1.1
 setuptools>=45
 statsmodels>=0.9
 twine>=2.0.0
+typing-extensions>=3.7.4.2; python_version < '3.8'
