@@ -1,8 +1,11 @@
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 import pytest
 
-from copulae.mixtures.gmc import GaussianMixtureCopula
+from copulae.mixtures.gmc import EstimateMethod, GaussianMixtureCopula
+from copulae.mixtures.gmc.estimators.em import Criteria
 from copulae.mixtures.gmc.estimators.exceptions import InvalidStoppingCriteria
 from copulae.mixtures.gmc.exception import GMCFitMethodError
 from copulae.mixtures.gmc.summary import Summary
@@ -53,7 +56,7 @@ class TestGaussianMixtureCopula:
         ('sgd', None),
         ('kmeans', None),
     ])
-    def test_fit(self, cop, rvs, method, criteria):
+    def test_fit(self, cop, rvs, method: EstimateMethod, criteria: Optional[Criteria]):
         # just testing the interface
         cop.fit(rvs, method=method, criteria=criteria)
 
@@ -61,6 +64,6 @@ class TestGaussianMixtureCopula:
         ('pem', 'bad-criteria', InvalidStoppingCriteria),
         ('bad-method', 'GMCM', GMCFitMethodError),
     ])
-    def test_fit_with_bad_args(self, cop, rvs, method, criteria, error):
+    def test_fit_with_bad_args(self, cop, rvs, method: EstimateMethod, criteria: Optional[Criteria], error: Exception):
         with pytest.raises(error):
             cop.fit(rvs, method=method, criteria=criteria)

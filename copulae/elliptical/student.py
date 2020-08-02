@@ -1,11 +1,12 @@
-from typing import NamedTuple, Union
+from typing import Collection, NamedTuple, Union
 
 import numpy as np
 
 from copulae.copula import Summary, TailDep
+from copulae.copula.base import EstimationMethod
 from copulae.elliptical.abstract import AbstractEllipticalCopula
 from copulae.stats import multivariate_t as mvt, t
-from copulae.types import Array
+from copulae.types import Array, Ties
 from copulae.utility import array_io
 
 
@@ -60,8 +61,8 @@ class StudentCopula(AbstractEllipticalCopula[StudentParams]):
         q = t.ppf(x, df)
         return mvt.logcdf(q, cov=sigma, df=df) if log else mvt.cdf(q, cov=sigma, df=df)
 
-    def fit(self, data: np.ndarray, x0: np.ndarray = None, method='mpl', optim_options: dict = None, ties='average',
-            verbose=1, fix_df=False):
+    def fit(self, data: np.ndarray, x0: Union[Collection[float], np.ndarray] = None, method: EstimationMethod = 'mpl',
+            optim_options: dict = None, ties: Ties = 'average', verbose=1, fix_df=False):
         """
         Fit the copula with specified data
 

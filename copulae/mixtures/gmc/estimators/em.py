@@ -9,8 +9,16 @@ from copulae.mixtures.gmc.marginals import gmm_marginal_ppf
 from copulae.mixtures.gmc.parameter import GMCParam
 from .exceptions import FitException, InvalidStoppingCriteria
 
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
-def expectation_maximization(u: np.ndarray, param: GMCParam, max_iter=3000, criteria='GMCM', eps=1e-4):
+Criteria = Literal["GMCM", "GMM", "Li"]
+
+
+def expectation_maximization(u: np.ndarray, param: GMCParam, max_iter=3000, criteria: Criteria = 'GMCM', verbose=1,
+                             eps=1e-4):
     """
     Executes a pseudo expectation maximization algorithm to obtain the best model parameters.
 
@@ -65,7 +73,8 @@ def expectation_maximization(u: np.ndarray, param: GMCParam, max_iter=3000, crit
         if log_lik.has_converged:
             break
     else:
-        warn('Max iterations reached')
+        if verbose:
+            warn('Max iterations reached')
 
     return log_lik.best_param
 
@@ -98,7 +107,7 @@ def m_step(q: np.ndarray, kappa: np.ndarray):
 
 
 class LogLik:
-    def __init__(self, criteria='GMCM', eps=1e-4):
+    def __init__(self, criteria: Criteria = 'GMCM', eps=1e-4):
         """
         LogLik class houses the logic to determine the best model parameters and convergence criteria
 

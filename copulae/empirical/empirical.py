@@ -8,7 +8,7 @@ from copulae.copula import BaseCopula
 from copulae.copula import Summary
 from copulae.core import rank_data
 from copulae.special import log_sum
-from copulae.types import Array
+from copulae.types import Array, Ties
 from .distribution import emp_dist_func
 
 try:
@@ -27,7 +27,7 @@ class EmpiricalCopula(BaseCopula[None]):
     """
 
     def __init__(self, dim: Optional[int] = None, data: Optional[Union[np.ndarray, pd.DataFrame]] = None,
-                 smoothing: Optional[Smoothing] = None, ties="average", offset: float = 0):
+                 smoothing: Optional[Smoothing] = None, ties: Ties = "average", offset: float = 0):
         """
         Creates an empirical copula
 
@@ -60,16 +60,16 @@ class EmpiricalCopula(BaseCopula[None]):
         offset
             Used in scaling the result for the density and distribution functions. Defaults to 0.
         """
-        assert dim is not None or data is not None, "Either dimension or data must be specified"
+        self._ties = ties
+        self._offset = offset
+        self._name = "Empirical"
+        self.smoothing = smoothing
 
+        assert dim is not None or data is not None, "Either dimension or data must be specified"
         self._dim = data.shape[1] if dim is None else int(dim)
         assert self.dim > 1, "Dimension must be >= 2"
 
         self.data = data
-        self._name = "Empirical"
-        self.smoothing = smoothing
-        self._ties = ties
-        self._offset = offset
         self.init_validate()
 
     def cdf(self, x: Array, log=False) -> np.ndarray:

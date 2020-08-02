@@ -2,9 +2,10 @@ from copulae.archimedean import *
 from copulae.elliptical import *
 from copulae.empirical import *
 from copulae.indep import *
+from copulae.marginal import *
 from copulae.mixtures import *
 
-__version__ = "0.5.2"
+__version__ = "0.6.0"
 
 
 def doc():
