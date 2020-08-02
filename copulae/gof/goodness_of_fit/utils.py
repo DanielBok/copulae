@@ -10,7 +10,7 @@ __all__ = ["GofData", "GofStat"]
 
 
 class GofData:
-    def __init__(self, data: Union[pd.DataFrame, np.ndarray], ties: Ties, fit_ties):
+    def __init__(self, data: Union[pd.DataFrame, np.ndarray], ties: Ties, fit_ties: Ties):
         self.data = data.to_numpy() if isinstance(data, pd.DataFrame) else np.asarray(data)
         self.ties = ties
         self.fit_ties = fit_ties
@@ -22,10 +22,10 @@ class GofData:
                 self.has_ties = True
                 break
 
-        # data used for fitting the main copula
+        # data used for deriving the delta between the copula's cdf and the empirical cdf
         self.pobs = pseudo_obs(self.data, ties=ties)
 
-        # data used fo
+        # data used for fitting the main copula
         self.fitted_pobs = pseudo_obs(self.data, ties=fit_ties) if self.has_ties and ties != fit_ties else self.pobs
         self._duplicated_rank_array = np.sort(rank_data(self.data, 1), 0).astype(int) - 1
 
