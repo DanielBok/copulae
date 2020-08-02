@@ -1,6 +1,7 @@
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
+import pandas as pd
 from scipy.stats import beta
 
 from copulae.copula import BaseCopula
@@ -10,6 +11,13 @@ from copulae.special import log_sum
 from copulae.types import Array
 from .distribution import emp_dist_func
 
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
+Smoothing = Literal['none', 'beta', 'checkerboard']
+
 
 class EmpiricalCopula(BaseCopula[None]):
     """
@@ -18,8 +26,8 @@ class EmpiricalCopula(BaseCopula[None]):
     estimator of the copula.
     """
 
-    def __init__(self, dim: Optional[int] = None, data: Optional[np.ndarray] = None, smoothing: Optional[str] = None,
-                 ties="average", offset: float = 0):
+    def __init__(self, dim: Optional[int] = None, data: Optional[Union[np.ndarray, pd.DataFrame]] = None,
+                 smoothing: Optional[Smoothing] = None, ties="average", offset: float = 0):
         """
         Creates an empirical copula
 
@@ -52,12 +60,16 @@ class EmpiricalCopula(BaseCopula[None]):
         offset
             Used in scaling the result for the density and distribution functions. Defaults to 0.
         """
-        self._dim, data = self._validate_dim_and_data(dim, data)
+        assert dim is not None or data is not None, "Either dimension or data must be specified"
+
+        self._dim = data.shape[1] if dim is None else int(dim)
+        assert self.dim > 1, "Dimension must be >= 2"
+
+        self.data = data
         self._name = "Empirical"
-        self._smoothing = self._validate_smoothing(smoothing)
+        self.smoothing = smoothing
         self._ties = ties
         self._offset = offset
-        self._data = self._validate_data(data)
         self.init_validate()
 
     def cdf(self, x: Array, log=False) -> np.ndarray:
@@ -70,14 +82,17 @@ class EmpiricalCopula(BaseCopula[None]):
 
     @data.setter
     def data(self, data: np.ndarray):
-        self._data = self._validate_data(data)
+        data = np.asarray(data)
+        assert data.ndim == 2, "data must be 2 dimensional"
+        assert self.dim == data.shape[1], "data and copula dimensions do not match"
+        self._data = self.pobs(data, self._ties)
 
     @property
     def params(self):
         return None
 
     def pdf(self, u: Array, log=False):
-        assert self.smoothing == "beta", "Empirical Copula only has density (PDF) for smoothing = 'beta'"
+        assert self.smoothing == "beta", "Empirical Copula only has density (PDF) for 'beta' smoothing"
         assert isinstance(self.data, np.ndarray), "data is still undefined for EmpiricalCopula"
         u = self.pobs(u, self._ties)
 
@@ -106,15 +121,19 @@ class EmpiricalCopula(BaseCopula[None]):
         if seed is not None:
             np.random.seed(seed)
 
-        return self.data[np.random.choice(np.arange(len(self.data)), size=n, replace=False)]
+        return self.data[np.random.randint(0, len(self.data), n)]
 
     @property
     def smoothing(self):
         return self._smoothing
 
     @smoothing.setter
-    def smoothing(self, value: Optional[str]):
-        self._smoothing = self._validate_smoothing(value)
+    def smoothing(self, smoothing: Optional[Smoothing]):
+        if smoothing is None:
+            smoothing: Smoothing = "none"
+
+        assert smoothing in ("none", "beta", "checkerboard"), "Smoothing must be 'none', 'beta' or 'checkerboard'"
+        self._smoothing = smoothing
 
     def summary(self):
         return Summary(self, {
@@ -123,28 +142,3 @@ class EmpiricalCopula(BaseCopula[None]):
             "Offset": self._offset,
             "Smoothing": self._smoothing,
         })
-
-    def _validate_data(self, data: np.ndarray):
-        data = np.asarray(data)
-        assert data.ndim == 2, "data must be 2 dimensional"
-        assert self.dim == data.shape[1], "data and copula dimension do not match"
-        return self.pobs(data, self._ties)
-
-    @staticmethod
-    def _validate_dim_and_data(dim: Optional[int] = None, data: Optional[np.ndarray] = None):
-        assert dim is not None or data is not None, "Either dimension or data must be specified"
-
-        dim = np.shape(data)[1] if dim is None else int(dim)
-        assert dim > 1, "Dimension must be an integer greater than 1"
-
-        return dim, data
-
-    @staticmethod
-    def _validate_smoothing(smoothing: Optional[str] = None):
-        if smoothing is None:
-            smoothing = "none"
-
-        smoothing = smoothing.lower()
-        assert smoothing in ("none", "beta", "checkerboard"), "Smoothing must be 'none', 'beta' or 'checkerboard'"
-
-        return smoothing
