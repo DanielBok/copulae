@@ -1,12 +1,13 @@
-import os
+from pathlib import Path
 
 import pandas as pd
 
-__all__ = ["load_danube", "load_residuals", "load_smi"]
+__all__ = ["load_danube", "load_marginal_data", "load_residuals", "load_smi"]
 
 
-def _load_file(fn: str):
-    return os.path.join(os.path.dirname(__file__), 'data', fn)
+def _load_file(fn: str) -> pd.DataFrame:
+    path = Path(__file__).parent / "data" / fn
+    return pd.read_csv(path, sep=r"\s*,", engine="python")
 
 
 def load_danube() -> pd.DataFrame:
@@ -32,29 +33,29 @@ def load_danube() -> pd.DataFrame:
     donau:
         A numeric vector containing the rank of prewhitened level observations of the Donau river
         at Scharding.
-
-    Returns
-    -------
-    DataFrame
-        A dataframe containing the Danube data
     """
-    df = pd.read_csv(_load_file('danube.csv'))
-    df.columns = df.columns.str.strip()
-    return df
+    return _load_file('danube.csv')
 
 
-def load_residuals() -> pd.DataFrame:
+def load_marginal_data():
     """
-    Loads a 394 x 7 array of regression residuals from unknown processes
+    A simulated dataset where the marginal distributions are
 
-    Returns
-    -------
-    DataFrame
-        A data frame of simulated regression residuals
+    1. Student-T distribution (loc = 0, scale = 1, df = 16)
+    2. Normal distribution (loc = 3, scale = 0.4)
+    3. Exponential Distribution (scale = 0.5)
+
+    Dependency structure (copula)
+        Normal Copula with params [0.25, 0.4, 0.15]
     """
-    df = pd.read_csv(_load_file('residuals.csv'))
-    df.columns = df.columns.str.strip()
-    return df
+    return _load_file("marginal-data.csv")
+
+
+def load_residuals():
+    """
+    Loads a 394 x 7 array of simulated regression residuals from unknown processes
+    """
+    return _load_file('residuals.csv')
 
 
 def load_smi(as_returns=False) -> pd.DataFrame:
@@ -66,14 +67,10 @@ def load_smi(as_returns=False) -> pd.DataFrame:
     ----------
     as_returns: bool
         If true, transforms the price data to returns data
-
-    Returns
-    -------
-    DataFrame
-        A data frame of the closing prices of all 20 constituents of the Swiss Market Index
     """
-    df = pd.read_csv(_load_file('smi.csv'), index_col=0, parse_dates=[0])
-    df.index.name = df.index.name.strip()
+    df = _load_file("smi.csv")
+    df['DATE'] = pd.to_datetime(df.DATE)
+    df.set_index("DATE", inplace=True)
 
     if as_returns:
         df = df.pct_change().dropna()
