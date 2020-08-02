@@ -6,7 +6,7 @@ import numpy as np
 
 from copulae.copula.estimator import CopulaEstimator
 from copulae.copula.exceptions import InputDataError, NotFittedError
-from copulae.copula.summary import FitSummary
+from copulae.copula.summary import FitSummary, SummaryType
 from copulae.core import pseudo_obs
 from copulae.types import Array, Numeric
 
@@ -235,7 +235,7 @@ class BaseCopula(Protocol[Param]):
         """
         raise NotImplementedError
 
-    def summary(self):
+    def summary(self) -> SummaryType:
         """Constructs the summary information about the copula"""
         raise NotImplementedError
 

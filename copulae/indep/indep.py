@@ -1,6 +1,6 @@
 import numpy as np
 
-from copulae.copula import BaseCopula
+from copulae.copula import BaseCopula, Summary
 from copulae.stats import random_uniform
 from copulae.types import Array
 from copulae.utility import array_io
@@ -22,7 +22,7 @@ class IndepCopula(BaseCopula[int]):
             The dimension of the copula
         """
         self._dim = dim
-        self._name = 'Independence'
+        self._name = 'Independent'
         self.init_validate()
 
     @array_io
@@ -46,7 +46,4 @@ class IndepCopula(BaseCopula[int]):
         return random_uniform(n, self.dim, seed)
 
     def summary(self):
-        return str(self)
-
-    def __str__(self):
-        return f"Independent Copula with {self.dim} dimensions"
+        return Summary(self, {})

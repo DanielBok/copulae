@@ -4,6 +4,25 @@ from typing import Any, Dict, Optional
 import numpy as np
 import pandas as pd
 
+try:
+    from typing import Protocol
+except ImportError:
+    from typing_extensions import Protocol
+
+
+class SummaryType(Protocol):
+    def as_html(self):
+        return self._repr_html_()
+
+    def _repr_html_(self) -> str:
+        ...
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self) -> str:
+        ...
+
 
 class FitSummary:
     """
@@ -92,13 +111,12 @@ Data Points          : {self.nsample}
         return '\n'.join(msg)
 
 
-class Summary:
+class Summary(SummaryType):
+    """A general summary to describe the copula instance"""
+
     def __init__(self, copula, params: Dict[str, Any]):
         self.copula = copula
         self.params = params
-
-    def as_html(self):
-        return self._repr_html_()
 
     def _repr_html_(self):
         params = []
@@ -111,22 +129,22 @@ class Summary:
         fit_smry = self.copula.fit_smry
         fit_smry = fit_smry.as_html() if fit_smry else ""
 
-        html = f"""
+        param_content = '' if len(params) == 0 else f"""
+<div>
+    <h3>Parameters</h3>
+    {'<br/>'.join(params)}
+</div>
+"""
+
+        return f"""
 <div>
     <h2>{self.copula.name} Copula Summary</h2>
     <div>{self.copula.name} Copula with {self.copula.dim} dimensions</div>
     <hr/>
-    <div>
-        <h3>Parameters</h3>
-        {'<br/>'.join(params)}
-    </div>
+    {param_content}
     {fit_smry}
 </div>
 """
-        return html
-
-    def __repr__(self):
-        return self.__str__()
 
     def __str__(self):
         msg = [
@@ -134,18 +152,18 @@ class Summary:
             "=" * 80,
             f"{self.copula.name} Copula with {self.copula.dim} dimensions",
             "\n",
-            "Parameters",
-            "-" * 80,
         ]
 
-        for k, v in self.params.items():
-            if isinstance(v, (int, float, complex, str)):
-                msg.extend([f"{k:^20}: {v}", ''])
-            if isinstance(v, np.ndarray) and v.ndim == 2:  # correlation matrix
-                msg.extend([f"{k:^20}", pd.DataFrame(v).to_string(header=False, index=False), ''])
+        if len(self.params) > 0:
+            msg.extend(["Parameters", "-" * 80])
 
-        fit_smry = self.copula.fit_smry
-        fit_smry = str(fit_smry) if fit_smry else ""
-        msg.extend(['\n', fit_smry])
+            for k, v in self.params.items():
+                if isinstance(v, (int, float, complex, str)):
+                    msg.extend([f"{k:^20}: {v}", ''])
+                if isinstance(v, np.ndarray) and v.ndim == 2:  # correlation matrix
+                    msg.extend([f"{k:^20}", pd.DataFrame(v).to_string(header=False, index=False), ''])
+
+        if self.copula.fit_smry is not None:
+            msg.extend(['\n', str(self.copula.fit_smry)])
 
         return '\n'.join(msg)
