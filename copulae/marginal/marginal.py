@@ -25,7 +25,88 @@ MarginsInput = Union[str, Collection[str], DistDetail, Collection[DistDetail]]
 
 
 class MarginalCopula(BaseCopula[MarginalCopulaParam]):
+    """
+    MarginalCopula enables users to specify different marginal distributions for a given dependency
+    structure. For example, we could have a 2D Gaussian Copula but have the Student and exponential
+    marginals.
+
+    Examples
+    --------
+    >>> from copulae.datasets import load_marginal_data
+    >>> from copulae import GaussianCopula, MarginalCopula
+    >>> data = load_marginal_data()
+    >>> cop = MarginalCopula(GaussianCopula(3), [
+            {"type": "t"},
+            {"type": "norm"},
+            {"type": "exp"}
+        ])
+    >>> cop.fit(data)
+    >>> cop.summary()
+    Marginal Copula Summary
+    ================================================================================
+    Marginal Copula with 3 dimensions
+    Marginal Parameters
+    -------------------
+    Dist Type: t
+        df: 15.457419183265923
+        loc: -0.02197911363613804
+        scale: 0.9875829850778358
+    Dist Type: norm
+        loc: 3.0026994935016047
+        scale: 0.40913830848310995
+    Dist Type: expon
+        loc: 5.9475127982985763e-05
+        scale: 0.4841057217117129
+    ================================================================================
+    Inner Joint Copula Parameter
+    ----------------------------
+    Gaussian Copula Summary
+    ================================================================================
+    Gaussian Copula with 3 dimensions
+    Parameters
+    --------------------------------------------------------------------------------
+     Correlation Matrix
+     1.000000  0.259487  0.404228
+     0.259487  1.000000  0.178879
+     0.404228  0.178879  1.000000
+                                      Fit Summary
+    ================================================================================
+    Log. Likelihood      : -379.64857752263424
+    Variance Estimate    : Not Implemented Yet
+    Method               : Maximum pseudo-likelihood
+    Data Points          : 3000
+    Optimization Setup
+    --------------------------------------------------------------------------------
+        bounds         : [(-1.000001, 1.000001), (-1.000001, 1.000001), (-1.000001, 1.000001)]
+        options        : {'maxiter': 20000, 'ftol': 1e-06, 'iprint': 1, 'disp': False, 'eps': 1.5e-08}
+        method         : SLSQP
+    Results
+    --------------------------------------------------------------------------------
+        x              : [0.25948651 0.40422775 0.17887947]
+        fun            : -379.64857752263424
+        jac            : [-0.00197815 -0.00209942  0.00335376]
+        nit            : 6
+        nfev           : 32
+        njev           : 6
+        status         : 0
+        message        : Optimization terminated successfully
+        success        : True
+    """
+
     def __init__(self, copula: BaseCopula[Param], margins: MarginsInput):
+        """
+        Creates a MarginalCopula instance
+
+        Parameters
+        ----------
+        copula
+            The dependency structure. Must be another copula that is not the MarginalCopula
+        margins
+            Note that string names of the distribution must exist in :module:`scipy.stats`. If a single
+            string (i.e. norm) or a single dictionary, all marginal distributions will be defined similarly.
+            If a collection of string or dictionary, each instance will describe the marginal at that position.
+            Dictionary form allows users to be more detailed in describing the distribution
+        """
         self._copula = copula
         self._marginals = self._process_margins_input(margins, copula.dim)
 

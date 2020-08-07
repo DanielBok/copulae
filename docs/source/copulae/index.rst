@@ -11,4 +11,5 @@ This section contains a simple overview of what a copula is along with the API o
         Elliptical Copulas <elliptical/index>
         Empirical Copula <empirical/index>
         Independent Copula <independent/index>
+        Marginal Copula <marginal/index>
         Mixture Copula <mixtures/index>
