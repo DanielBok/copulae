@@ -9,14 +9,18 @@ Contents
 ========
 
 .. toctree::
+    :titlesonly:
     :maxdepth: 2
 
     Getting Started <getting-started>
     Copulae <copulae/index>
     Diagnostics, Tests and Model Selection <dtm/index>
-    Utility Functions <utility_functions/index>
     Examples <examples/index>
 
+.. toctree::
+    :maxdepth: 1
+
+    Utility Functions <utility_functions/index>
 
 Indices and tables
 ==================
