@@ -1,6 +1,7 @@
 copulae
-nbsphinx
-sphinx
-sphinx-autodoc-typehints
-sphinx_rtd_theme
-setuptools
+mkdocs>=1.0
+nbsphinx==0.7.1
+sphinx==3.1.2
+sphinx-autodoc-typehints==1.11.0
+sphinx_rtd_theme==0.4.3
+setuptools>=49.2

@@ -12,24 +12,22 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
-import glob
-import os
 import shutil
 import subprocess
 import sys
 from datetime import datetime
+from pathlib import Path
 
-sys.path.insert(0, os.path.abspath('../..'))
+import copulae
+
+current = Path(__file__).parent
+root = current.parents[1]
+sys.path.insert(0, root.as_posix())
 
 # -- Copy Examples -----------------------------------------------------------
-
-root, _ = os.path.split(os.path.abspath(__file__))
-example_path = os.path.join(root, '..', '..', 'examples')
-examples = glob.glob(os.path.join(example_path, '*.ipynb'))
-for example in examples:
-    _, filename = os.path.split(example)
-    target = os.path.join(root, 'examples', filename)
-    shutil.copy(example, target)
+subprocess.run("python setup.py build_ext --inplace", cwd=root)
+for example in (root / 'examples').glob("*.ipynb"):
+    shutil.copy(example, current / "examples" / example.name)
 
 # -- Project information -----------------------------------------------------
 
@@ -38,9 +36,9 @@ copyright = f'2019 - {datetime.now().year}, Daniel Bok and everyone who helped o
 author = 'Daniel Bok'
 
 # The short X.Y version
-version = ''
+version = copulae.__version__
 # The full version, including alpha/beta/rc tags
-release = subprocess.getoutput('git describe --abbrev=0')
+release = copulae.__version__
 
 # -- General configuration ---------------------------------------------------
 
