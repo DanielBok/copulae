@@ -198,13 +198,18 @@ class EmpiricalCopula(BaseCopula[None]):
         """
         The method used to assign ranks to tied elements. The options are 'average', 'min', 'max', 'dense'
         and 'ordinal'.
-        'average': The average of the ranks that would have been assigned to all the tied values is assigned
+
+        'average':
+            The average of the ranks that would have been assigned to all the tied values is assigned
             to each value.
-        'min': The minimum of the ranks that would have been assigned to all the tied values is assigned to
+        'min':
+            The minimum of the ranks that would have been assigned to all the tied values is assigned to
             each value. (This is also referred to as "competition" ranking.)
-        'max': The maximum of the ranks that would have been assigned to all the tied values is assigned to
+        'max':
+            The maximum of the ranks that would have been assigned to all the tied values is assigned to
             each value.
-        'dense': Like 'min', but the rank of the next highest element is assigned the rank immediately after
+        'dense':
+            Like 'min', but the rank of the next highest element is assigned the rank immediately after
             those assigned to the tied elements. 'ordinal': All values are given a distinct rank, corresponding
             to the order that the values occur in `a`.
         """

@@ -32,7 +32,7 @@ def corr2cov(corr, std) -> np.ndarray:
     return cov
 
 
-def cov2corr(cov, return_std=False) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+def cov2corr(cov: np.ndarray, return_std=False) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
     """
     Convert covariance matrix to correlation matrix
 
@@ -41,10 +41,10 @@ def cov2corr(cov, return_std=False) -> Union[np.ndarray, Tuple[np.ndarray, np.nd
 
     Parameters
     ----------
-    cov: (N, N) array like
+    cov
         Covariance matrix
 
-    return_std: bool, optional
+    return_std
          If True then the standard deviation is also returned. By default only the correlation matrix is returned.
 
     Returns
