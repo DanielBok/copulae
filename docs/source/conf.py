@@ -13,7 +13,6 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
 import shutil
-import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -25,7 +24,6 @@ root = current.parents[1]
 sys.path.insert(0, root.as_posix())
 
 # -- Copy Examples -----------------------------------------------------------
-subprocess.run("python setup.py build_ext --inplace", cwd=root)
 for example in (root / 'examples').glob("*.ipynb"):
     shutil.copy(example, current / "examples" / example.name)
 
@@ -59,7 +57,9 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
-    'sphinx_autodoc_typehints'
+    'sphinx_autodoc_typehints',
+    "IPython.sphinxext.ipython_console_highlighting",
+    "IPython.sphinxext.ipython_directive",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

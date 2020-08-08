@@ -36,10 +36,10 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
     >>> from copulae import GaussianCopula, MarginalCopula
     >>> data = load_marginal_data()
     >>> cop = MarginalCopula(GaussianCopula(3), [
-            {"type": "t"},
-            {"type": "norm"},
-            {"type": "exp"}
-        ])
+    ...     {"type": "t"},
+    ...     {"type": "norm"},
+    ...     {"type": "exp"}
+    ... ])
     >>> cop.fit(data)
     >>> cop.summary()
     Marginal Copula Summary
