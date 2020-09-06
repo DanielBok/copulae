@@ -16,6 +16,7 @@ Contents
     Copulae <copulae/index>
     Diagnostics, Tests and Model Selection <dtm/index>
     Examples <examples/index>
+    Explainers <explainers/index>
 
 .. toctree::
     :maxdepth: 1

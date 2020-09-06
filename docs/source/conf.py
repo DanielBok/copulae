@@ -24,8 +24,11 @@ root = current.parents[1]
 sys.path.insert(0, root.as_posix())
 
 # -- Copy Examples -----------------------------------------------------------
-for example in (root / 'examples').glob("*.ipynb"):
-    shutil.copy(example, current / "examples" / example.name)
+for file in (root / 'notes').rglob("*.ipynb"):
+    if '.ipynb_checkpoints' in file.parts:
+        continue
+
+    shutil.copy(file, current / file.relative_to(root / 'notes'))
 
 # -- Project information -----------------------------------------------------
 
