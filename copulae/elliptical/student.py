@@ -7,7 +7,7 @@ from copulae.copula.base import EstimationMethod
 from copulae.elliptical.abstract import AbstractEllipticalCopula
 from copulae.stats import multivariate_t as mvt, t
 from copulae.types import Array, Ties
-from copulae.utility import array_io
+from copulae.utility.array import array_io_mcd
 
 
 class StudentParams(NamedTuple):
@@ -54,7 +54,7 @@ class StudentCopula(AbstractEllipticalCopula[StudentParams]):
         lower[0], upper[0] = 0, np.inf  # bounds for df, the rest are correlation
         self._bounds = (lower, upper)
 
-    @array_io(dim=2)
+    @array_io_mcd
     def cdf(self, x: np.ndarray, log=False):
         sigma = self.sigma
         df = self._df
@@ -155,7 +155,7 @@ class StudentCopula(AbstractEllipticalCopula[StudentParams]):
             self._df = df
             self._rhos = params[1:]
 
-    @array_io(dim=2)
+    @array_io_mcd
     def pdf(self, u: np.ndarray, log=False):
         sigma = self.sigma
         df = self._df

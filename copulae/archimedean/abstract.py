@@ -5,7 +5,7 @@ import numpy as np
 from copulae.copula import BaseCopula, CopulaCorrProtocol
 from copulae.special.optimize import find_root
 from copulae.types import Array
-from copulae.utility import array_io
+from copulae.utility.array import array_io, array_io_mcd
 
 
 class AbstractArchimedeanCopula(BaseCopula[float], CopulaCorrProtocol, ABC):
@@ -18,7 +18,7 @@ class AbstractArchimedeanCopula(BaseCopula[float], CopulaCorrProtocol, ABC):
         self._dim = dim
         self._name = family
 
-    @array_io(dim=2)
+    @array_io_mcd
     def cdf(self, u: Array, log=False) -> np.ndarray:
         cdf = self.psi(self.ipsi(u).sum(1))
         return np.log(cdf) if log else cdf

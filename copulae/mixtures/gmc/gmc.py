@@ -7,6 +7,7 @@ from scipy.stats import multivariate_normal as mvn
 from copulae.copula import BaseCopula
 from copulae.core import pseudo_obs
 from copulae.types import Array, Ties
+from copulae.utility.array import array_io_mcd
 from .estimators import expectation_maximization, gradient_descent, k_means
 from .estimators.em import Criteria
 from .exception import GMCFitMethodError, GMCNotFittedError, GMCParamMismatchError
@@ -84,8 +85,9 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
         param : GMCParam, optional
             The initial parameter for the model
         """
-        self.n_clusters = n_clusters
-        self.n_dim = ndim
+        self._name = "GaussianMixtureCopula"
+        self._clusters = n_clusters
+        self._dim = ndim
         self.params = param
         self._fit_details = {"method": None}
 
@@ -118,6 +120,16 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
             out += prob * (mvn.logcdf(data, mean, cov) if log else mvn.logcdf(data, mean, cov))
 
         return out
+
+    @property
+    def clusters(self):
+        """Number of clusters in the :class:`GaussianMixtureCopula`"""
+        return self._clusters
+
+    @property
+    def dim(self):
+        """Number of dimensions for each copula in the :class:`GaussianMixtureCopula`"""
+        return super().dim
 
     def fit(self, data: Union[pd.DataFrame, np.ndarray], x0: Union[Collection[float], np.ndarray, GMCParam] = None,
             method: EstimateMethod = 'pem', optim_options: dict = None, ties: Ties = 'average', verbose=1,
@@ -174,11 +186,11 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
         method = method.lower()
 
         if x0 is None:
-            self.params = k_means(data, self.n_clusters, self.n_dim)
+            self.params = k_means(data, self.clusters, self.dim)
         elif isinstance(x0, GMCParam):
             self.params = x0
         else:
-            self.params = GMCParam.from_vector(x0, self.n_clusters, self.n_dim)
+            self.params = GMCParam.from_vector(x0, self.clusters, self.dim)
 
         if method == 'pem':
             u = pseudo_obs(data, ties)
@@ -188,7 +200,7 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
             self.params = gradient_descent(u, self.params, max_iter=max_iter, **(optim_options or {}))
         elif method == 'kmeans':
             if x0 is not None:  # otherwise already fitted by default
-                self.params = k_means(data, self.n_clusters, self.n_dim)
+                self.params = k_means(data, self.clusters, self.dim)
         else:
             raise GMCFitMethodError(f"Invalid method: {method}. Use one of (kmeans, pem, sgd)")
 
@@ -212,15 +224,16 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
         if params is None:
             self._param = None
         elif isinstance(params, GMCParam):
-            if params.n_dim != self.n_dim or params.n_clusters != self.n_clusters:
-                raise GMCParamMismatchError(f"Expected {self.n_clusters} clusters and {self.n_dim} dimensions "
+            if params.n_dim != self.dim or params.n_clusters != self.clusters:
+                raise GMCParamMismatchError(f"Expected {self.clusters} clusters and {self.dim} dimensions "
                                             f"but got {params.n_clusters} and {params.n_dim} respectively instead")
             self._param = params
         elif isinstance(params, Collection):
-            self._param = GMCParam.from_vector(params, self.n_clusters, self.n_dim)
+            self._param = GMCParam.from_vector(params, self.clusters, self.dim)
         else:
             raise GMCParamMismatchError("Unsupported params type for GaussianMixtureCopula")
 
+    @array_io_mcd
     def pdf(self, data: Array, log=False) -> Union[np.ndarray, float]:
         """
         Returns the probability distribution function (PDF) of the copulae.

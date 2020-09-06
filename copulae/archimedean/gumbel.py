@@ -10,7 +10,7 @@ from copulae.special.special_func import polyn_eval, sign_ff, stirling_first_all
 from copulae.special.trig import cospi2
 from copulae.stats import poisson, random_uniform, skew_stable
 from copulae.types import Array, Numeric
-from copulae.utility import array_io
+from copulae.utility.array import array_io, array_io_mcd
 from ._shared import valid_rows_in_u
 from .abstract import AbstractArchimedeanCopula
 from .auxiliary import dsum_sibuya
@@ -23,7 +23,7 @@ class GumbelCopula(AbstractArchimedeanCopula):
 
     .. math::
 
-        C_\theta (u_1, \dots, u_d) = \exp( - (\sum_u^i (-\log u_{i})^{-\theta} )^{1/\theta})
+        C_\theta (u_1, \dots, u_d) = \exp(-(\sum_u^i (-\log u_{i})^{\theta} )^{1/\theta})
     """
 
     def __init__(self, theta=np.nan, dim=2):
@@ -176,7 +176,7 @@ class GumbelCopula(AbstractArchimedeanCopula):
 
         self._theta = theta
 
-    @array_io(dim=2)
+    @array_io_mcd
     def pdf(self, u: np.ndarray, log=False):
         assert not np.isnan(self.params), "Copula must have parameters to calculate parameters"
 

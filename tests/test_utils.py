@@ -1,8 +1,8 @@
-import numpy as np
 import pytest
 
 from copulae import GaussianCopula
-from copulae.utility import merge_dicts, array_io
+from copulae.utility.array import array_io
+from copulae.utility.dict import merge_dicts
 
 
 def test_merge_dicts():
@@ -19,17 +19,23 @@ def test_merge_dicts():
 def test_reshape_data_decorator():
     copula = GaussianCopula(2)
 
-    # test that scalar goes through fine
-    assert isinstance(array_io(lambda cop, x: x)(copula, 0.5), float)
-    assert isinstance(array_io(lambda cop, x: x, dim=1)(copula, 0.5), float)
+    # test that array output with 1 element becomes scalar and is float
+    x1 = array_io(lambda cop, x: [1])(copula, [0.5, 0.5])
+    assert x1 == 1
+    assert isinstance(x1, float)
 
-    # test that vector goes through okay
-    assert array_io(lambda cop, x: x, dim=1)(copula, [0.5, 0.2]).ndim == 1
+    # test that vector output gets squeezed if one of the dimension is 1
+    for output in (
+            [[1, 2]],
+            [[1], [2]]
+    ):
+        x2 = array_io(lambda cop, x: output)(copula, [0.5, 0.5])
+        assert x2.ndim == 1, "vector output must have squeezed"
 
-    # test that 1D array gets converted to 2D array
-    res = array_io(lambda cop, x: x, dim=2)(copula, np.zeros(2))
-    assert res.ndim == 2
+    # test that 2D output stays 2D
+    x3 = array_io(lambda cop, x: [[1, 2], [3, 4]])(copula, [0.5, 0.5])
+    assert x3.ndim == 2, "2D output should remain 2D"
 
     # Non-optional input
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         array_io(lambda cop, x: x, optional=False)(copula, None)
