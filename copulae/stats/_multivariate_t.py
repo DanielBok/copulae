@@ -85,16 +85,16 @@ class multivariate_t:
 
         Parameters
         ----------
-        x: array like
+        x
             Quantiles, with the last axis of `x` denoting the components
 
-        mean: array like, optional
+        mean
             Mean of the distribution (default zero)
 
-        cov: array like, optional
+        cov
             Covariance matrix of the distribution (default 1.0)
 
-        df: float, optional
+        df
             Degrees of freedom for the distribution (default 4.6692)
         Returns
         -------

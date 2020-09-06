@@ -69,6 +69,7 @@ class BaseCopula(Protocol[Param]):
 
     @property
     def dim(self):
+        """Number of dimensions in copula"""
         return self._dim
 
     def fit(self, data: Union[pd.DataFrame, np.ndarray], x0: Union[Collection[float], np.ndarray] = None,
@@ -127,7 +128,7 @@ class BaseCopula(Protocol[Param]):
     def init_validate(self):
         assert isinstance(self.dim, int) and self.dim >= 2, 'Copula must have more than 2 dimensions'
 
-    def log_lik(self, data: np.ndarray, *, to_pobs=True, ties='average') -> float:
+    def log_lik(self, data: np.ndarray, *, to_pobs=True, ties: Ties = 'average') -> float:
         r"""
          Returns the log likelihood (LL) of the copula given the data.
 
@@ -135,13 +136,13 @@ class BaseCopula(Protocol[Param]):
 
         Parameters
         ----------
-        data: ndarray
+        data
             Data set used to calculate the log likelihood
 
-        to_pobs: bool
+        to_pobs
             If True, converts the data input to pseudo observations.
 
-        ties: { 'average', 'min', 'max', 'dense', 'ordinal' }, optional
+        ties
             Specifies how ranks should be computed if there are ties in any of the coordinate samples. This is
             effective only if :code:`to_pobs` is True.
 
