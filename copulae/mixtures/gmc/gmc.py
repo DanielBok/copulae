@@ -91,6 +91,12 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
         self.params = param
         self._fit_details = {"method": None}
 
+    @property
+    def bounds(self):
+        """Bounds is not meaningful for :class:`GaussianMixtureCopula`"""
+        return NotImplemented
+
+    @array_io_mcd
     def cdf(self, data: Array, log=False) -> Union[np.ndarray, float]:
         """
         Returns the cumulative distribution function (CDF) of the copulae.

@@ -117,7 +117,8 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
         self.init_validate()
 
     def bounds(self):
-        raise MethodNotAvailableError
+        """Bounds is not implemented for the :class:`MarginalCopula`"""
+        return NotImplemented
 
     @array_io_mcd
     def cdf(self, x: Array, log=False) -> Union[np.ndarray, float]:
