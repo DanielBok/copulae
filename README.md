@@ -88,8 +88,7 @@ I started working on the copulae package because I couldn't find a good existing
 ## TODOS
 
 - [x] Set up package for pip and conda installation
-- [ ] More documentation on usage and post docs on rtd
-    - [ ] Add sample problems
+- [ ] More documentation on usage and post docs on rtd (Permanently in the works 😊)
 - [x] Elliptical Copulas
     - [x] Gaussian (Normal)
     - [x] Student (T)
@@ -100,11 +99,13 @@ I started working on the copulae package because I couldn't find a good existing
     - [x] Empirical
     - [ ] Joe
     - [ ] AMH 
-    - [ ] Implement Rho finding via cubatures
+    - [ ] Rho finding via Cubatures
 - [ ] Mixture copulas
     - [X] Gaussian Mixture Copula
     - [ ] Generic Mixture Copula
-- [ ] Implement Copulae Tests
+    - [x] Marginal Copula
+- [ ] Vine Copulas
+- [ ] Copulae Tests
     - [x] Radial Symmetry
     - [x] Exchangeability
     - [ ] Goodness of Fit
@@ -113,6 +114,3 @@ I started working on the copulae package because I couldn't find a good existing
         - [x] General GOF
     - [ ] Model Selection
         - [ ] Cross-Validated AIC/BIC
-- [ ] Implement mixed copulas
-- [ ] Implement more solvers
-- [ ] Implement convenient graphing functions
