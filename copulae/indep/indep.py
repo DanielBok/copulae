@@ -3,7 +3,7 @@ import numpy as np
 from copulae.copula import BaseCopula, Summary
 from copulae.stats import random_uniform
 from copulae.types import Array
-from copulae.utility import array_io
+from copulae.utility.array import array_io_mcd
 
 
 class IndepCopula(BaseCopula[int]):
@@ -25,7 +25,7 @@ class IndepCopula(BaseCopula[int]):
         self._name = 'Independent'
         self.init_validate()
 
-    @array_io
+    @array_io_mcd
     def cdf(self, x: Array, log=False) -> np.ndarray:
         return np.log(x).sum(1) if log else x.prod(1)
 
@@ -38,7 +38,7 @@ class IndepCopula(BaseCopula[int]):
     def params(self):
         return self.dim
 
-    @array_io
+    @array_io_mcd
     def pdf(self, x: Array, log=False) -> np.ndarray:
         return np.repeat(0 if log else 1, len(x))
 

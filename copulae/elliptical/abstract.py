@@ -5,7 +5,7 @@ import numpy as np
 
 from copulae.copula import BaseCopula, CopulaCorrProtocol, Param
 from copulae.core import EPS, create_cov_matrix, is_psd, near_psd, tri_indices
-from copulae.utility import array_io
+from copulae.utility.array import array_io
 
 
 class AbstractEllipticalCopula(BaseCopula[Param], CopulaCorrProtocol, ABC):

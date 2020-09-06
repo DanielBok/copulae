@@ -5,8 +5,8 @@ import pandas as pd
 
 from copulae.copula import BaseCopula, Param
 from copulae.copula.exceptions import InputDataError
-from copulae.errors import MethodNotAvailableError
 from copulae.types import Array
+from copulae.utility.array import array_io_mcd
 from .summary import Summary
 from .univariate import DistDetail, create_univariate, get_marginal_detail
 
@@ -108,7 +108,7 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
             Dictionary form allows users to be more detailed in describing the distribution
         """
         self._copula = copula
-        self._marginals = self._process_margins_input(margins, copula.dim)
+        self._marginals = _process_margins_input(margins, copula.dim)
 
         assert copula.dim == len(self._marginals), "copula dimension and number of marginals must be equal"
 
@@ -119,6 +119,7 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
     def bounds(self):
         raise MethodNotAvailableError
 
+    @array_io_mcd
     def cdf(self, x: Array, log=False) -> Union[np.ndarray, float]:
         x = self._check_x_input(x)
         u = np.empty_like(x)
@@ -151,6 +152,7 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
             "marginals": [get_marginal_detail(m) for m in self._marginals]
         }
 
+    @array_io_mcd
     def pdf(self, x: Array, log=False) -> Union[np.ndarray, float]:
         x = self._check_x_input(x)
         u = np.empty_like(x)
@@ -188,25 +190,25 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
             raise ValueError(f"data should have {self.dim} columns")
         return x
 
-    @staticmethod
-    def _process_margins_input(margins: MarginsInput, dim: int):
-        if isinstance(margins, str):
-            # single string describing margin type
-            return [create_univariate({"type": margins}) for _ in range(dim)]
-        elif isinstance(margins, dict):
-            return [create_univariate(margins) for _ in range(dim)]  # DistDetail dict
-        elif isinstance(margins, Collection):
-            margins = list(margins)
-            assert len(margins) > 0, "margins collection cannot be empty"
-            _output = []
-            for m in margins:
-                if isinstance(m, str):
-                    _output.append(create_univariate({"type": m}))
-                elif isinstance(m, dict):
-                    _output.append(create_univariate(m))
-                else:
-                    raise TypeError(f"{m} is not a supported argument for a marginal")
 
-            return _output
+def _process_margins_input(margins: MarginsInput, dim: int):
+    if isinstance(margins, str):
+        # single string describing margin type
+        return [create_univariate({"type": margins}) for _ in range(dim)]
+    elif isinstance(margins, dict):
+        return [create_univariate(margins) for _ in range(dim)]  # DistDetail dict
+    elif isinstance(margins, Collection):
+        margins = list(margins)
+        assert len(margins) > 0, "margins collection cannot be empty"
+        _output = []
+        for m in margins:
+            if isinstance(m, str):
+                _output.append(create_univariate({"type": m}))
+            elif isinstance(m, dict):
+                _output.append(create_univariate(m))
+            else:
+                raise TypeError(f"{m} is not a supported argument for a marginal")
 
-        raise TypeError(f"{margins} is not a valid input for margins")
+        return _output
+
+    raise TypeError(f"{margins} is not a valid input for margins")

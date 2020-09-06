@@ -137,11 +137,11 @@ def test_pdf_bivariate():
 
 
 @pytest.mark.parametrize("data, err", [
-    (np.random.uniform(size=(3, 5)), 'Input data shape does not match copula dimension'),
-    (np.array([1, 4, 5]), 'Input data shape does not match copula dimension')
+    (np.random.uniform(size=(3, 5)), 'Input array must have same dimension as copula'),
+    (np.array([1, 4, 5]), 'Input array must have same dimension as copula')
 ])
 def test_pdf_raises_errors(copula, data, err):
-    with pytest.raises(AssertionError, match=err):
+    with pytest.raises(ValueError, match=err):
         copula.pdf(data)
 
 

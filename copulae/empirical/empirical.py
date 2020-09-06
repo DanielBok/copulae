@@ -9,6 +9,7 @@ from copulae.copula import Summary
 from copulae.core import rank_data
 from copulae.special import log_sum
 from copulae.types import Array, EPSILON, Ties
+from copulae.utility.array import array_io_mcd
 from .distribution import emp_dist_func
 
 try:
@@ -99,6 +100,7 @@ class EmpiricalCopula(BaseCopula[None]):
         self.data = data
         self.init_validate()
 
+    @array_io_mcd
     def cdf(self, u: Array, log=False) -> np.ndarray:
         if np.any(u > (1 + EPSILON)) or np.any(u < -EPSILON):
             raise ValueError("input array must be pseudo observations")
@@ -131,6 +133,7 @@ class EmpiricalCopula(BaseCopula[None]):
         """
         return None
 
+    @array_io_mcd
     def pdf(self, u: Array, log=False):
         assert self.smoothing == "beta", "Empirical Copula only has density (PDF) for 'beta' smoothing"
         assert isinstance(self.data, np.ndarray), "data is still undefined for EmpiricalCopula"
@@ -140,7 +143,7 @@ class EmpiricalCopula(BaseCopula[None]):
         n = len(self.data)
 
         if log:
-            value = np.array([
+            return np.array([
                 log_sum(
                     np.array([
                         sum(beta.logpdf(row, a=row_rank, b=n + 1 - row_rank))
@@ -148,13 +151,11 @@ class EmpiricalCopula(BaseCopula[None]):
                     ])
                 ) for row in u]) - np.log(n + self._offset)
         else:
-            value = np.array([
+            return np.array([
                 sum([
                     np.prod(beta.pdf(row, a=row_rank, b=n + 1 - row_rank))
                     for row_rank in data_rank
                 ]) for row in u]) / (n + self._offset)
-
-        return value.item() if value.size == 1 else value
 
     def random(self, n: int, seed: int = None):
         assert isinstance(self.data, np.ndarray), "data is still undefined for EmpiricalCopula"

@@ -1,9 +1,8 @@
 import numpy as np
-from numpy.testing import assert_array_almost_equal
 import pytest
-from copulae.special.debye import debye_1, debye_2
+from numpy.testing import assert_array_almost_equal
 
-VALUES = [-1, 0, 2.5, 3.5, 4, 6.7, 15.8, 36, 104.5, 551.3, 702.6, 1025.6, 6712.4, 10251.2]
+from copulae.special.debye import debye_1, debye_2
 
 
 @pytest.mark.parametrize('order, expected', [
@@ -40,8 +39,9 @@ VALUES = [-1, 0, 2.5, 3.5, 4, 6.7, 15.8, 36, 104.5, 551.3, 702.6, 1025.6, 6712.4
 ])
 @pytest.mark.filterwarnings()
 def test_debye(order, expected):
+    values = [-1, 0, 2.5, 3.5, 4, 6.7, 15.8, 36, 104.5, 551.3, 702.6, 1025.6, 6712.4, 10251.2]
     if order == 1:
-        res = debye_1(VALUES)
+        res = debye_1(values)
     else:
-        res = debye_2(VALUES)
+        res = debye_2(values)
     assert_array_almost_equal(res, expected, 5)

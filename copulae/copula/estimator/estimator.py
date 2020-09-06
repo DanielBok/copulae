@@ -5,7 +5,7 @@ import numpy as np
 from copulae.copula.estimator.misc import is_elliptical
 from copulae.core import tri_indices
 from copulae.stats import pearson_rho
-from copulae.utility import merge_dict
+from copulae.utility.dict import merge_dict
 from .corr_inversion import CorrInversionEstimator
 from .max_likelihood import MaxLikelihoodEstimator
 

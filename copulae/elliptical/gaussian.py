@@ -6,7 +6,7 @@ from copulae.copula import Summary, TailDep
 from copulae.elliptical.abstract import AbstractEllipticalCopula
 from copulae.stats import multivariate_normal as mvn, norm
 from copulae.types import Array
-from copulae.utility import array_io
+from copulae.utility.array import array_io, array_io_mcd
 
 
 class GaussianCopula(AbstractEllipticalCopula[np.ndarray]):
@@ -44,7 +44,7 @@ class GaussianCopula(AbstractEllipticalCopula[np.ndarray]):
         eps = 1e-6
         self._bounds = np.repeat(-1., n) - eps, np.repeat(1., n) + eps
 
-    @array_io(dim=2)
+    @array_io_mcd
     def cdf(self, x: np.ndarray, log=False):
         q = norm.ppf(x)
         sigma = self.sigma
@@ -69,7 +69,7 @@ class GaussianCopula(AbstractEllipticalCopula[np.ndarray]):
             params = np.repeat(params, len(self._rhos))
         self._rhos = np.asarray(params)
 
-    @array_io(dim=2)
+    @array_io_mcd
     def pdf(self, u: np.ndarray, log=False):
         sigma = self.sigma
         q = norm.ppf(u)

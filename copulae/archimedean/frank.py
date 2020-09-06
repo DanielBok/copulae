@@ -7,7 +7,7 @@ from copulae.special.special_func import log1mexp, log1pexp, poly_log
 from copulae.stats import random_uniform
 from copulae.stats.log import random_log_series_ln1p
 from copulae.types import Array
-from copulae.utility import array_io, as_array
+from copulae.utility.array import array_io, array_io_mcd
 from ._shared import valid_rows_in_u
 from .abstract import AbstractArchimedeanCopula
 
@@ -117,7 +117,7 @@ class FrankCopula(AbstractArchimedeanCopula):
             raise ValueError('theta must be positive when dim > 2')
         self._theta = float(theta)
 
-    @array_io(dim=2)
+    @array_io_mcd
     def pdf(self, u: Array, log=False):
         assert not np.isnan(self.params), "Copula must have parameters to calculate parameters"
 
@@ -140,6 +140,7 @@ class FrankCopula(AbstractArchimedeanCopula):
 
         return res if log else np.exp(res)
 
+    @array_io
     def psi(self, s):
         assert not np.isnan(self.params), "Copula must have parameters to calculate psi"
 
@@ -156,7 +157,7 @@ class FrankCopula(AbstractArchimedeanCopula):
 
             s[m] = np.nan
             s[~m] = -log1mexp(s[~m] - log1mexp(self.params)) / self.params
-            return s.item(0) if s.size == 1 else s
+            return s
 
     def random(self, n: int, seed: int = None):
         u = random_uniform(n, self.dim, seed)
@@ -223,7 +224,7 @@ def debye1(x):
     --------
     :code:`copulae.special.debye.debye_1`: The debye order 1 function
     """
-    x = as_array(x)
+    x = np.asarray(x, np.float_).ravel()
     fin = np.isfinite(x)
     d = np.ravel(np.abs(x))
 
@@ -261,7 +262,7 @@ def debye2(x):
     --------
     :code:`copulae.special.debye.debye_2`: The debye order 2 function
     """
-    x = as_array(x)
+    x = np.asarray(x, np.float_).ravel()
     fin = np.isfinite(x)
     d = np.ravel(np.abs(x))
 

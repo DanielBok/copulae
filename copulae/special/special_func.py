@@ -5,7 +5,6 @@ from scipy.stats import logistic as logis
 
 from copulae.special.combinatorics import comb
 from copulae.special.dilog import dilog, dilog_complex
-from copulae.utility import as_array
 
 __all__ = ['eulerian', 'eulerian_all', 'log1mexp', 'log1pexp', 'log_sum', 'poly_log', 'polyn_eval', 'sign_ff',
            'stirling_first', 'stirling_first_all', 'stirling_second', 'stirling_second_all']
@@ -140,7 +139,6 @@ def log_sum(log_x: np.ndarray, offset: Optional[Union[Iterable[float], float]] =
     ndarray or float
         sum of log values
     """
-    log_x = as_array(log_x)
     if log_x.ndim == 1:
         log_x = log_x.reshape(-1, 1)
     elif log_x.ndim > 2:
