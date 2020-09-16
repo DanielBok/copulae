@@ -63,7 +63,7 @@ class MaxLikelihoodEstimator:
         self.copula.params = estimate
 
         method = f"Maximum {'pseudo-' if method == 'mpl' else ''}likelihood"
-        self.copula.fit_smry = FitSummary(estimate, method, res['fun'], len(self.data), self.optim_options, res)
+        self.copula.fit_smry = FitSummary(estimate, method, -res['fun'], len(self.data), self.optim_options, res)
 
         return estimate
 
