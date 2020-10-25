@@ -2,9 +2,9 @@ import numpy as np
 import pytest
 from numpy.testing import assert_almost_equal
 
-from copulae import EmpiricalCopula
+from copulae import EmpiricalCopula, pseudo_obs
 from copulae.copula import Summary
-from copulae.datasets import load_smi
+from copulae.datasets import load_marginal_data, load_smi
 
 
 @pytest.fixture
@@ -41,13 +41,13 @@ def u():
                       0.290780141843972]),
 ])
 def test_empirical_cdf(u, smi, smoothing, expected):
-    cop = EmpiricalCopula(data=smi, smoothing=smoothing)
+    cop = EmpiricalCopula(smi, smoothing=smoothing)
     assert_almost_equal(cop.cdf(u), expected)
 
 
 @pytest.mark.parametrize("log", [True, False])
 def test_empirical_pdf(smi, u, log):
-    cop = EmpiricalCopula(4, smi, smoothing="beta")
+    cop = EmpiricalCopula(smi, smoothing="beta")
     pdf = cop.pdf(u, log) if log else np.log(cop.pdf(u))
 
     expected = [-38.968738, -7.304777, -14.892165, -5.423080, -24.478464]
@@ -56,18 +56,28 @@ def test_empirical_pdf(smi, u, log):
 
 
 def test_empirical_param_returns_none(smi):
-    cop = EmpiricalCopula(data=smi)
+    cop = EmpiricalCopula(smi)
     assert cop.params is None
 
 
 @pytest.mark.parametrize("seed", [None, 888])
 def test_empirical_random(smi, seed):
-    cop = EmpiricalCopula(data=smi)
+    cop = EmpiricalCopula(smi)
     rvs = cop.random(5, seed)
 
     assert rvs.shape == (5, smi.shape[1])
 
 
 def test_empirical_summary(smi):
-    cop = EmpiricalCopula(data=smi)
+    cop = EmpiricalCopula(smi)
     assert isinstance(cop.summary(), Summary)
+
+
+def test_empirical_to_margins():
+    data = load_marginal_data()
+    cop = EmpiricalCopula(data)
+
+    test_input = pseudo_obs(data)[:6]
+    output = cop.to_marginals(test_input)
+
+    assert_almost_equal(output, data.iloc[:6].to_numpy())

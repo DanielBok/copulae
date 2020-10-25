@@ -1,4 +1,5 @@
 from typing import Optional, Union
+from warnings import warn
 
 import numpy as np
 import pandas as pd
@@ -8,7 +9,7 @@ from copulae.copula import BaseCopula
 from copulae.copula import Summary
 from copulae.core import rank_data
 from copulae.special import log_sum
-from copulae.types import Array, EPSILON, Ties
+from copulae.types import Array, EPSILON, Matrix, Ties
 from copulae.utility.array import array_io_mcd
 from .distribution import emp_dist_func
 
@@ -53,20 +54,20 @@ class EmpiricalCopula(BaseCopula[None]):
            [0.60379873, 0.61779407, 0.54215262]])
     """
 
-    def __init__(self, dim: Optional[int] = None, data: Optional[Union[np.ndarray, pd.DataFrame]] = None,
-                 smoothing: Optional[Smoothing] = None, ties: Ties = "average", offset: float = 0):
+    def __init__(self,
+                 data: Matrix,
+                 smoothing: Optional[Smoothing] = None,
+                 ties: Ties = "average",
+                 offset: float = 0):
         """
         Creates an empirical copula
 
         Parameters
         ----------
-        dim
-            Dimension of the copula. If this is not provided, it will be derived from the dimension of the data set
-
         data
-            The data set for the empirical copula. The data set dimension must match the copula's dimension. If
-            dim is not set, the dimension of the copula will be derived from the data's dimension. Data must be
-            a matrix
+            The margins data set for the empirical copula. This data need not be the pseudo-observations.
+            The data set dimension must match the copula's dimension. If dim is not set, the dimension of
+            the copula will be derived from the data's dimension. Data must be a matrix
 
         smoothing
             If not specified (default), the empirical distribution function or copula is computed. If "beta", the
@@ -93,38 +94,30 @@ class EmpiricalCopula(BaseCopula[None]):
         self._name = "Empirical"
         self.smoothing = smoothing
 
-        assert dim is not None or data is not None, "Either dimension or data must be specified"
-        self._dim = data.shape[1] if dim is None else int(dim)
+        assert data.ndim == 2 and data.shape
+        self._data = data
+
+        self._dim = data.shape[1]
         assert self.dim > 1, "Dimension must be >= 2"
 
-        self.data = data
         self.init_validate()
+
+    @property
+    def data(self):
+        return self._data
 
     @array_io_mcd
     def cdf(self, u: Array, log=False) -> np.ndarray:
         if np.any(u > (1 + EPSILON)) or np.any(u < -EPSILON):
             raise ValueError("input array must be pseudo observations")
-        cdf = emp_dist_func(u, self.data, self._smoothing, self._offset)
+
+        uu = self.pobs(self._data, self.ties)  # pseudo-observations of source marginal to compare against
+        cdf = emp_dist_func(u, uu, self._smoothing, self._offset)
         return np.log(cdf) if log else cdf
 
-    @property
-    def data(self):
-        """
-        The empirical data source from which to compare against. Note that when setting the data, it will
-        be automatically transformed to pseudo-observations by default based on the
-        :meth:`~EmpiricalCopula.ties` property
-        """
-        if self._data is None:
-            self._data = self.pobs(self._source, self.ties)
-        return self._data
-
-    @data.setter
-    def data(self, data: Union[pd.DataFrame, np.ndarray]):
-        data = np.asarray(data)
-        assert data.ndim == 2, "data must be 2 dimensional"
-        assert self.dim == data.shape[1], "data and copula dimensions do not match"
-        self._source = data
-        self._data = None
+    def fit(self, data, x0=None, method='mpl', optim_options=None, ties='average', verbose=1):
+        warn("EmpiricalCopula has no concept of 'fitting'")
+        return self
 
     @property
     def params(self):
@@ -136,7 +129,6 @@ class EmpiricalCopula(BaseCopula[None]):
     @array_io_mcd
     def pdf(self, u: Array, log=False):
         assert self.smoothing == "beta", "Empirical Copula only has density (PDF) for 'beta' smoothing"
-        assert isinstance(self.data, np.ndarray), "data is still undefined for EmpiricalCopula"
         u = self.pobs(u, self.ties)
 
         data_rank = rank_data(self.data, 1, self.ties)
@@ -158,13 +150,11 @@ class EmpiricalCopula(BaseCopula[None]):
                 ]) for row in u]) / (n + self._offset)
 
     def random(self, n: int, seed: int = None):
-        assert isinstance(self.data, np.ndarray), "data is still undefined for EmpiricalCopula"
-        assert n <= len(self.data), "random samples desired must not exceed number of rows in data"
-
         if seed is not None:
             np.random.seed(seed)
 
-        return self.data[np.random.randint(0, len(self.data), n)]
+        data = np.asarray(self.data)
+        return self._format_output(data[np.random.randint(0, len(data), n)])
 
     @property
     def smoothing(self):
@@ -194,6 +184,32 @@ class EmpiricalCopula(BaseCopula[None]):
             "Smoothing": self._smoothing,
         })
 
+    def to_marginals(self, u: Union[np.ndarray, pd.DataFrame]) -> Union[pd.DataFrame, np.ndarray]:
+        """
+        Transforms a sample marginal data (pseudo-observations) to empirical margins based on the
+        input dataset
+
+        Parameters
+        ----------
+        u
+            Sample marginals (pseudo observations). Values must be between [0, 1]
+
+        Returns
+        -------
+        np.ndarray or pd.DataFrame
+            Transformed marginals
+        """
+        # because it is pseudo-observations, and already ranked within the columns, we can just
+        # multiply by the number of rows in the original data set to get the position rank
+        index = np.floor(u * len(self.data)).astype(int)
+        data = np.array(self.data)
+        source = np.take_along_axis(np.array(data), data.argsort(axis=0), axis=0)
+
+        # marginals derived row by row based on 'lowest' position, we could offer an interpolation in
+        # the future, but not sure how popular this method is
+        marginals = np.transpose([source[r, c] for c, r in enumerate(index.T)])
+        return self._format_output(marginals)
+
     @property
     def ties(self):
         """
@@ -218,6 +234,10 @@ class EmpiricalCopula(BaseCopula[None]):
 
     @ties.setter
     def ties(self, value: Ties):
-        if getattr(self, "_ties", "") != value:
-            self._ties = value
-            self._data = None
+        self._ties = value
+
+    def _format_output(self, output: np.ndarray):
+        """Converts output array to DataFrame if the input data is a DataFrame"""
+        if isinstance(output, pd.DataFrame):
+            return pd.DataFrame(output, columns=self.data.columns)
+        return output

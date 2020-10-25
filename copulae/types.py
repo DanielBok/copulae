@@ -11,7 +11,9 @@ except ImportError:
 
 EPSILON = np.finfo('float').eps
 
-Array = Union[pd.Series, np.ndarray, Collection[Number], Collection[Collection[Number]]]
+Vector = Union[np.ndarray, Collection[Number], pd.Series]
+Matrix = Union[np.ndarray, Collection[Collection[Number]], pd.DataFrame]
+Array = Union[Vector, Matrix]
 
 Numeric = Union[Array, Number]
 
