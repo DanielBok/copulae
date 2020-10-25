@@ -1,6 +1,7 @@
-from typing import Tuple
+from typing import Tuple, Union
 
 import numpy as np
+import pandas as pd
 from scipy import stats
 
 __all__ = ['create_cov_matrix', 'EPS', 'pseudo_obs', 'rank_data', 'tri_indices']
@@ -33,7 +34,7 @@ def create_cov_matrix(params: np.ndarray):
     return sigma
 
 
-def pseudo_obs(data: np.ndarray, ties='average'):
+def pseudo_obs(data: Union[np.ndarray, pd.DataFrame], ties='average'):
     """
     Compute the pseudo-observations for the given data matrix
 

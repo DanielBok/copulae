@@ -1,4 +1,5 @@
 from copulae.archimedean import *
+from copulae.core import pseudo_obs
 from copulae.elliptical import *
 from copulae.empirical import *
 from copulae.indep import *
