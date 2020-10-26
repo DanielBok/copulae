@@ -10,7 +10,7 @@ from copulae.copula import Summary
 from copulae.core import rank_data
 from copulae.special import log_sum
 from copulae.types import Array, EPSILON, Matrix, Ties
-from copulae.utility.array import array_io_mcd
+from copulae.utility.annotations import *
 from .distribution import emp_dist_func
 
 try:
@@ -54,6 +54,7 @@ class EmpiricalCopula(BaseCopula[None]):
            [0.60379873, 0.61779407, 0.54215262]])
     """
 
+    @validate_data_dim({"data": 2})
     def __init__(self,
                  data: Matrix,
                  smoothing: Optional[Smoothing] = None,
@@ -91,22 +92,17 @@ class EmpiricalCopula(BaseCopula[None]):
         """
         self.ties = ties
         self._offset = offset
-        self._name = "Empirical"
         self.smoothing = smoothing
-
-        assert data.ndim == 2 and data.shape
         self._data = data
-
-        self._dim = data.shape[1]
-        assert self.dim > 1, "Dimension must be >= 2"
-
-        self.init_validate()
+        super().__init__(data.shape[1], "Empirical")
 
     @property
     def data(self):
         return self._data
 
-    @array_io_mcd
+    @validate_data_dim({"u": [1, 2]})
+    @shape_first_input_to_cop_dim
+    @squeeze_output
     def cdf(self, u: Array, log=False) -> np.ndarray:
         if np.any(u > (1 + EPSILON)) or np.any(u < -EPSILON):
             raise ValueError("input array must be pseudo observations")
@@ -126,7 +122,9 @@ class EmpiricalCopula(BaseCopula[None]):
         """
         return None
 
-    @array_io_mcd
+    @validate_data_dim({"u": [1, 2]})
+    @shape_first_input_to_cop_dim
+    @squeeze_output
     def pdf(self, u: Array, log=False):
         assert self.smoothing == "beta", "Empirical Copula only has density (PDF) for 'beta' smoothing"
         u = self.pobs(u, self.ties)
@@ -149,6 +147,7 @@ class EmpiricalCopula(BaseCopula[None]):
                     for row_rank in data_rank
                 ]) for row in u]) / (n + self._offset)
 
+    @cast_output
     def random(self, n: int, seed: int = None):
         if seed is not None:
             np.random.seed(seed)
@@ -184,7 +183,9 @@ class EmpiricalCopula(BaseCopula[None]):
             "Smoothing": self._smoothing,
         })
 
-    def to_marginals(self, u: Union[np.ndarray, pd.DataFrame]) -> Union[pd.DataFrame, np.ndarray]:
+    @validate_data_dim({"u": 2})
+    @cast_output
+    def to_marginals(self, u: Matrix) -> Union[pd.DataFrame, np.ndarray]:
         """
         Transforms a sample marginal data (pseudo-observations) to empirical margins based on the
         input dataset

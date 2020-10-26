@@ -1,6 +1,6 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from numbers import Number
-from typing import Collection, NamedTuple, Tuple, TypeVar, Union
+from typing import Collection, Generic, List, NamedTuple, Optional, Tuple, TypeVar, Union
 
 import numpy as np
 import pandas as pd
@@ -21,15 +21,21 @@ __all__ = ["BaseCopula", "CopulaCorrProtocol", "Param", "EstimationMethod", "Tai
 Param = TypeVar("Param")
 
 
-class BaseCopula(Protocol[Param]):
+class BaseCopula(ABC, Generic[Param]):
     """
     The base copula object. All implemented copulae should inherit this class as it creates a common API
     such as the :py:meth:`BaseCopula.fit` method.
     """
-    _dim: int
-    _name: str
-    _fit_smry: FitSummary = None
-    _bounds: Tuple[Number, Number] = (0, 0)
+
+    def __init__(self, dim: int, name: str):
+        self._dim = dim
+        self._name = name
+
+        self._columns: Optional[List[str]] = None
+        self._fit_smry: Optional[FitSummary] = None
+        self._bounds: Tuple[Number, Number] = (0, 0)
+
+        assert isinstance(self.dim, int) and self.dim >= 2, 'Copula must have more than 2 dimensions'
 
     @property
     def bounds(self):
@@ -112,6 +118,9 @@ class BaseCopula(Protocol[Param]):
         x0 = np.asarray(x0) if x0 is not None and not isinstance(x0, np.ndarray) and isinstance(x0, Collection) else x0
         CopulaEstimator(self, data, x0=x0, method=method, verbose=verbose, optim_options=optim_options)
 
+        if isinstance(data, pd.DataFrame):
+            self._columns = list(data.columns)
+
         return self
 
     @property
@@ -124,9 +133,6 @@ class BaseCopula(Protocol[Param]):
     def fit_smry(self, summary: FitSummary):
         assert isinstance(summary, FitSummary) or summary is None, "Setting invalid object as fit summary"
         self._fit_smry = summary
-
-    def init_validate(self):
-        assert isinstance(self.dim, int) and self.dim >= 2, 'Copula must have more than 2 dimensions'
 
     def log_lik(self, data: np.ndarray, *, to_pobs=True, ties: Ties = 'average') -> float:
         r"""
