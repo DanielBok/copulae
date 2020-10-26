@@ -96,6 +96,9 @@ class EmpiricalCopula(BaseCopula[None]):
         self._data = data
         super().__init__(data.shape[1], "Empirical")
 
+        if isinstance(data, pd.DataFrame):
+            self._columns = list(data.columns)
+
     @property
     def data(self):
         return self._data
