@@ -1,14 +1,15 @@
 import inspect
-from functools import wraps
 from typing import Any, Callable, Collection, Dict, Union
 
 import numpy as np
 import pandas as pd
+from wrapt import decorator
 
-__all__ = ['ValidateDataDim']
+__all__ = ['validate_data_dim']
 
 
-class ValidateDataDim:
+# noinspection PyPep8Naming
+class validate_data_dim:
     def __init__(self, dims: Dict[str, Union[int, Collection[int]]]):
         """
         Annotation to assert that the method has a specific variable with a specific dimension
@@ -24,9 +25,9 @@ class ValidateDataDim:
 
         Examples
         --------
-        >>> from copulae.utility.annotations import ValidateDataDim
+        >>> from copulae.utility.annotations import validate_data_dim
         >>> class Test:
-        ...     @ValidateDataDim({"data1": [1, 2], "data2": 2, "data3": [1]})
+        ...     @validate_data_dim({"data1": [1, 2], "data2": 2, "data3": [1]})
         ...     def __init__(self, data1, data2, *, data3):
         ...         pass
         >>> d1 = [1]
@@ -51,37 +52,34 @@ class ValidateDataDim:
                 assert all(_valid_dim(i) for i in arg_dim), "dimension must be an integer"
             self.dims[arg_name] = arg_dim
 
-    def __call__(self, method: Callable[..., Any]):
+    @decorator
+    def __call__(self, method: Callable[..., Any], _, args, kwargs):
         specs = inspect.getfullargspec(method)
         # skip first because first is "self"
         assert {*specs.args[1:], *specs.kwonlyargs} >= self.dims.keys(), \
             f"missing arguments names in {method.__name__}"
 
-        @wraps(method)
-        def decorator(cls, *args, **kwargs):
-            # organize the inputs arguments
-            args = list(args)
-            errors = {k: "" for k in self.dims}
+        # organize the inputs arguments
+        args = list(args)
+        errors = {k: "" for k in self.dims}
 
-            # checks args for errors
-            for arg_name, (i, item) in zip(specs.args[1:], enumerate(args)):
-                if arg_name in self.dims:
-                    args[i] = self.cast(item)
-                    self.update_errors(errors, arg_name, args[i])
+        # checks args for errors
+        for arg_name, (i, item) in zip(specs.args[1:], enumerate(args)):
+            if arg_name in self.dims:
+                args[i] = self.cast(item)
+                self.update_errors(errors, arg_name, args[i])
 
-            # check kwargs for errors
-            for arg_name, item in kwargs.items():
-                if arg_name in self.dims:
-                    kwargs[arg_name] = self.cast(item)
-                    self.update_errors(errors, arg_name, kwargs[arg_name])
+        # check kwargs for errors
+        for arg_name, item in kwargs.items():
+            if arg_name in self.dims:
+                kwargs[arg_name] = self.cast(item)
+                self.update_errors(errors, arg_name, kwargs[arg_name])
 
-            errors = {k: v for k, v in errors.items() if v != ""}
-            if any(errors):
-                raise ValueError("errors in input dimensions: \n\t" + '\n\t'.join(errors.values()))
+        errors = {k: v for k, v in errors.items() if v != ""}
+        if any(errors):
+            raise ValueError("errors in input dimensions: \n\t" + '\n\t'.join(errors.values()))
 
-            return method(cls, *args, **kwargs)
-
-        return decorator
+        return method(*args, **kwargs)
 
     @staticmethod
     def cast(item: Any):
