@@ -5,7 +5,8 @@ from copulae.copula import Summary, TailDep
 from copulae.core import EPS
 from copulae.stats import random_uniform
 from copulae.types import Array
-from copulae.utility.array import array_io, array_io_mcd
+from copulae.utility.annotations import *
+from copulae.utility.array import array_io
 from ._shared import valid_rows_in_u
 from .abstract import AbstractArchimedeanCopula
 
@@ -98,7 +99,9 @@ class ClaytonCopula(AbstractArchimedeanCopula):
 
         self._theta = theta
 
-    @array_io_mcd
+    @validate_data_dim({"u": [1, 2]})
+    @shape_first_input_to_cop_dim
+    @squeeze_output
     def pdf(self, u: Array, log=False):
         assert not np.isnan(self.params), "Copula must have parameters to calculate parameters"
 
@@ -131,6 +134,7 @@ class ClaytonCopula(AbstractArchimedeanCopula):
     def psi(self, s: Array):
         return np.maximum(1 + np.sign(self._theta) * s, np.zeros_like(s)) ** (-1 / self._theta)
 
+    @cast_output
     def random(self, n: int, seed: int = None) -> np.ndarray:
         theta = self._theta
         if np.isnan(theta):

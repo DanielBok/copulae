@@ -7,7 +7,7 @@ from scipy.stats import multivariate_normal as mvn
 from copulae.copula import BaseCopula
 from copulae.core import pseudo_obs
 from copulae.types import Array, Ties
-from copulae.utility.array import array_io_mcd
+from copulae.utility.annotations import *
 from .estimators import expectation_maximization, gradient_descent, k_means
 from .estimators.em import Criteria
 from .exception import GMCFitMethodError, GMCNotFittedError, GMCParamMismatchError
@@ -96,8 +96,10 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
         """Bounds is not meaningful for :class:`GaussianMixtureCopula`"""
         return NotImplemented
 
-    @array_io_mcd
-    def cdf(self, data: Array, log=False) -> Union[np.ndarray, float]:
+    @validate_data_dim({"x": [1, 2]})
+    @shape_first_input_to_cop_dim
+    @squeeze_output
+    def cdf(self, x: Array, log=False):
         """
         Returns the cumulative distribution function (CDF) of the copulae.
 
@@ -106,11 +108,11 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
 
         Parameters
         ----------
-        data : ndarray
+        x
             Vector or matrix of the observed data. This vector must be (n x d) where `d` is the dimension of
             the copula
 
-        log : bool
+        log
             If True, the log of the probability is returned
 
         Returns
@@ -121,9 +123,9 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
         if self.params is None:
             raise GMCNotFittedError
 
-        out = np.zeros(len(data))
+        out = np.zeros(len(x))
         for prob, mean, cov in self.params:
-            out += prob * (mvn.logcdf(data, mean, cov) if log else mvn.logcdf(data, mean, cov))
+            out += prob * (mvn.logcdf(x, mean, cov) if log else mvn.logcdf(x, mean, cov))
 
         return out
 
@@ -239,8 +241,10 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
         else:
             raise GMCParamMismatchError("Unsupported params type for GaussianMixtureCopula")
 
-    @array_io_mcd
-    def pdf(self, data: Array, log=False) -> Union[np.ndarray, float]:
+    @validate_data_dim({"x": [1, 2]})
+    @shape_first_input_to_cop_dim
+    @squeeze_output
+    def pdf(self, x: Array, log=False):
         """
         Returns the probability distribution function (PDF) of the copulae.
 
@@ -249,10 +253,10 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
 
         Parameters
         ----------
-        data: ndarray
+        x
             Vector or matrix of observed data
 
-        log: bool, optional
+        log
             If True, the density 'd' is given as log(d)
 
         Returns
@@ -263,12 +267,13 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
         if self.params is None:
             raise GMCNotFittedError
 
-        out = np.zeros(len(data))
+        out = np.zeros(len(x))
         for prob, mean, cov in self.params:
-            out += prob * (mvn.logpdf(data, mean, cov) if log else mvn.pdf(data, mean, cov))
+            out += prob * (mvn.logpdf(x, mean, cov) if log else mvn.pdf(x, mean, cov))
 
         return out
 
+    @cast_output
     def random(self, n: int, seed: int = None):
         """
         Generate random observations for the copula

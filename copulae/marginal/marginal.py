@@ -6,7 +6,7 @@ import pandas as pd
 from copulae.copula import BaseCopula, Param
 from copulae.copula.exceptions import InputDataError
 from copulae.types import Array
-from copulae.utility.array import array_io_mcd
+from copulae.utility.annotations import *
 from .summary import Summary
 from .univariate import DistDetail, create_univariate, get_marginal_detail
 
@@ -111,16 +111,15 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
         self._marginals = _process_margins_input(margins, copula.dim)
 
         assert copula.dim == len(self._marginals), "copula dimension and number of marginals must be equal"
-
-        self._dim = copula.dim
-        self._name = "Marginal"
-        self.init_validate()
+        super().__init__(copula.dim, "Marginal")
 
     def bounds(self):
         """Bounds is not implemented for the :class:`MarginalCopula`"""
         return NotImplemented
 
-    @array_io_mcd
+    @validate_data_dim({"x": [1, 2]})
+    @shape_first_input_to_cop_dim
+    @squeeze_output
     def cdf(self, x: Array, log=False) -> Union[np.ndarray, float]:
         x = self._check_x_input(x)
         u = np.empty_like(x)
@@ -131,6 +130,9 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
 
     def fit(self, data: Union[pd.DataFrame, np.ndarray], x0: Union[Collection[float], np.ndarray] = None, method='mpl',
             verbose=1, optim_options: dict = None, ties='average', **kwargs):
+        if isinstance(data, pd.DataFrame):
+            self._columns = list(data.columns)
+
         data = np.asarray(data)
         if data.ndim != 2:
             raise InputDataError('Data must be a matrix of dimension (n x d)')
@@ -153,7 +155,9 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
             "marginals": [get_marginal_detail(m) for m in self._marginals]
         }
 
-    @array_io_mcd
+    @validate_data_dim({"x": [1, 2]})
+    @shape_first_input_to_cop_dim
+    @squeeze_output
     def pdf(self, x: Array, log=False) -> Union[np.ndarray, float]:
         x = self._check_x_input(x)
         u = np.empty_like(x)
@@ -170,6 +174,7 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
         d = self._copula.pdf(u, log)
         return (d + density_margin) if log else (d * density_margin)
 
+    @cast_output
     def random(self, n: int, seed: int = None) -> Union[np.ndarray, float]:
         u = self._copula.random(n, seed)
         x = np.empty_like(u)

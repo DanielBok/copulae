@@ -7,7 +7,7 @@ from copulae.copula.base import EstimationMethod
 from copulae.elliptical.abstract import AbstractEllipticalCopula
 from copulae.stats import multivariate_t as mvt, t
 from copulae.types import Array, Ties
-from copulae.utility.array import array_io_mcd
+from copulae.utility.annotations import *
 
 
 class StudentParams(NamedTuple):
@@ -54,7 +54,9 @@ class StudentCopula(AbstractEllipticalCopula[StudentParams]):
         lower[0], upper[0] = 0, np.inf  # bounds for df, the rest are correlation
         self._bounds = (lower, upper)
 
-    @array_io_mcd
+    @validate_data_dim({"x": [1, 2]})
+    @shape_first_input_to_cop_dim
+    @squeeze_output
     def cdf(self, x: np.ndarray, log=False):
         sigma = self.sigma
         df = self._df
@@ -155,7 +157,9 @@ class StudentCopula(AbstractEllipticalCopula[StudentParams]):
             self._df = df
             self._rhos = params[1:]
 
-    @array_io_mcd
+    @validate_data_dim({"u": [1, 2]})
+    @shape_first_input_to_cop_dim
+    @squeeze_output
     def pdf(self, u: np.ndarray, log=False):
         sigma = self.sigma
         df = self._df
@@ -163,6 +167,7 @@ class StudentCopula(AbstractEllipticalCopula[StudentParams]):
         d = mvt.logpdf(q, cov=sigma, df=df) - t.logpdf(q, df=df).sum(1)
         return d if log else np.exp(d)
 
+    @cast_output
     def random(self, n: int, seed: int = None):
         r = mvt.rvs(cov=self.sigma, df=self._df, size=n, random_state=seed)
         return t.cdf(r, self._df)

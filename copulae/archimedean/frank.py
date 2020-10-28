@@ -7,7 +7,8 @@ from copulae.special.special_func import log1mexp, log1pexp, poly_log
 from copulae.stats import random_uniform
 from copulae.stats.log import random_log_series_ln1p
 from copulae.types import Array
-from copulae.utility.array import array_io, array_io_mcd
+from copulae.utility.annotations import *
+from copulae.utility.array import array_io
 from ._shared import valid_rows_in_u
 from .abstract import AbstractArchimedeanCopula
 
@@ -117,7 +118,9 @@ class FrankCopula(AbstractArchimedeanCopula):
             raise ValueError('theta must be positive when dim > 2')
         self._theta = float(theta)
 
-    @array_io_mcd
+    @validate_data_dim({"u": [1, 2]})
+    @shape_first_input_to_cop_dim
+    @squeeze_output
     def pdf(self, u: Array, log=False):
         assert not np.isnan(self.params), "Copula must have parameters to calculate parameters"
 
@@ -159,6 +162,7 @@ class FrankCopula(AbstractArchimedeanCopula):
             s[~m] = -log1mexp(s[~m] - log1mexp(self.params)) / self.params
             return s
 
+    @cast_output
     def random(self, n: int, seed: int = None):
         u = random_uniform(n, self.dim, seed)
         if abs(self.params) < 1e-7:

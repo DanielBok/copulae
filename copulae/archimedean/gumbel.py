@@ -10,7 +10,8 @@ from copulae.special.special_func import polyn_eval, sign_ff, stirling_first_all
 from copulae.special.trig import cospi2
 from copulae.stats import poisson, random_uniform, skew_stable
 from copulae.types import Array, Numeric
-from copulae.utility.array import array_io, array_io_mcd
+from copulae.utility.annotations import *
+from copulae.utility.array import array_io
 from ._shared import valid_rows_in_u
 from .abstract import AbstractArchimedeanCopula
 from .auxiliary import dsum_sibuya
@@ -176,7 +177,9 @@ class GumbelCopula(AbstractArchimedeanCopula):
 
         self._theta = theta
 
-    @array_io_mcd
+    @validate_data_dim({"u": [1, 2]})
+    @shape_first_input_to_cop_dim
+    @squeeze_output
     def pdf(self, u: np.ndarray, log=False):
         assert not np.isnan(self.params), "Copula must have parameters to calculate parameters"
 
@@ -196,10 +199,10 @@ class GumbelCopula(AbstractArchimedeanCopula):
 
         # get sum of logs
         if u.ndim == 1:
-            offset = u.max()
+            offset = np.max(u)
             ln = offset + np.log(np.exp(lip - offset).sum(1))
         else:
-            offset = u.max(1)
+            offset = np.max(u, axis=1)
             ln = offset + np.log(np.exp(lip - offset[:, None]).sum(1))
 
         alpha = 1 / self.params
@@ -215,6 +218,7 @@ class GumbelCopula(AbstractArchimedeanCopula):
     def psi(self, s: Array) -> np.ndarray:
         return np.exp(-s ** (1 / self.params))
 
+    @cast_output
     def random(self, n: int, seed: int = None):
         if np.isnan(self.params):
             raise RuntimeError('Clayton copula parameter cannot be nan')

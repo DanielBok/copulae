@@ -60,7 +60,7 @@ def shape_first_input_to_cop_dim(method, instance: BaseCopula, args, kwargs):
 
 
 @wrapt.decorator
-def squeeze_output(method, _, args, kwargs):
+def squeeze_output(method, _, args, kwargs) -> Union[np.ndarray, float]:
     """Squeezes the output to a float if the size is one"""
     output: pd.Series = method(*args, **kwargs)
     return float(output) if output.size == 1 else output

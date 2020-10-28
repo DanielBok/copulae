@@ -6,7 +6,8 @@ from copulae.copula import Summary, TailDep
 from copulae.elliptical.abstract import AbstractEllipticalCopula
 from copulae.stats import multivariate_normal as mvn, norm
 from copulae.types import Array
-from copulae.utility.array import array_io, array_io_mcd
+from copulae.utility.annotations import *
+from copulae.utility.array import array_io
 
 
 class GaussianCopula(AbstractEllipticalCopula[np.ndarray]):
@@ -44,7 +45,9 @@ class GaussianCopula(AbstractEllipticalCopula[np.ndarray]):
         eps = 1e-6
         self._bounds = np.repeat(-1., n) - eps, np.repeat(1., n) + eps
 
-    @array_io_mcd
+    @validate_data_dim({"x": [1, 2]})
+    @shape_first_input_to_cop_dim
+    @squeeze_output
     def cdf(self, x: np.ndarray, log=False):
         q = norm.ppf(x)
         sigma = self.sigma
@@ -69,13 +72,16 @@ class GaussianCopula(AbstractEllipticalCopula[np.ndarray]):
             params = np.repeat(params, len(self._rhos))
         self._rhos = np.asarray(params)
 
-    @array_io_mcd
+    @validate_data_dim({"u": [1, 2]})
+    @shape_first_input_to_cop_dim
+    @squeeze_output
     def pdf(self, u: np.ndarray, log=False):
         sigma = self.sigma
         q = norm.ppf(u)
         d = mvn.logpdf(q, cov=sigma) - norm.logpdf(q).sum(1)
         return d if log else np.exp(d)
 
+    @cast_output
     def random(self, n: int, seed: int = None):
         r = mvn.rvs(cov=self.sigma, size=n, random_state=seed)
         return norm.cdf(r)

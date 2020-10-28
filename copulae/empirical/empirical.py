@@ -106,7 +106,28 @@ class EmpiricalCopula(BaseCopula[None]):
     @validate_data_dim({"u": [1, 2]})
     @shape_first_input_to_cop_dim
     @squeeze_output
-    def cdf(self, u: Array, log=False) -> np.ndarray:
+    def cdf(self, u: Array, log=False):
+        """
+        Returns the cumulative distribution function (CDF) of the copulae.
+
+        The CDF is also the probability of a RV being less or equal to the value specified. Equivalent to the 'p'
+        generic function in R.
+
+        Parameters
+        ----------
+        u: ndarray
+            Vector or matrix of the pseudo-observations of the observed data. This vector must be (n x d)
+            where `d` is the dimension of the copula and must have values between 0 and 1. The caller must
+            have specified the density.
+
+        log: bool
+            If True, the log of the probability is returned
+
+        Returns
+        -------
+        ndarray or float
+            The CDF of the random variates
+        """
         if np.any(u > (1 + EPSILON)) or np.any(u < -EPSILON):
             raise ValueError("input array must be pseudo observations")
 

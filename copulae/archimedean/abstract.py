@@ -5,25 +5,25 @@ import numpy as np
 from copulae.copula import BaseCopula, CopulaCorrProtocol
 from copulae.special.optimize import find_root
 from copulae.types import Array
-from copulae.utility.array import array_io, array_io_mcd
+from copulae.utility.annotations import *
+from copulae.utility.array import array_io
 
 
 class AbstractArchimedeanCopula(BaseCopula[float], CopulaCorrProtocol, ABC):
     def __init__(self, dim: int, theta: float, family: str):
-        family = family.lower()
+        super().__init__(dim, family)
         self._theta = float(theta)
-        families = ('clayton', 'frank', 'gumbel')  # amh, joe not implemented
-        assert family in families, f"Unknown family of Archimedean copula: {family}. Use one of {', '.join(families)}"
 
-        self._dim = dim
-        self._name = family
-
-    @array_io_mcd
-    def cdf(self, u: Array, log=False) -> np.ndarray:
-        cdf = self.psi(self.ipsi(u).sum(1))
+    @validate_data_dim({"x": [1, 2]})
+    @shape_first_input_to_cop_dim
+    @squeeze_output
+    def cdf(self, x: Array, log=False) -> np.ndarray:
+        cdf = self.psi(self.ipsi(x).sum(1))
         return np.log(cdf) if log else cdf
 
-    @abstractmethod
+    @validate_data_dim({"u": [1, 2]})
+    @shape_first_input_to_cop_dim
+    @squeeze_output
     def dipsi(self, u, degree=1, log=False):  # pragma: no cover
         """
         Derivative of the inverse of the generator function for Archimedean copulae
