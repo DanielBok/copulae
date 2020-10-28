@@ -14,10 +14,8 @@ class AbstractEllipticalCopula(BaseCopula[Param], CopulaCorrProtocol, ABC):
     """
 
     def __init__(self, dim: int, name: str):
-        self._dim = dim
-        self._name = name
+        super().__init__(dim, name)
         self._rhos = np.zeros(sum(range(dim)))
-        self.init_validate()
 
     @array_io(optional=True)
     def drho(self, x=None):

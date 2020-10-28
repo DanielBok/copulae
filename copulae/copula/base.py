@@ -68,7 +68,7 @@ class BaseCopula(ABC, Generic[Param]):
 
         Returns
         -------
-        ndarray
+        ndarray or float
             The CDF of the random variates
         """
         raise NotImplementedError
@@ -224,7 +224,7 @@ class BaseCopula(ABC, Generic[Param]):
         """
         return pseudo_obs(data, ties)
 
-    def random(self, n: int, seed: int = None) -> Union[np.ndarray, float]:
+    def random(self, n: int, seed: int = None) -> Union[pd.DataFrame, np.ndarray]:
         """
         Generate random observations for the copula
 
@@ -238,7 +238,7 @@ class BaseCopula(ABC, Generic[Param]):
 
         Returns
         -------
-        ndarray
+        pd.DataFrame or ndarray
             array of generated observations
         """
         raise NotImplementedError
