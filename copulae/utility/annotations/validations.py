@@ -83,7 +83,7 @@ class validate_data_dim:
 
     @staticmethod
     def cast(item: Any):
-        return item if isinstance(item, (np.ndarray, pd.DataFrame)) else np.array(item)
+        return item if isinstance(item, (np.ndarray, pd.Series, pd.DataFrame)) else np.array(item)
 
     def update_errors(self, errors: Dict[str, str], arg_name: str, arg: Union[np.ndarray, pd.DataFrame]):
         ideal_dims = self.dims[arg_name]

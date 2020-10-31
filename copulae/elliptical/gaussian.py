@@ -7,7 +7,6 @@ from copulae.elliptical.abstract import AbstractEllipticalCopula
 from copulae.stats import multivariate_normal as mvn, norm
 from copulae.types import Array
 from copulae.utility.annotations import *
-from copulae.utility.array import array_io
 
 
 class GaussianCopula(AbstractEllipticalCopula[np.ndarray]):
@@ -53,7 +52,8 @@ class GaussianCopula(AbstractEllipticalCopula[np.ndarray]):
         sigma = self.sigma
         return mvn.logcdf(q, cov=sigma) if log else mvn.cdf(q, cov=sigma)
 
-    @array_io
+    @cast_input(['rho'])
+    @squeeze_output
     def irho(self, rho: Array):
         return np.sin(np.array(rho) * np.pi / 6) * 2
 

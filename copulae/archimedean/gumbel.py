@@ -11,7 +11,6 @@ from copulae.special.trig import cospi2
 from copulae.stats import poisson, random_uniform, skew_stable
 from copulae.types import Array, Numeric
 from copulae.utility.annotations import *
-from copulae.utility.array import array_io
 from ._shared import valid_rows_in_u
 from .abstract import AbstractArchimedeanCopula
 from .auxiliary import dsum_sibuya
@@ -44,7 +43,8 @@ class GumbelCopula(AbstractArchimedeanCopula):
         super().__init__(dim, theta, 'Gumbel')
         self._bounds = (1.0, np.inf)
 
-    @array_io
+    @cast_input(['w'])
+    @squeeze_output
     def A(self, w: Numeric):
         r"""
         The Pickands dependence function. This can be seen as the generator function of an
@@ -74,7 +74,8 @@ class GumbelCopula(AbstractArchimedeanCopula):
         r[bnd] = 1
         return r
 
-    @array_io
+    @cast_input(['w'])
+    @squeeze_output
     def dAdu(self, w):
         """
         First and second derivative of A
@@ -119,7 +120,8 @@ class GumbelCopula(AbstractArchimedeanCopula):
             res[:, 1] = hess
             return res
 
-    @array_io
+    @cast_input(['u'])
+    @squeeze_output
     def dipsi(self, u, degree=1, log=False) -> np.ndarray:
         assert degree in (1, 2), 'degree can only be 1 or 2'
 
@@ -136,18 +138,21 @@ class GumbelCopula(AbstractArchimedeanCopula):
         # TODO Gumbel: add rho derivative function
         return NotImplemented
 
-    @array_io(optional=True)
+    @cast_input(['x'], optional=True)
+    @squeeze_output
     def dtau(self, x=None):
         if x is None:
             x = self.params
         return x ** -2
 
-    @array_io
+    @cast_input(['u'])
+    @squeeze_output
     def ipsi(self, u: Array, log=False):
         v = (-np.log(u)) ** self.params
         return np.log(v) if log else v
 
-    @array_io
+    @cast_input(['tau'])
+    @squeeze_output
     def itau(self, tau):
         warning_message = "For the Gumbel copula, tau must be >= 0. Replacing negative values by 0."
         if np.size(tau) == 1:
@@ -214,7 +219,8 @@ class GumbelCopula(AbstractArchimedeanCopula):
 
         return log_pdf if log else np.exp(log_pdf)
 
-    @array_io
+    @cast_input(['s'])
+    @squeeze_output
     def psi(self, s: Array) -> np.ndarray:
         return np.exp(-s ** (1 / self.params))
 

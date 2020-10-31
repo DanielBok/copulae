@@ -6,7 +6,7 @@ import numpy as np
 def _array_io(f):
     @wraps(f)
     def decorator(x):
-        res = np.asarray(f(np.asarray(x)))
+        res = f(np.asarray(x))
         return res.item(0) if res.size == 1 else res
 
     return decorator

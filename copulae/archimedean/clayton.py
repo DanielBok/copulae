@@ -6,7 +6,6 @@ from copulae.core import EPS
 from copulae.stats import random_uniform
 from copulae.types import Array
 from copulae.utility.annotations import *
-from copulae.utility.array import array_io
 from ._shared import valid_rows_in_u
 from .abstract import AbstractArchimedeanCopula
 
@@ -38,8 +37,9 @@ class ClaytonCopula(AbstractArchimedeanCopula):
 
         self._bounds = (-1 + EPS) if dim == 2 else 0, np.inf
 
-    @array_io
-    def dipsi(self, u, degree=1, log=False):
+    @cast_input(['u'])
+    @squeeze_output
+    def dipsi(self, u: Array, degree=1, log=False):
         assert degree in (1, 2), 'degree can only be 1 or 2'
 
         s = 1 if log or degree % 2 == 0 else -1
@@ -52,7 +52,8 @@ class ClaytonCopula(AbstractArchimedeanCopula):
 
         return s * (a if log else np.exp(a))
 
-    @array_io(optional=True)
+    @cast_input(['x'], optional=True)
+    @squeeze_output
     def drho(self, x=None):  # pragma: no cover
         # TODO Clayton: add rho derivative function
         # if x is None:
@@ -62,18 +63,21 @@ class ClaytonCopula(AbstractArchimedeanCopula):
         # return self._ext.drho(x)
         return NotImplemented
 
-    @array_io(optional=True)
+    @cast_input(['theta'], optional=True)
+    @squeeze_output
     def dtau(self, theta=None):
         if theta is None:
             theta = self._theta
         return 2 / (theta + 2) ** 2
 
-    @array_io
+    @cast_input(['u'])
+    @squeeze_output
     def ipsi(self, u: Array, log=False):
         v = np.sign(self._theta) * (u ** -self._theta - 1)
         return np.log(v) if log else v
 
-    @array_io
+    @cast_input(['tau'])
+    @squeeze_output
     def itau(self, tau: Array):
         return 2 * tau / (1 - tau)
 
@@ -130,7 +134,8 @@ class ClaytonCopula(AbstractArchimedeanCopula):
 
         return log_pdf if log else np.exp(log_pdf)
 
-    @array_io
+    @cast_input(['s'])
+    @squeeze_output
     def psi(self, s: Array):
         return np.maximum(1 + np.sign(self._theta) * s, np.zeros_like(s)) ** (-1 / self._theta)
 

@@ -5,7 +5,7 @@ import numpy as np
 
 from copulae.copula import BaseCopula, CopulaCorrProtocol, Param
 from copulae.core import EPS, create_cov_matrix, is_psd, near_psd, tri_indices
-from copulae.utility.array import array_io
+from copulae.utility.annotations import *
 
 
 class AbstractEllipticalCopula(BaseCopula[Param], CopulaCorrProtocol, ABC):
@@ -17,19 +17,22 @@ class AbstractEllipticalCopula(BaseCopula[Param], CopulaCorrProtocol, ABC):
         super().__init__(dim, name)
         self._rhos = np.zeros(sum(range(dim)))
 
-    @array_io(optional=True)
+    @cast_input(['x'], optional=True)
+    @squeeze_output
     def drho(self, x=None):
         if x is None:
             x = self._rhos
         return 6 / (np.pi * np.sqrt(4 - x ** 2))
 
-    @array_io(optional=True)
+    @cast_input(['x'], optional=True)
+    @squeeze_output
     def dtau(self, x=None):
         if x is None:
             x = self._rhos
         return 2 / (np.pi * np.sqrt(1 - x ** 2))
 
-    @array_io
+    @cast_input(['tau'])
+    @squeeze_output
     def itau(self, tau):
         return np.sin(np.asarray(tau) * np.pi / 2)
 
