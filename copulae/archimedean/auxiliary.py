@@ -11,10 +11,10 @@ def dsum_sibuya(x, n, alpha: float, method='log', log=False):
 
     Parameters
     ----------
-    x: iterable of int
+    x: int or list of int
         Vector of integer values ("quantiles") `x` at which to compute the probability mass or cumulative probability.
 
-    n: ndarray
+    n: int or list of int
         The number of summands
 
     alpha: float

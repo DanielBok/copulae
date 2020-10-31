@@ -6,7 +6,6 @@ from copulae.copula import BaseCopula, CopulaCorrProtocol
 from copulae.special.optimize import find_root
 from copulae.types import Array
 from copulae.utility.annotations import *
-from copulae.utility.array import array_io
 
 
 class AbstractArchimedeanCopula(BaseCopula[float], CopulaCorrProtocol, ABC):
@@ -68,7 +67,8 @@ class AbstractArchimedeanCopula(BaseCopula[float], CopulaCorrProtocol, ABC):
         """
         pass
 
-    @array_io
+    @cast_input(['rho'])
+    @squeeze_output
     def irho(self, rho):
         lower, upper = self.bounds
         assert np.isscalar(lower) and np.isscalar(upper), "Archimedean copula bounds must be scalar"

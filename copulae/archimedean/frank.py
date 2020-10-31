@@ -8,7 +8,6 @@ from copulae.stats import random_uniform
 from copulae.stats.log import random_log_series_ln1p
 from copulae.types import Array
 from copulae.utility.annotations import *
-from copulae.utility.array import array_io
 from ._shared import valid_rows_in_u
 from .abstract import AbstractArchimedeanCopula
 
@@ -42,7 +41,8 @@ class FrankCopula(AbstractArchimedeanCopula):
 
         self._bounds = (-np.inf if dim == 2 else 0), np.inf
 
-    @array_io
+    @cast_input(['u'])
+    @squeeze_output
     def dipsi(self, u: Array, degree=1, log=False):
         assert degree in (1, 2), 'degree can only be 1 or 2'
 
@@ -56,19 +56,22 @@ class FrankCopula(AbstractArchimedeanCopula):
 
         return s * (np.log(v) if log else v)
 
-    @array_io(optional=True)
+    @cast_input(['x'], optional=True)
+    @squeeze_output
     def drho(self, x=None):  # pragma: no cover
         if x is None:
             x = self.params
         return 12 * (x / np.expm1(x) - 3 * debye1(x) + 2 * debye1(x)) / x ** 2
 
-    @array_io(optional=True)
+    @cast_input(['x'], optional=True)
+    @squeeze_output
     def dtau(self, x=None):  # pragma: no cover
         if x is None:
             x = self.params
         return (x / np.expm1(x) + 1 - debye1(x) / x) * (2 / x) ** 2
 
-    @array_io
+    @cast_input(['u'], optional=True)
+    @squeeze_output
     def ipsi(self, u, log=False):
         r = np.asarray(u) * self.params
 
@@ -95,7 +98,8 @@ class FrankCopula(AbstractArchimedeanCopula):
         # TODO frank: add inverse rho
         return NotImplemented
 
-    @array_io
+    @cast_input(['tau'])
+    @squeeze_output
     def itau(self, tau):
         res = np.array([find_root(lambda x: self._tau(x) - t,
                                   2.2e-16 if t > 0 else -1e20,
@@ -143,7 +147,8 @@ class FrankCopula(AbstractArchimedeanCopula):
 
         return res if log else np.exp(res)
 
-    @array_io
+    @cast_input(['s'])
+    @squeeze_output
     def psi(self, s):
         assert not np.isnan(self.params), "Copula must have parameters to calculate psi"
 
