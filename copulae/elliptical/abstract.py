@@ -3,12 +3,12 @@ from typing import Collection, Tuple, Union
 
 import numpy as np
 
-from copulae.copula import BaseCopula, CopulaCorrProtocol, Param
+from copulae.copula import BaseCopula, Param
 from copulae.core import EPS, create_cov_matrix, is_psd, near_psd, tri_indices
 from copulae.utility.annotations import *
 
 
-class AbstractEllipticalCopula(BaseCopula[Param], CopulaCorrProtocol, ABC):
+class AbstractEllipticalCopula(BaseCopula[Param], ABC):
     """
     The abstract base class for Elliptical Copulas
     """
