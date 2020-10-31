@@ -2,13 +2,13 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from copulae.copula import BaseCopula, CopulaCorrProtocol
+from copulae.copula import BaseCopula
 from copulae.special.optimize import find_root
 from copulae.types import Array
 from copulae.utility.annotations import *
 
 
-class AbstractArchimedeanCopula(BaseCopula[float], CopulaCorrProtocol, ABC):
+class AbstractArchimedeanCopula(BaseCopula[float], ABC):
     def __init__(self, dim: int, theta: float, family: str):
         super().__init__(dim, family)
         self._theta = float(theta)
