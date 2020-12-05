@@ -55,15 +55,20 @@ def gmm_marginal_ppf(q: np.ndarray, param: GMCParam, resolution=2000, spread=5, 
 
     is_nan = np.isnan(ppf)
     if is_nan.any():
-        ppf[is_nan & (q >= 1)] = np.inf  # infinity cause marginal is greater or equal to 1
-        ppf[is_nan & (q <= 0)] = -np.inf  # infinity cause marginal is greater or equal to 1
+        ppf[is_nan & (q >= 1)] = np.inf  # infinity because marginal is greater or equal to 1
+        ppf[is_nan & (q <= 0)] = -np.inf  # infinity because marginal is less than or equal to 0
 
     return ppf
 
 
 def gmm_marginal_cdf(x: np.ndarray, param: GMCParam):
     """
-    Approximates the inverse cdf of the input given the GMC parameters
+    Applies the approximation of the inverse cdf marginally for the input given the GMC parameters
+
+    Notes
+    -----
+    The approximation is taken from `Abramowitz and Stegun's Handbook of Mathematical
+    Functions <http://people.math.sfu.ca/~cbm/aands/toc.htm>`_ formula 7.1.25.
 
     Parameters
     ----------
@@ -90,5 +95,5 @@ def gmm_marginal_cdf(x: np.ndarray, param: GMCParam):
     zi = (np.repeat(x[..., np.newaxis], param.n_clusters, axis=2) - means) / (sigmas * sqrt2)
     za = np.abs(zi)
     t = 1 / (1 + rho * za)
-    chunk = 0.5 * (a1 * t + a2 * t ** 2 + a3 * t ** 3) * np.exp(-(za ** 2))
-    return np.where(zi < 0, chunk, 1 - chunk) @ param.prob
+    erf = 0.5 * (a1 * t + a2 * t ** 2 + a3 * t ** 3) * np.exp(-(za ** 2))
+    return np.where(zi < 0, erf, 1 - erf) @ param.prob
