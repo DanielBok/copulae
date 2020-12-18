@@ -16,7 +16,7 @@ def copula(residual_data):
 @pytest.fixture(scope="module")
 def fitted_frank(residual_data):
     cop = FrankCopula(dim=residual_data.shape[1])
-    cop.fit(residual_data)
+    cop.fit(residual_data, scale=1e6)
     return cop
 
 

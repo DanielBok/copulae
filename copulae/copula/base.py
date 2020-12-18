@@ -5,7 +5,7 @@ from typing import Collection, Generic, List, NamedTuple, Optional, Tuple, TypeV
 import numpy as np
 import pandas as pd
 
-from copulae.copula.estimator import CopulaEstimator, EstimationMethod
+from copulae.copula.estimator import EstimationMethod, fit_copula
 from copulae.copula.exceptions import InputDataError, NotFittedError
 from copulae.copula.summary import FitSummary, SummaryType
 from copulae.core import pseudo_obs
@@ -79,7 +79,8 @@ class BaseCopula(ABC, Generic[Param]):
         return self._dim
 
     def fit(self, data: Union[pd.DataFrame, np.ndarray], x0: Union[Collection[float], np.ndarray] = None,
-            method: EstimationMethod = 'mpl', optim_options: dict = None, ties: Ties = 'average', verbose=1):
+            method: EstimationMethod = 'ml', optim_options: dict = None, ties: Ties = 'average', verbose=1,
+            **kwargs):
         """
         Fit the copula with specified data
 
@@ -91,9 +92,9 @@ class BaseCopula(ABC, Generic[Param]):
         x0: ndarray
             Initial starting point. If value is None, best starting point will be estimated
 
-        method: { 'ml', 'mpl', 'irho', 'itau' }, optional
-            Method of fitting. Supported methods are: 'ml' - Maximum Likelihood, 'mpl' - Maximum Pseudo-likelihood,
-            'irho' - Inverse Spearman Rho, 'itau' - Inverse Kendall Tau
+        method: { 'ml', 'irho', 'itau' }, optional
+            Method of fitting. Supported methods are: 'ml' - Maximum Likelihood, 'irho' - Inverse Spearman Rho,
+            'itau' - Inverse Kendall Tau
 
         optim_options: dict, optional
             Keyword arguments to pass into :func:`scipy.optimize.minimize`
@@ -104,6 +105,18 @@ class BaseCopula(ABC, Generic[Param]):
 
         verbose: int, optional
             Log level for the estimator. The higher the number, the more verbose it is. 0 prints nothing.
+
+        kwargs
+            Other keyword arguments. See Notes for more details
+
+        Notes
+        -----
+        Other valid keyword arguments and their purpose
+
+        :code:`scale`
+            Amount to scale the objective function value of the numerical optimizer. This is helpful in
+            achieving higher accuracy as it increases the sensitivity of the optimizer. The downside is
+            that the optimizer could likely run longer as a result. Defaults to 1.
 
         See Also
         --------
@@ -116,7 +129,7 @@ class BaseCopula(ABC, Generic[Param]):
             raise InputDataError('Dimension of data does not match copula')
 
         x0 = np.asarray(x0) if x0 is not None and not isinstance(x0, np.ndarray) and isinstance(x0, Collection) else x0
-        CopulaEstimator(self, data, x0=x0, method=method, verbose=verbose, optim_options=optim_options)
+        fit_copula(self, data, x0, method, verbose, optim_options, kwargs.get('scale', 1))
 
         if isinstance(data, pd.DataFrame):
             self._columns = list(data.columns)

@@ -1,131 +1,151 @@
-from typing import Optional
+from typing import Any, Optional, Tuple, Union
 
 import numpy as np
 
-from copulae.copula.estimator.misc import is_elliptical
+from copulae.copula.estimator.misc import is_archimedean, is_elliptical
 from copulae.core import tri_indices
 from copulae.stats import pearson_rho
+from copulae.types import Array, Ties
 from copulae.utility.dict import merge_dict
-from .corr_inversion import CorrInversionEstimator
-from .max_likelihood import MaxLikelihoodEstimator
+from .corr_inversion import estimate_corr_inverse_params
+from .max_likelihood import estimate_max_likelihood_params
 
 try:
-    from typing import Literal
+    from typing import Literal, Protocol
 except ImportError:
-    from typing_extensions import Literal
+    from typing_extensions import Literal, Protocol
 
-EstimationMethod = Literal['ml', 'mpl', 'irho', 'itau']
+__all__ = ['fit_copula', 'EstimationMethod']
 
 
-class CopulaEstimator:
-    def __init__(self, copula, data: np.ndarray, x0: np.ndarray = None, method: EstimationMethod = 'ml', verbose=1,
-                 optim_options: Optional[dict] = None):
-        """
-        Estimator for any copula
+class Copula(Protocol):
+    name: str
+    dim: int
+    bounds: Tuple[Union[int, float, np.ndarray], Union[int, float, np.ndarray]]
+    params: Any
 
-        By passing the copula into class object, the copula will be automatically fitted
+    def pdf(self, u: Array, log=False) -> Union[np.ndarray, float]:
+        raise NotImplementedError
 
-        Parameters
-        ----------
-        data: ndarray
-            Array of data used to fit copula. Usually, data should be the pseudo observations
+    def log_lik(self, data: np.ndarray, *, to_pobs=True, ties: Ties = 'average'):
+        raise NotImplementedError
 
-        x0: ndarray
-            Initial starting point. If value is None, best starting point will be estimated
 
-        method: { 'ml', 'mpl', 'irho', 'itau' }
-            Method of fitting. Supported methods are: 'ml' - Maximum Likelihood, 'mpl' - Maximum Pseudo-likelihood,
-            'irho' - Inverse Spearman Rho, 'itau' - Inverse Kendall Tau
+EstimationMethod = Literal['ml', 'irho', 'itau']
 
-        verbose: int
-            Log level for the estimator. The higher the number, the more verbose it is. 0 prints nothing.
 
-        optim_options: dict
-            Keyword arguments to pass into scipy.optimize.minimize
+def fit_copula(copula: Copula, data: np.ndarray, x0: Optional[Union[np.ndarray, float]], method: EstimationMethod,
+               verbose: int, optim_options: Optional[dict], scale: float):
+    """
+    Estimator for any copula
 
-        See Also
-        --------
-        :code:`scipy.optimize.minimize`: the optimization function
-        """
+    By passing the copula into class object, the copula will be automatically fitted
 
-        self.copula = copula
-        self.data = data
-        self.x0 = x0
-        self.verbose = verbose
-        self.method = method.lower()
+    Parameters
+    ----------
+    copula
+        The copula instance
 
-        # default optim options is the first dictionary. We have set the default options for Nelder-Mead
-        self.options = form_options(optim_options or {}, verbose, data, copula.bounds)
+    data: ndarray
+        Array of data used to fit copula. Usually, data should be the pseudo observations
 
-        if np.any(data) < 0 or np.any(data) > 1:
-            raise ValueError("data must be in [0, 1] -- you probably forgot to convert data to pseudo-observations")
-        elif len(data) < self.copula.dim:
-            raise ValueError("number of data (rows) must be greater than its dimension")
+    x0: ndarray
+        Initial starting point. If value is None, best starting point will be estimated
 
-        self.fit()  # fit the copula
+    method: { 'ml', 'irho', 'itau' }
+        Method of fitting. Supported methods are: 'ml' - Maximum Likelihood, 'irho' - Inverse Spearman Rho,
+        'itau' - Inverse Kendall Tau
 
-    def fit(self):
-        m = self.method
-        if m in {'ml', 'mpl'}:
-            MaxLikelihoodEstimator(self.copula, self.data, self.initial_params, self.options, self.verbose).fit(m)
-        elif m in ('itau', 'irho'):
-            CorrInversionEstimator(self.copula, self.data, self.verbose).fit(m)
+    verbose: int
+        Log level for the estimator. The higher the number, the more verbose it is. 0 prints nothing.
+
+    optim_options: dict
+        Keyword arguments to pass into scipy.optimize.minimize
+
+    scale: float
+        Amount to scale the objective function value. This is helpful in achieving higher accuracy
+        as it increases the sensitivity of the optimizer. The downside is that the optimizer could
+        likely run longer as a result
+
+    See Also
+    --------
+    :code:`scipy.optimize.minimize`: the optimization function
+    """
+    options = form_options(optim_options or {}, verbose, data, copula)
+
+    if np.any(data) < 0 or np.any(data) > 1:
+        raise ValueError("data must be in [0, 1] -- you probably forgot to convert data to pseudo-observations")
+    elif len(data) < copula.dim:
+        raise ValueError("number of data (rows) must be greater than its dimension")
+
+    m = method.lower()
+    if m in {'ml'}:
+        x0 = initial_params(copula, data, x0)
+        estimate_max_likelihood_params(copula, data, x0, options, verbose, scale)
+    elif m in ('itau', 'irho'):
+        estimate_corr_inverse_params(copula, data, m)
+    else:
+        raise NotImplementedError(f"'{m}' is not implemented")
+
+
+def initial_params(copula: Copula, data: np.ndarray, x0: np.ndarray):
+    # ensure that initial is defined. If it is defined, checks that all x0 values are finite
+    # neither infinite nor nan
+    if x0 is not None and \
+            ((np.isscalar(x0) and not np.isfinite(x0)) or (not np.isscalar(x0) and all(np.isfinite(x0)))):
+        return x0
+
+    if is_elliptical(copula):
+        corr = pearson_rho(data)
+        rhos = corr[tri_indices(copula.dim, 1, 'lower')]
+        if copula.name.lower() == 'student':
+            # T-distribution
+            return np.array([4.669, *rhos])  # set df as Feigenbaum's constant
         else:
-            raise NotImplementedError(f"'{m}' is not implemented")
+            # Gaussian
+            return rhos
 
-    @property
-    def initial_params(self) -> np.ndarray:
-        if self.x0 is not None:
-            return self.x0
+    try:
+        start = estimate_corr_inverse_params(copula, data, 'itau')
+        ll = copula.log_lik(data)
 
-        if is_elliptical(self.copula):
-            corr = pearson_rho(self.data)
-            rhos = corr[tri_indices(self.copula.dim, 1, 'lower')]
-            if hasattr(self.copula, '_df'):
-                # T-distribution
-                return np.array([4.669, *rhos])  # set df as Feigenbaum's constant
-            else:
-                # Gaussian
-                return rhos
+        if np.isfinite(ll):
+            return start
+        else:
+            if copula.name.lower() == 'clayton' and copula.dim == 2:
+                # The support of bivariate claytonCopula with negative parameter is not
+                # the full unit square; the further from 0, the more restricted.
+                while start < 0:
+                    start += .2
+                    copula.params = start
+                    if np.isfinite(copula.log_lik(data)):
+                        break
 
-        try:
-            start = CorrInversionEstimator(self.copula, self.data, self.verbose).fit('itau')
-
-            ll = self.copula.log_lik(self.data)
-
-            if np.isfinite(ll):
+            if not np.isnan(ll) and np.isinf(ll):
+                # for perfectly correlated data
                 return start
-            else:
-                if self.copula.name.lower() == 'clayton' and self.copula.dim == 2:
-                    # The support of bivariate claytonCopula with negative parameter is not
-                    # the full unit square; the further from 0, the more restricted.
-                    while start < 0:
-                        start += .2
-                        self.copula.params = start
-                        if np.isfinite(self.copula.log_lik(self.data)):
-                            break
-
-                if not np.isnan(ll) and np.isinf(ll):
-                    # for perfectly correlated data
-                    return start
-                return self.copula.params
-        except NotImplementedError:
-            return self.copula.params
+            return copula.params
+    except NotImplementedError:
+        return copula.params
 
 
-def form_options(options: dict, verbose: int, data: np.ndarray, bounds):
+def form_options(options: dict, verbose: int, data: np.ndarray, copula: Copula):
     def method_is(method: str):
         return options['method'].casefold() == method.casefold()
 
     max_iter = min(len(data) * 250, 20000)
     disp = verbose >= 2
 
-    options.setdefault('method', 'SLSQP')
-
-    lb, ub = bounds
-    if isinstance(lb, (int, float)) and isinstance(ub, (int, float)):
-        bounds = [bounds]
+    if is_archimedean(copula):
+        options.setdefault('method', 'Nelder-Mead')
     else:
+        options.setdefault('method', 'SLSQP')
+
+    lb, ub = copula.bounds
+    if np.isscalar(lb) and np.isscalar(ub):
+        bounds = [[lb, ub]]
+    else:
+        assert not np.isscalar(lb) and not np.isscalar(ub), "bounds must be both scalars or both vectors"
         # lower and upper bounds are arrays
         bounds = [(l, u) for l, u in zip(lb, ub)]
 

@@ -34,7 +34,7 @@ class IndepCopula(BaseCopula[int]):
     def cdf(self, x: Array, log=False):
         return np.log(x).sum(1) if log else x.prod(1)
 
-    def fit(self, data, x0=None, method='mpl', verbose=1, optim_options=None, ties='average'):
+    def fit(self, data, x0=None, method='ml', verbose=1, optim_options=None, ties='average'):
         print('Fitting not required for Independent Copula')
         return self
 

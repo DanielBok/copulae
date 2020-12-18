@@ -6,68 +6,38 @@ from scipy.optimize import OptimizeResult, minimize
 from copulae.copula.estimator.misc import warn_no_convergence
 from copulae.copula.summary import FitSummary
 
+try:
+    from typing import Literal, Protocol
+except ImportError:
+    from typing_extensions import Literal, Protocol
 
-class MaxLikelihoodEstimator:
-    def __init__(self, copula, data: np.ndarray, initial_params: np.ndarray, optim_options: dict, verbose: int):
-        """
-        Maximum likelihood estimator
+__all__ = ['estimate_max_likelihood_params']
 
-        Parameters
-        ----------
-        copula:
-            Copula whose parameters are to be estimated
 
-        data: ndarray
-            Data to fit the copula with
+def estimate_max_likelihood_params(copula, data: np.ndarray, x0: Union[np.ndarray, float],
+                                   optim_options: dict, verbose: int, scale: float):
+    """
+    Fits the copula with the Maximum Likelihood Estimator
 
-        initial_params: float or ndarray
-            Initial parameters for optimization
+    Parameters
+    ----------
+    copula
+        Copula whose parameters are to be estimated
+    data
+        Data to fit the copula with
+    x0
+        Initial parameters for optimization
+    optim_options
+        optimizer options
+    verbose
+        Verbosity level for the optimizer
+    scale
+        Amount to scale the objective function value. This is helpful in achieving higher accuracy
+        as it increases the sensitivity of the optimizer. The downside is that the optimizer could
+        likely run longer as a result
+    """
 
-        optim_options: dict
-            optimizer options
-
-        verbose: int
-            Verbosity level for the optimizer
-
-        """
-        self.copula = copula
-        self.data = data
-        self.initial_params = initial_params
-        self.optim_options = optim_options
-        self.verbose = verbose
-
-    def fit(self, method):
-        """
-        Fits the copula with the Maximum Likelihood Estimator
-
-        Parameters
-        ----------
-        method: {'ml', 'mpl'}
-            This will determine the variance estimate
-
-        Returns
-        -------
-        ndarray
-            Estimated parameters for the copula
-
-        """
-
-        res: OptimizeResult = minimize(self.copula_log_lik, self.initial_params, **self.optim_options)
-
-        if not res['success']:
-            if self.verbose >= 1:
-                warn_no_convergence()
-            return
-
-        estimate = res['x']
-        self.copula.params = estimate
-
-        method = f"Maximum {'pseudo-' if method == 'mpl' else ''}likelihood"
-        self.copula.fit_smry = FitSummary(estimate, method, -res['fun'], len(self.data), self.optim_options, res)
-
-        return estimate
-
-    def copula_log_lik(self, param: Union[float, Collection[float]]) -> float:
+    def calc_log_lik(param: Union[float, Collection[float]]) -> float:
         """
         Calculates the log likelihood after setting the new parameters (inserted from the optimizer) of the copula
 
@@ -82,8 +52,24 @@ class MaxLikelihoodEstimator:
             Negative log likelihood of the copula
 
         """
+
+        if any(np.isnan(np.ravel(param))):
+            return np.inf
         try:
-            self.copula.params = param
-            return -self.copula.log_lik(self.data, to_pobs=False)
+            copula.params = param
+            return -copula.log_lik(data, to_pobs=False) * scale
         except ValueError:  # error encountered when setting invalid parameters
             return np.inf
+
+    res: OptimizeResult = minimize(calc_log_lik, x0, **optim_options)
+
+    if not res['success']:
+        if verbose >= 1:
+            warn_no_convergence()
+        return
+
+    estimate = res['x']
+    copula.params = estimate
+    copula.fit_smry = FitSummary(estimate, "Maximum likelihood", -res['fun'], len(data), optim_options, res)
+
+    return estimate
