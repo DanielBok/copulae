@@ -5,61 +5,48 @@ from copulae.copula.summary import FitSummary
 from copulae.core import create_cov_matrix, near_psd, tri_indices
 from copulae.stats import kendall_tau, spearman_rho
 
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
-class CorrInversionEstimator:
-    def __init__(self, copula, data: np.ndarray, verbose: int):
-        """
-        Inversion of Spearman's rho or Kendall's tau Estimator
+__all__ = ['estimate_corr_inverse_params']
 
-        Parameters
-        ----------
-        copula:
-            Copula whose parameters are to be estimated
 
-        data: ndarray
-            Data to fit the copula with
+def estimate_corr_inverse_params(copula, data: np.ndarray, type_: Literal['itau', 'irho']):
+    """
+    Fits the copula with the inversion of Spearman's rho or Kendall's tau Estimator
 
-        verbose: int
-            Verbosity level for the optimizer
-        """
-        self.copula = copula
-        self.data = data
-        self.verbose = verbose
+    Parameters
+    ----------
+    copula
+        Copula whose parameters are to be estimated
+    data
+        Data to fit the copula with
+    type_ : {'irho', 'itau'}
+        The type of rank correlation measure to use. 'itau' uses Kendall's tau while 'irho' uses Spearman's rho
+    """
 
-    def fit(self, typ: str) -> np.ndarray:
-        """
-        Fits the copula with the inversion of Spearman's rho or Kendall's tau Estimator
+    type_ = type_.lower()
+    if type_ not in ('itau', 'irho'):
+        raise ValueError("Correlation Inversion must be either 'itau' or 'irho'")
 
-        Parameters
-        ----------
-        typ: {'irho', 'itau'}
-            The type of rank correlation measure to use. 'itau' uses Kendall's tau while 'irho' uses Spearman's rho
+    icor = fit_cor(copula, data, type_)
 
-        Returns
-        -------
-        ndarray
-            Estimates for the copula
-        """
-        typ = typ.lower()
-        if typ not in ('itau', 'irho'):
-            raise ValueError("Correlation Inversion must be either 'itau' or 'irho'")
+    if is_elliptical(copula):
+        estimate = icor
+        copula.params[:] = estimate
+    elif is_archimedean(copula):
+        estimate = np.mean(icor)
+        copula.params = estimate
+    else:
+        raise NotImplementedError(f"Have not developed for '{copula.name} copula'")
 
-        icor = fit_cor(self.copula, self.data, typ)
+    method = f"Inversion of {'Spearman Rho' if type_ == 'irho' else 'Kendall Tau'} Correlation"
 
-        if is_elliptical(self.copula):
-            estimate = icor
-            self.copula.params[:] = estimate
-        elif is_archimedean(self.copula):
-            estimate = np.mean(icor)
-            self.copula.params = estimate
-        else:
-            raise NotImplementedError(f"Have not developed for '{self.copula.name} copula'")
+    copula.fit_smry = FitSummary(estimate, method, copula.log_lik(data), len(data))
 
-        method = f"Inversion of {'Spearman Rho' if typ == 'irho' else 'Kendall Tau'} Correlation"
-
-        self.copula.fit_smry = FitSummary(estimate, method, self.copula.log_lik(self.data), len(self.data))
-
-        return estimate
+    return estimate
 
 
 def fit_cor(copula, data: np.ndarray, typ: str) -> np.ndarray:

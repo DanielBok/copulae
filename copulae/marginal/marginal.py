@@ -128,7 +128,7 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
 
         return self._copula.cdf(u, log)
 
-    def fit(self, data: Union[pd.DataFrame, np.ndarray], x0: Union[Collection[float], np.ndarray] = None, method='mpl',
+    def fit(self, data: Union[pd.DataFrame, np.ndarray], x0: Union[Collection[float], np.ndarray] = None, method='ml',
             verbose=1, optim_options: dict = None, ties='average', **kwargs):
         if isinstance(data, pd.DataFrame):
             self._columns = list(data.columns)

@@ -63,7 +63,7 @@ class StudentCopula(AbstractEllipticalCopula[StudentParams]):
         q = t.ppf(x, df)
         return mvt.logcdf(q, cov=sigma, df=df) if log else mvt.cdf(q, cov=sigma, df=df)
 
-    def fit(self, data: np.ndarray, x0: Union[Collection[float], np.ndarray] = None, method: EstimationMethod = 'mpl',
+    def fit(self, data: np.ndarray, x0: Union[Collection[float], np.ndarray] = None, method: EstimationMethod = 'ml',
             optim_options: dict = None, ties: Ties = 'average', verbose=1, fix_df=False):
         """
         Fit the copula with specified data
@@ -76,9 +76,9 @@ class StudentCopula(AbstractEllipticalCopula[StudentParams]):
         x0: ndarray
             Initial starting point. If value is None, best starting point will be estimated
 
-        method: { 'ml', 'mpl', 'irho', 'itau' }, optional
-            Method of fitting. Supported methods are: 'ml' - Maximum Likelihood, 'mpl' - Maximum Pseudo-likelihood,
-            'irho' - Inverse Spearman Rho, 'itau' - Inverse Kendall Tau
+        method: { 'ml', 'irho', 'itau' }, optional
+            Method of fitting. Supported methods are: 'ml' - Maximum Likelihood, 'irho' - Inverse Spearman Rho,
+            'itau' - Inverse Kendall Tau
 
         optim_options: dict, optional
             Keyword arguments to pass into :func:`scipy.optimize.minimize`

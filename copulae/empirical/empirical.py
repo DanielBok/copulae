@@ -135,7 +135,7 @@ class EmpiricalCopula(BaseCopula[None]):
         cdf = emp_dist_func(u, uu, self._smoothing, self._offset)
         return np.log(cdf) if log else cdf
 
-    def fit(self, data, x0=None, method='mpl', optim_options=None, ties='average', verbose=1):
+    def fit(self, data, x0=None, method='ml', optim_options=None, ties='average', verbose=1):
         warn("EmpiricalCopula has no concept of 'fitting'")
         return self
 

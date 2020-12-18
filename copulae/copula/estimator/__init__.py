@@ -1,1 +1,1 @@
-from .estimator import CopulaEstimator, EstimationMethod
+from .estimator import fit_copula, EstimationMethod
