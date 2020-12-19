@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [ 3.6, 3.7, 3.8, 3.9 ]
 
     steps:
       - name: Checkout Repository
@@ -110,7 +110,7 @@ jobs:
       - name: Build BDist Package
         env:
           # specify python environments. Skip 32-bit builds
-          CIBW_BUILD: cp36-* cp37-* cp38-*
+          CIBW_BUILD: cp36-* cp37-* cp38-* cp39-*
           CIBW_SKIP: "*-win32 *-manylinux_i686"
           # install dependencies, these are the minimum dependencies for building the wheels
           CIBW_BEFORE_BUILD: pip install numpy cython scipy
@@ -134,7 +134,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [ 3.6, 3.7, 3.8, 3.9 ]
         ext: [tar.gz, whl]
 
     steps:
