@@ -8,7 +8,14 @@ root = Path(__file__).parent
 p = ArgumentParser(
     "Version updater",
     usage="python version.py [major|minor|patch|0.0.0]",
-    description="Manage Copulae version"
+    description="""
+Manage Copulae version
+
+Run this and commit before creating a release in Github. When the release is created,
+a new package is created and uploaded. Since the package takes its version from the
+__version__ in copulae/__init__.py, it is important to update this variable before
+creating the release. 
+""".strip()
 )
 p.add_argument("version", type=str, help="New package version")
 
@@ -55,17 +62,4 @@ if __name__ == '__main__':
     with open(file, 'w') as f:
         f.write(content)
 
-    # commit to git
-    print("Enter/Paste your content. Ctrl-D or Ctrl-Z (windows) to save it.")
-    message = []
-    while True:
-        try:
-            line = input()
-        except EOFError:
-            break
-        message.append(line)
-
-    message = '\n'.join(message).strip() + '\n'
-
-    subprocess.run(["git", "commit", "-am", "Bumped version number"])
-    subprocess.run(["git", "tag", "-a", version, "-m", message], shell=True)
+    subprocess.run(["git", "commit", "-am", f"Bumped version to {version}"])
