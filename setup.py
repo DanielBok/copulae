@@ -35,12 +35,13 @@ except ImportError:
         pass
 
 requirements = [
-    'numpy >=1.15',
-    'scipy >=1.1',
-    'pandas >=0.23',
+    'numpy >=1.19',
+    'pandas >=1.1',
     'scikit-learn >=0.23',
-    'statsmodels >=0.9',
-    "typing-extensions >=3.7.4.2; python_version < '3.8'",
+    'scipy >=1.5',
+    'statsmodels >=0.12.1',
+    "typing-extensions >=3.7.4.3; python_version < '3.8'",
+    "wheel >=0.36",
     'wrapt >=1.12'
 ]
 
