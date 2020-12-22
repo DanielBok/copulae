@@ -1,0 +1,131 @@
+<svg width="2400" height="510" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient y2="1.00051" y1="0.20835" x2="0.5" x1="0.5" id="SVGID_1_">
+   <stop stop-color="#6b0" offset="0"/>
+   <stop stop-color="#0b799d" offset="1"/>
+  </linearGradient>
+  <linearGradient y2="1.00051" y1="0.20835" x2="0.5" x1="0.5" id="SVGID_2_">
+   <stop stop-color="#90cc1c" offset="0"/>
+   <stop stop-color="#6b0" offset="1"/>
+  </linearGradient>
+  <linearGradient y2="1.50348" y1="0.0518" x2="0.7823" x1="0.33454" id="SVGID_3_">
+   <stop stop-color="#b9dd39" offset="0"/>
+   <stop stop-color="#0b799d" offset="1"/>
+  </linearGradient>
+  <linearGradient id="lg1">
+   <stop stop-color="#fdbf00" offset="0"/>
+   <stop stop-color="#ff9100" offset="1"/>
+  </linearGradient>
+  <linearGradient y2="0.76349" y1="0.41535" xlink:href="#lg1" x2="0.84585" x1="0.38894" id="SVGID_4_"/>
+  <linearGradient y2="0.76349" y1="0.41535" xlink:href="#lg1" x2="0.84581" x1="0.38893" id="SVGID_5_"/>
+  <linearGradient y2="0.76349" y1="0.41535" xlink:href="#lg1" x2="0.84581" x1="0.3889" id="SVGID_6_"/>
+  <linearGradient id="lg2">
+   <stop stop-opacity="0" stop-color="#0b799d" offset="0"/>
+   <stop stop-opacity="0.365" stop-color="#096380" offset="0.3645"/>
+   <stop stop-opacity="0.76" stop-color="#084f67" offset="0.76"/>
+   <stop stop-color="#07485e" offset="1"/>
+  </linearGradient>
+  <linearGradient y2="-0.71927" y1="0.50124" xlink:href="#lg2" x2="0.8576" x1="0.48333" id="SVGID_7_"/>
+  <linearGradient y2="1.34599" y1="0.41974" xlink:href="#lg2" x2="0.5" x1="0.5" id="SVGID_8_"/>
+  <linearGradient y2="1.0005" y1="0.20832" x2="0.49999" x1="0.49999" id="SVGID_9_">
+   <stop stop-color="#0095ff" offset="0"/>
+   <stop stop-color="#0b799d" offset="1"/>
+  </linearGradient>
+  <linearGradient y2="1.0005" y1="0.20832" x2="0.49999" x1="0.49999" id="SVGID_10_">
+   <stop stop-color="#48b2e3" offset="0"/>
+   <stop stop-color="#0095ff" offset="1"/>
+  </linearGradient>
+  <linearGradient y2="0.80936" y1="0.14091" x2="0.71244" x1="0.07024" id="SVGID_11_">
+   <stop stop-color="#76e2f8" offset="0"/>
+   <stop stop-color="#48b2e3" offset="1"/>
+  </linearGradient>
+  <linearGradient id="lg3">
+   <stop stop-color="#edf5ff" offset="0"/>
+   <stop stop-color="#d5e8fe" offset="1"/>
+  </linearGradient>
+  <linearGradient y2="0.7635" y1="0.41537" xlink:href="#lg3" x2="0.84585" x1="0.38894" id="SVGID_12_"/>
+  <linearGradient y2="0.7635" y1="0.41537" xlink:href="#lg3" x2="0.84581" x1="0.38893" id="SVGID_13_"/>
+  <linearGradient y2="0.7635" y1="0.41537" xlink:href="#lg3" x2="0.84581" x1="0.3889" id="SVGID_14_"/>
+  <linearGradient id="lg4">
+   <stop stop-opacity="0" stop-color="#b5dbff" offset="0"/>
+   <stop stop-opacity="0.173" stop-color="#8fc5e9" offset="0.1734"/>
+   <stop stop-opacity="0.454" stop-color="#56a4c8" offset="0.4541"/>
+   <stop stop-opacity="0.696" stop-color="#2d8db1" offset="0.6955"/>
+   <stop stop-opacity="0.885" stop-color="#147ea2" offset="0.8853"/>
+   <stop stop-color="#0b799d" offset="1"/>
+  </linearGradient>
+  <linearGradient y2="-0.01087" y1="1.0126" xlink:href="#lg4" x2="0.50914" x1="0.48818" id="SVGID_15_"/>
+  <linearGradient y2="1.34601" y1="0.41977" xlink:href="#lg4" x2="0.5" x1="0.5" id="SVGID_16_"/>
+  <linearGradient y2="1.00048" y1="0.20832" x2="0.49999" x1="0.49999" id="SVGID_17_">
+   <stop stop-color="#ff9100" offset="0"/>
+   <stop stop-color="#e63950" offset="1"/>
+  </linearGradient>
+  <linearGradient y2="1.00048" y1="0.20832" xlink:href="#lg1" x2="0.49999" x1="0.49999" id="SVGID_18_"/>
+  <linearGradient y2="0.80936" y1="0.14092" x2="0.71244" x1="0.07024" id="SVGID_19_">
+   <stop stop-color="#ffda2d" offset="0"/>
+   <stop stop-color="#fdbf00" offset="1"/>
+  </linearGradient>
+  <linearGradient id="lg5">
+   <stop stop-color="#ff637b" offset="0"/>
+   <stop stop-color="#e63950" offset="1"/>
+  </linearGradient>
+  <linearGradient y2="0.76344" y1="0.41535" xlink:href="#lg5" x2="0.84585" x1="0.38897" id="SVGID_20_"/>
+  <linearGradient y2="0.76344" y1="0.41535" xlink:href="#lg5" x2="0.84581" x1="0.38893" id="SVGID_21_"/>
+  <linearGradient y2="0.76344" y1="0.41535" xlink:href="#lg5" x2="0.84581" x1="0.3889" id="SVGID_22_"/>
+  <linearGradient y2="1.34601" y1="0.41976" x2="0.5" x1="0.5" id="SVGID_23_">
+   <stop stop-opacity="0" stop-color="#ff9100" offset="0"/>
+   <stop stop-color="#ff9100" offset="1"/>
+  </linearGradient>
+ </defs>
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="512" width="2402" y="-1" x="-1"/>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <g id="svg_1">
+   <g id="svg_2">
+    <path id="svg_3" fill="url(#SVGID_1_)" d="m360.357,79.322l-174.069,0l0,-49.576c0,-16.428 13.318,-29.746 29.746,-29.746l114.577,0c16.428,0 29.746,13.318 29.746,29.746l0,49.576z"/>
+    <path id="svg_4" fill="url(#SVGID_2_)" d="m315.63,79.322l-174.069,0l0,-49.576c0,-16.428 13.318,-29.746 29.746,-29.746l114.577,0c16.428,0 29.746,13.318 29.746,29.746l0,49.576z"/>
+    <path id="svg_5" fill="url(#SVGID_3_)" d="m268.257,56.462l0,-26.716c0,-16.428 -13.318,-29.746 -29.746,-29.746l-114.577,0c-16.428,0 -29.746,13.318 -29.746,29.746l0,321.184c0,23.404 18.973,42.377 42.377,42.377l324.619,0c23.404,0 42.377,-18.973 42.377,-42.377l0,-239.146c0,-23.404 -18.973,-42.377 -42.377,-42.377l-179.982,0c-7.149,0 -12.945,-5.796 -12.945,-12.945z"/>
+    <g id="svg_6">
+     <path id="svg_7" fill="url(#SVGID_4_)" d="m381.161,127.705l-10.206,0c-5.853,0 -10.598,-4.745 -10.598,-10.598l0,-10.206c0,-5.853 4.745,-10.598 10.598,-10.598l10.206,0c5.853,0 10.598,4.745 10.598,10.598l0,10.206c0.001,5.853 -4.744,10.598 -10.598,10.598z"/>
+     <path id="svg_8" fill="url(#SVGID_5_)" d="m421.2,127.705l-10.206,0c-5.853,0 -10.598,-4.745 -10.598,-10.598l0,-10.206c0,-5.853 4.745,-10.598 10.598,-10.598l10.206,0c5.853,0 10.598,4.745 10.598,10.598l0,10.206c0,5.853 -4.745,10.598 -10.598,10.598z"/>
+     <path id="svg_9" fill="url(#SVGID_6_)" d="m461.238,127.705l-10.206,0c-5.853,0 -10.598,-4.745 -10.598,-10.598l0,-10.206c0,-5.853 4.745,-10.598 10.598,-10.598l10.206,0c5.853,0 10.598,4.745 10.598,10.598l0,10.206c0.001,5.853 -4.744,10.598 -10.598,10.598z"/>
+    </g>
+    <path id="svg_10" fill="url(#SVGID_7_)" d="m461.184,393.307c23.404,0 42.377,-18.973 42.377,-42.377l0,-154.328l-54.359,-54.359c-7.768,-8.876 -19.172,-14.49 -31.893,-14.49l-49.703,0l-57.732,-58.347l-28.673,0l-187.013,0l0,281.075c0,23.651 19.173,42.824 42.824,42.824l324.172,0l0,0.002z"/>
+    <path id="svg_11" fill="url(#SVGID_8_)" d="m94.188,304.069l0,46.861c0,23.404 18.973,42.377 42.377,42.377l324.619,0c23.404,0 42.377,-18.973 42.377,-42.377l0,-46.861l-409.373,0z"/>
+   </g>
+   <g id="svg_12">
+    <path id="svg_13" fill="url(#SVGID_9_)" d="m316.482,137.669l-174.068,0l0,-49.576c0,-16.428 13.318,-29.746 29.746,-29.746l114.577,0c16.428,0 29.746,13.318 29.746,29.746l0,49.576l-0.001,0z"/>
+    <path id="svg_14" fill="url(#SVGID_10_)" d="m271.755,137.669l-174.068,0l0,-49.576c0,-16.428 13.318,-29.746 29.746,-29.746l114.577,0c16.428,0 29.746,13.318 29.746,29.746l0,49.576l-0.001,0z"/>
+    <path id="svg_15" fill="url(#SVGID_11_)" d="m224.382,114.809l0,-26.716c0,-16.428 -13.318,-29.746 -29.746,-29.746l-114.577,0c-16.428,0 -29.746,13.318 -29.746,29.746l0,321.184c0,23.404 18.973,42.377 42.377,42.377l324.619,0c23.404,0 42.377,-18.973 42.377,-42.377l0,-239.146c0,-23.404 -18.973,-42.377 -42.377,-42.377l-179.982,0c-7.149,0 -12.945,-5.796 -12.945,-12.945z"/>
+    <g id="svg_16">
+     <path id="svg_17" fill="url(#SVGID_12_)" d="m337.286,186.052l-10.206,0c-5.853,0 -10.598,-4.745 -10.598,-10.598l0,-10.206c0,-5.853 4.745,-10.598 10.598,-10.598l10.206,0c5.853,0 10.598,4.745 10.598,10.598l0,10.206c0.001,5.853 -4.744,10.598 -10.598,10.598z"/>
+     <path id="svg_18" fill="url(#SVGID_13_)" d="m377.325,186.052l-10.206,0c-5.853,0 -10.598,-4.745 -10.598,-10.598l0,-10.206c0,-5.853 4.745,-10.598 10.598,-10.598l10.206,0c5.853,0 10.598,4.745 10.598,10.598l0,10.206c0,5.853 -4.745,10.598 -10.598,10.598z"/>
+     <path id="svg_19" fill="url(#SVGID_14_)" d="m417.363,186.052l-10.206,0c-5.853,0 -10.598,-4.745 -10.598,-10.598l0,-10.206c0,-5.853 4.745,-10.598 10.598,-10.598l10.206,0c5.853,0 10.598,4.745 10.598,10.598l0,10.206c0.001,5.853 -4.744,10.598 -10.598,10.598z"/>
+    </g>
+    <path id="svg_20" fill="url(#SVGID_15_)" d="m417.309,451.653c23.404,0 42.377,-18.973 42.377,-42.377l0,-154.327l-54.359,-54.359c-7.768,-8.876 -19.172,-14.49 -31.893,-14.49l-49.703,0l-57.731,-58.346l-28.673,0l-187.013,0l0,281.075c0,23.651 19.173,42.824 42.824,42.824l324.171,0z"/>
+    <path id="svg_21" fill="url(#SVGID_16_)" d="m50.314,362.416l0,46.861c0,23.404 18.973,42.377 42.377,42.377l324.619,0c23.404,0 42.377,-18.973 42.377,-42.377l0,-46.861l-409.373,0z"/>
+   </g>
+   <g id="svg_22">
+    <path id="svg_23" fill="url(#SVGID_17_)" d="m272.607,196.016l-174.068,0l0,-49.576c0,-16.428 13.318,-29.746 29.746,-29.746l114.577,0c16.428,0 29.746,13.318 29.746,29.746l0,49.576l-0.001,0z"/>
+    <path id="svg_24" fill="url(#SVGID_18_)" d="m227.88,196.016l-174.068,0l0,-49.576c0,-16.428 13.318,-29.746 29.746,-29.746l114.577,0c16.428,0 29.746,13.318 29.746,29.746l0,49.576l-0.001,0z"/>
+    <path id="svg_25" fill="url(#SVGID_19_)" d="m180.507,173.155l0,-26.716c0,-16.428 -13.318,-29.746 -29.746,-29.746l-114.576,0c-16.428,0 -29.746,13.318 -29.746,29.746l0,321.184c0,23.404 18.972,42.377 42.377,42.377l324.619,0c23.404,0 42.377,-18.973 42.377,-42.377l0,-239.146c0,-23.404 -18.973,-42.377 -42.377,-42.377l-179.983,0c-7.149,0 -12.945,-5.795 -12.945,-12.945z"/>
+    <g id="svg_26">
+     <path id="svg_27" fill="url(#SVGID_20_)" d="m293.411,244.399l-10.206,0c-5.853,0 -10.598,-4.745 -10.598,-10.598l0,-10.206c0,-5.853 4.745,-10.598 10.598,-10.598l10.206,0c5.853,0 10.598,4.745 10.598,10.598l0,10.205c0.001,5.853 -4.744,10.599 -10.598,10.599z"/>
+     <path id="svg_28" fill="url(#SVGID_21_)" d="m333.45,244.399l-10.206,0c-5.853,0 -10.598,-4.745 -10.598,-10.598l0,-10.206c0,-5.853 4.745,-10.598 10.598,-10.598l10.206,0c5.853,0 10.598,4.745 10.598,10.598l0,10.205c0,5.853 -4.745,10.599 -10.598,10.599z"/>
+     <path id="svg_29" fill="url(#SVGID_22_)" d="m373.488,244.399l-10.206,0c-5.853,0 -10.598,-4.745 -10.598,-10.598l0,-10.206c0,-5.853 4.745,-10.598 10.598,-10.598l10.206,0c5.853,0 10.598,4.745 10.598,10.598l0,10.205c0.001,5.853 -4.744,10.599 -10.598,10.599z"/>
+    </g>
+    <path id="svg_30" fill="url(#SVGID_23_)" d="m6.439,420.762l0,46.861c0,23.404 18.972,42.377 42.377,42.377l324.619,0c23.404,0 42.377,-18.973 42.377,-42.377l0,-46.861l-409.373,0z"/>
+   </g>
+  </g>
+  <text transform="matrix(1.38218, 0, 0, 1.25448, -213.64, -93.3434)" xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="250" id="svg_34" y="355.51416" x="651.69032" stroke-width="0" fill="url(#SVGID_6_)">C</text>
+  <text transform="matrix(1.38218, 0, 0, 1.25448, -213.64, -93.3434)" xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="250" id="svg_35" y="355.51413" x="826.77634" stroke-width="0" fill="url(#SVGID_22_)">O</text>
+  <text transform="matrix(1.38218, 0, 0, 1.25448, -213.64, -93.3434)" xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="250" id="svg_36" y="355.51414" x="1011.54409" stroke-width="0" fill="url(#SVGID_3_)">P</text>
+  <text transform="matrix(1.38218, 0, 0, 1.25448, -213.64, -93.3434)" xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="250" id="svg_37" y="355.51415" x="1171.43644" stroke-width="0" fill="url(#SVGID_10_)">U</text>
+  <text transform="matrix(1.38218, 0, 0, 1.25448, -213.64, -93.3434)" xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="250" id="svg_38" y="355.51413" x="1353.75713" stroke-width="0" fill="url(#SVGID_19_)">L</text>
+  <text transform="matrix(1.38218, 0, 0, 1.25448, -213.64, -93.3434)" xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="250" id="svg_39" y="355.51415" x="1507.13803" stroke-width="0" fill="url(#SVGID_22_)">A</text>
+  <text transform="matrix(1.38218, 0, 0, 1.25448, -213.64, -93.3434)" xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="250" id="svg_40" y="355.51414" x="1677.15931" stroke-width="0" fill="url(#SVGID_3_)">E</text>
+ </g>
+</svg>
