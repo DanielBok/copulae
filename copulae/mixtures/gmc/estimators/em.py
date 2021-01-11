@@ -8,6 +8,7 @@ from copulae.mixtures.gmc.loglik import gmcm_log_likelihood, gmm_log_likelihood
 from copulae.mixtures.gmc.marginals import gmm_marginal_ppf
 from copulae.mixtures.gmc.parameter import GMCParam
 from .exceptions import FitException, InvalidStoppingCriteria
+from .summary import FitSummary
 
 try:
     from typing import Literal
@@ -42,11 +43,6 @@ def expectation_maximization(u: np.ndarray, param: GMCParam, max_iter=3000, crit
 
     eps : float
         The epsilon value for which any absolute delta will mean that the model has converged
-
-    Returns
-    -------
-    GMCParam
-        The optimal model parameters
     """
     q = gmm_marginal_ppf(u, param)
     log_lik = LogLik(criteria, eps)
@@ -76,7 +72,8 @@ def expectation_maximization(u: np.ndarray, param: GMCParam, max_iter=3000, crit
         if verbose:
             warn('Max iterations reached')
 
-    return log_lik.best_param
+    return FitSummary(log_lik.best_param, log_lik.has_converged, 'pem', len(u),
+                      {'Log. Likelihood': log_lik.best_log_lik, 'Criteria': criteria})
 
 
 def e_step(q: np.ndarray, param: GMCParam):
@@ -127,6 +124,7 @@ class LogLik:
 
         self.eps = eps
         self.criteria = criteria.upper()
+        self.count = 0
         if self.criteria not in ('GMCM', 'GMM', 'LI'):
             raise InvalidStoppingCriteria(f"Unknown stopping criteria: '{criteria}'. "
                                           f"Use one of {('GMCM', 'GMM', 'LI')}")
@@ -139,6 +137,7 @@ class LogLik:
             return self.params[-1]
 
     def set(self, *, gmm: float = None, gmcm: float = None, param: GMCParam = None):
+        self.count += 1
         if gmm is not None:
             self._gmm.append(gmm)
 
@@ -156,3 +155,7 @@ class LogLik:
             return abs(self._gmm[-1] - self._gmm[-2]) < self.eps
         else:  # LI
             return abs(self._gmm[-1] - self._gmcm[-2]) < self.eps
+
+    @property
+    def best_log_lik(self):
+        return self._gmcm[-1]

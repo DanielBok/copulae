@@ -11,7 +11,7 @@ from copulae.utility.annotations import *
 from .estimators import expectation_maximization, gradient_descent, k_means
 from .estimators.em import Criteria
 from .exception import GMCFitMethodError, GMCNotFittedError, GMCParamMismatchError
-from .parameter import GMCParam
+from .parameter import GMCParam, GMCParamDict
 from .random import random_gmcm
 from .summary import Summary
 
@@ -70,7 +70,8 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
         \Theta &= (w_i, \theta_i) \forall i \in [1, \dots, M]
     """
 
-    def __init__(self, n_clusters: int, ndim: int, param: Union[GMCParam, np.ndarray, Collection[float]] = None):
+    def __init__(self, n_clusters: int, ndim: int,
+                 params: Union[GMCParam, np.ndarray, Collection[float], GMCParamDict] = None):
         """
         Creates a Gaussian Mixture Copula
 
@@ -82,13 +83,13 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
         ndim : int
             The number of dimension for each Gaussian component
 
-        param : GMCParam, optional
+        params : GMCParam, optional
             The initial parameter for the model
         """
-        self._name = "GaussianMixtureCopula"
+        super().__init__(ndim, 'GaussianMixtureCopula')
         self._clusters = n_clusters
         self._dim = ndim
-        self.params = param
+        self.params = params
         self._fit_details = {"method": None}
 
     @property
@@ -141,8 +142,7 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
 
     def fit(self, data: Union[pd.DataFrame, np.ndarray], x0: Union[Collection[float], np.ndarray, GMCParam] = None,
             method: EstimateMethod = 'pem', optim_options: dict = None, ties: Ties = 'average', verbose=1,
-            max_iter=3000,
-            criteria: Criteria = 'GMCM', eps=1e-4):
+            max_iter=3000, criteria: Criteria = 'GMCM', eps=1e-4):
         """
         Fit the copula with specified data
 
@@ -194,7 +194,8 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
         method = method.lower()
 
         if x0 is None:
-            self.params = k_means(data, self.clusters, self.dim)
+            self._fit_smry = k_means(data, self.clusters, self.dim)
+            self.params = self._fit_smry.best_params
         elif isinstance(x0, GMCParam):
             self.params = x0
         else:
@@ -202,16 +203,18 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
 
         if method == 'pem':
             u = pseudo_obs(data, ties)
-            self.params = expectation_maximization(u, self.params, max_iter, criteria, verbose, eps)
+            self._fit_smry = expectation_maximization(u, self.params, max_iter, criteria, verbose, eps)
+
         elif method == 'sgd':
             u = pseudo_obs(data, ties)
-            self.params = gradient_descent(u, self.params, max_iter=max_iter, **(optim_options or {}))
+            self._fit_smry = gradient_descent(u, self.params, max_iter=max_iter, **(optim_options or {}))
         elif method == 'kmeans':
             if x0 is not None:  # otherwise already fitted by default
-                self.params = k_means(data, self.clusters, self.dim)
+                self._fit_smry = k_means(data, self.clusters, self.dim)
         else:
             raise GMCFitMethodError(f"Invalid method: {method}. Use one of (kmeans, pem, sgd)")
 
+        self.params = self._fit_smry.best_params
         self._fit_details["method"] = method
         return self
 
@@ -228,15 +231,17 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
         return self._param
 
     @params.setter
-    def params(self, params: Optional[Union[GMCParam, np.ndarray, Collection]]):
+    def params(self, params: Optional[Union[GMCParam, np.ndarray, Collection, GMCParamDict]]):
         if params is None:
             self._param = None
+        elif isinstance(params, dict):
+            self._param = GMCParam.from_dict(params)
         elif isinstance(params, GMCParam):
             if params.n_dim != self.dim or params.n_clusters != self.clusters:
                 raise GMCParamMismatchError(f"Expected {self.clusters} clusters and {self.dim} dimensions "
                                             f"but got {params.n_clusters} and {params.n_dim} respectively instead")
             self._param = params
-        elif isinstance(params, Collection):
+        elif np.all(np.isreal(params)):
             self._param = GMCParam.from_vector(params, self.clusters, self.dim)
         else:
             raise GMCParamMismatchError("Unsupported params type for GaussianMixtureCopula")
