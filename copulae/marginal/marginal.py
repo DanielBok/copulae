@@ -87,10 +87,9 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
         """
         self._copula = copula
         self._marginals = _process_margins_input(margins, copula.dim)
-
-        assert copula.dim == len(self._marginals), "copula dimension and number of marginals must be equal"
         super().__init__(copula.dim, "Marginal")
 
+    @property
     def bounds(self):
         """Bounds is not implemented for the :class:`MarginalCopula`"""
         return NotImplemented
@@ -122,6 +121,7 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
 
         # writing it as such to get past the type-hints flags
         self._copula.fit(data, x0, method, optim_options, ties, verbose=verbose, **kwargs)
+        self._fit_smry = self._copula._fit_smry
         return self
 
     @property
@@ -182,7 +182,7 @@ def _process_margins_input(margins: MarginsInput, dim: int):
         return [create_univariate(margins) for _ in range(dim)]  # DistDetail dict
     elif isinstance(margins, Collection):
         margins = list(margins)
-        assert len(margins) > 0, "margins collection cannot be empty"
+        assert len(margins) == dim, f"margins collection must have {dim} elements"
         _output = []
         for m in margins:
             if isinstance(m, str):

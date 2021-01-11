@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
 from numbers import Number
-from typing import Collection, Generic, List, NamedTuple, Optional, Tuple, TypeVar, Union
+from typing import Collection, Generic, List, NamedTuple, Tuple, TypeVar, Union
 
 import numpy as np
 import pandas as pd
 
 from copulae.copula.estimator import EstimationMethod, fit_copula
-from copulae.copula.estimator.summary import FitSummary
 from copulae.copula.exceptions import InputDataError
 from copulae.copula.summary import SummaryType
 from copulae.core import pseudo_obs
@@ -28,12 +27,11 @@ class BaseCopula(ABC, Generic[Param]):
     such as the :py:meth:`BaseCopula.fit` method.
     """
 
-    def __init__(self, dim: int, name: str):
+    def __init__(self, dim: int, name: str, fit_smry: SummaryType = None, columns: List[str] = None):
         self._dim = dim
         self._name = name
-
-        self._columns: Optional[List[str]] = None
-        self._fit_smry: Optional[FitSummary] = None
+        self._columns = columns
+        self._fit_smry = fit_smry
         self._bounds: Tuple[Number, Number] = (0, 0)
 
         assert isinstance(self.dim, int) and self.dim >= 2, 'Copula must have more than 2 dimensions'

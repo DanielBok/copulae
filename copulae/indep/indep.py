@@ -1,4 +1,5 @@
 from typing import Collection
+from warnings import warn
 
 import numpy as np
 
@@ -6,6 +7,7 @@ from copulae.copula import BaseCopula, Summary
 from copulae.stats import random_uniform
 from copulae.types import Array
 from copulae.utility.annotations import *
+from .summary import FitSummary
 
 try:
     from typing import Literal
@@ -31,10 +33,11 @@ class IndepCopula(BaseCopula[int]):
         fields: list of str
             The names of the data's columns
         """
-        super().__init__(dim, "Independent")
-        if fields is not None:
-            self._columns = list(map(str, fields))
-            assert len(fields) == dim, "number of fields must match copula dimension"
+        columns = list(fields) if fields is not None else None
+        if columns is not None:
+            assert len(columns) == dim, "number of fields must match copula dimension"
+
+        super().__init__(dim, "Independent", FitSummary(dim), columns)
 
     @validate_data_dim({"x": [1, 2]})
     @shape_first_input_to_cop_dim
@@ -43,7 +46,8 @@ class IndepCopula(BaseCopula[int]):
         return np.log(x).sum(1) if log else x.prod(1)
 
     def fit(self, data, x0=None, method='ml', verbose=1, optim_options=None, ties='average'):
-        print('Fitting not required for Independent Copula')
+        if verbose > 1:
+            warn("IndepCopula does not need 'fitting'")
         return self
 
     @property

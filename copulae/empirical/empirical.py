@@ -12,6 +12,7 @@ from copulae.special import log_sum
 from copulae.types import Array, EPSILON, Matrix, Ties
 from copulae.utility.annotations import *
 from .distribution import emp_dist_func
+from .summary import FitSummary
 
 try:
     from typing import Literal
@@ -93,11 +94,13 @@ class EmpiricalCopula(BaseCopula[None]):
         self.ties = ties
         self._offset = offset
         self.smoothing = smoothing
-        self._data = data
-        super().__init__(data.shape[1], "Empirical")
 
-        if isinstance(data, pd.DataFrame):
-            self._columns = list(data.columns)
+        if not isinstance(data, (pd.DataFrame, np.ndarray)):
+            data = np.array(data)
+
+        columns = list(data.columns) if isinstance(data, pd.DataFrame) else None
+        super().__init__(data.shape[1], "Empirical", FitSummary(*data.shape), columns)
+        self._data = data
 
     @property
     def data(self):
@@ -136,7 +139,8 @@ class EmpiricalCopula(BaseCopula[None]):
         return np.log(cdf) if log else cdf
 
     def fit(self, data, x0=None, method='ml', optim_options=None, ties='average', verbose=1):
-        warn("EmpiricalCopula has no concept of 'fitting'")
+        if verbose > 1:
+            warn("EmpiricalCopula does not need 'fitting'")
         return self
 
     @property

@@ -7,7 +7,7 @@ import pytest
 from copulae.mixtures.gmc import EstimateMethod, GMCParam, GaussianMixtureCopula
 from copulae.mixtures.gmc.estimators.em import Criteria
 from copulae.mixtures.gmc.estimators.exceptions import InvalidStoppingCriteria
-from copulae.mixtures.gmc.exception import GMCFitMethodError, GMCParamMismatchError
+from copulae.mixtures.gmc.exception import GMCFitMethodError, GMCNotFittedError, GMCParamMismatchError
 from copulae.mixtures.gmc.summary import Summary
 from .common import param
 
@@ -89,3 +89,14 @@ class TestGaussianMixtureCopula:
     def test_bad_param_raises_error(self, cop, bad_param, error):
         with pytest.raises(error):
             cop.params = bad_param
+
+    def test_bounds(self, cop):
+        # test that it does not raise error
+        assert cop.bounds is NotImplemented
+
+    @pytest.mark.parametrize("method", ['pdf', 'cdf'])
+    def test_unfitted_copula_raises_error_on_method(self, method):
+        cop = GaussianMixtureCopula(3, 2)
+
+        with pytest.raises(GMCNotFittedError):
+            getattr(cop, method)(data)

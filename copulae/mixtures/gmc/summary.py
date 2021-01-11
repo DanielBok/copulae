@@ -13,8 +13,14 @@ class Summary(SummaryType):
     def _repr_html_(self):
         params = [f"<strong>{title}</strong>" + pd.DataFrame(values).to_html(header=False, index=False)
                   for title, values in [("Mixture Probability", self.params.prob),
-                                        ("Means", self.params.means),
-                                        ("Covariance", self.params.covs)]]
+                                        ("Means", self.params.means)]]
+        params.append(
+            f"<strong>Covariance</strong>" +
+            '<br/>'.join(
+                f"<div>Margin {i + 1}</div>{pd.DataFrame(c).to_html(header=False, index=False)}"
+                for i, c in enumerate(self.params.covs)
+            )
+        )
 
         fit_details = ''
         if self.fit['method'] is not None:
