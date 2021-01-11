@@ -3,6 +3,20 @@ from typing import Collection as C, Iterable, Tuple, Union
 import numpy as np
 
 from copulae.core import near_psd
+from copulae.mixtures.gmc.exception import GMCParamError
+
+try:
+    from typing import TypedDict
+except ImportError:
+    from typing_extensions import TypedDict
+
+__all__ = ['GMCParam', 'GMCParamDict']
+
+
+class GMCParamDict(TypedDict):
+    prob: Union[C[float], np.ndarray]
+    means: Union[C[C[float]], np.ndarray]
+    covs: Union[C[C[C[float]]], np.ndarray]
 
 
 class GMCParam:
@@ -17,6 +31,12 @@ class GMCParam:
         self.prob = prob
         self.means = means
         self.covs = covs
+
+    @classmethod
+    def from_dict(cls, param: GMCParamDict):
+        means = np.asarray(param['means'])
+        n_clusters, n_dim = means.shape
+        return cls(n_clusters, n_dim, np.asarray(param['prob']), means, np.asarray(param['covs']))
 
     def to_vector(self):
         """
@@ -164,8 +184,3 @@ GMCParam(
 {covs_repr}
     ]
 )""".strip()
-
-
-class GMCParamError(Exception):
-    def __init__(self, message: str):
-        super().__init__(message)

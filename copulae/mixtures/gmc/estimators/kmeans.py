@@ -3,6 +3,7 @@ from sklearn.cluster import KMeans
 
 from copulae.core import pseudo_obs
 from copulae.mixtures.gmc.parameter import GMCParam
+from .summary import FitSummary
 
 
 def k_means(data: np.ndarray, n_clusters: int, n_dim: int, ties='average'):
@@ -23,14 +24,10 @@ def k_means(data: np.ndarray, n_clusters: int, n_dim: int, ties='average'):
     ties : { 'average', 'min', 'max', 'dense', 'ordinal' }, optional
         Specifies how ranks should be computed if there are ties in any of the coordinate samples. This is
         effective only if the data has not been converted to its pseudo observations form
-
-    Returns
-    -------
-    GMCParam
-        The GMC model's parameters
     """
     u = pseudo_obs(data, ties)
-    km = KMeans(n_clusters, algorithm='full').fit(u)
+    km = KMeans(n_clusters, algorithm='full')
+    km.fit(u)
 
     groups, prob = np.unique(km.labels_, return_counts=True)
     prob = prob / sum(prob)
@@ -38,4 +35,5 @@ def k_means(data: np.ndarray, n_clusters: int, n_dim: int, ties='average'):
     means = np.array([data[km.labels_ == g].mean(0) for g in groups])
     covs = np.array([np.cov(data[km.labels_ == g], rowvar=False) for g in groups])
 
-    return GMCParam(n_clusters, n_dim, prob, means, covs)
+    return FitSummary(GMCParam(n_clusters, n_dim, prob, means, covs), True, 'kmeans', len(u),
+                      {'Inertia': km.inertia_, 'ties': ties})

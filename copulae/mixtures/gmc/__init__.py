@@ -1,2 +1,2 @@
-from .gmc import EstimateMethod, GaussianMixtureCopula
 from .parameter import GMCParam
+from .gmc import EstimateMethod, GaussianMixtureCopula

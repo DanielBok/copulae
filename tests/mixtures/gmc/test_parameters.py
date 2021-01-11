@@ -1,6 +1,8 @@
 import pytest
 from numpy.testing import assert_allclose
 
+from copulae.core.exceptions import NonSymmetricMatrixError
+from copulae.mixtures.gmc.exception import GMCParamError
 from copulae.mixtures.gmc.parameter import GMCParam
 
 param2 = GMCParam(
@@ -77,3 +79,66 @@ def test_from_vector(vector, param):
     assert_allclose(actual.prob, param.prob, rtol=1e-4)
     assert_allclose(actual.means, param.means, rtol=1e-4)
     assert_allclose(actual.covs, param.covs, rtol=1e-4)
+
+
+@pytest.mark.parametrize("param", [param2, param3])
+def test_from_dict(param):
+    actual = GMCParam.from_dict({
+        "prob": param.prob,
+        "means": param.means,
+        "covs": param.covs,
+    })
+
+    assert_allclose(actual.prob, param.prob, rtol=1e-4)
+    assert_allclose(actual.means, param.means, rtol=1e-4)
+    assert_allclose(actual.covs, param.covs, rtol=1e-4)
+
+
+@pytest.mark.parametrize("key, value, error", [
+    ("prob", [0.3, 0.3], GMCParamError),  # not sum to 1
+    ("prob", [0.3, 0.3, 0.4], GMCParamError),  # do not match number of clusters
+    ("means", [[0.2, 0.3, 0.4], [0.2, 0.3, 0.4]], GMCParamError),  # bad shape
+    ("means", [[0.2, 0.3], [0.2, 0.3], [0.2, 0.3]], GMCParamError),  # bad shape
+    ("covs", [
+        [[5, 6],
+         [6, 9]],
+        [[2, 3],
+         [3, 5]],
+        [[2, 3],
+         [3, 5]]
+    ], GMCParamError),  # bad shape
+    ("covs", [
+        [[27, 16, 35],
+         [16, 30, 44],
+         [35, 44, 77]],
+        [[27, 16, 35],
+         [16, 30, 44],
+         [35, 44, 77]]
+    ], GMCParamError),  # bad shape
+    ("covs", [
+        [[5, 3],
+         [4, 0]],
+        [[5, 3],
+         [4, 0]]
+    ], NonSymmetricMatrixError)  # not psd
+])
+def test_param_raises_error(key, value, error):
+    payload = {
+        # default values
+        **{
+            'prob': [0.5, 0.5],
+            'means': [
+                [0.1, 0.2],
+                [0.3, 0.4]
+            ],
+            'covs': [
+                [[5, 6],
+                 [6, 9]],
+                [[2, 3],
+                 [3, 5]]
+            ]
+        },
+        key: value  # additional value
+    }
+    with pytest.raises(error):
+        GMCParam(2, 2, **payload)

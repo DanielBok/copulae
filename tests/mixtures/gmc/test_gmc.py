@@ -4,10 +4,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from copulae.mixtures.gmc import EstimateMethod, GaussianMixtureCopula
+from copulae.mixtures.gmc import EstimateMethod, GMCParam, GaussianMixtureCopula
 from copulae.mixtures.gmc.estimators.em import Criteria
 from copulae.mixtures.gmc.estimators.exceptions import InvalidStoppingCriteria
-from copulae.mixtures.gmc.exception import GMCFitMethodError
+from copulae.mixtures.gmc.exception import GMCFitMethodError, GMCParamMismatchError
 from copulae.mixtures.gmc.summary import Summary
 from .common import param
 
@@ -23,16 +23,28 @@ data = pd.DataFrame([
 
 @pytest.fixture
 def cop():
-    c = GaussianMixtureCopula(3, 2)
-    c.params = param
-
-    return c
+    return GaussianMixtureCopula(3, 2, param)
 
 
 @pytest.fixture
 def rvs(cop):
     np.random.seed(8)
     return cop.random(1000) + np.random.random((1000, 2))
+
+
+def create_param(n_clusters: int, n_dim: int):
+    p = np.random.random(n_clusters)
+    p /= p.sum()
+
+    covs = []
+    for _ in range(n_clusters):
+        cov = np.random.random((n_dim, n_dim))
+        covs.append(cov @ cov.T)
+
+    return GMCParam(n_clusters, n_dim,
+                    prob=p,
+                    means=np.random.random((n_clusters, n_dim)),
+                    covs=covs)
 
 
 class TestGaussianMixtureCopula:
@@ -67,3 +79,13 @@ class TestGaussianMixtureCopula:
     def test_fit_with_bad_args(self, cop, rvs, method: EstimateMethod, criteria: Optional[Criteria], error: Exception):
         with pytest.raises(error):
             cop.fit(rvs, method=method, criteria=criteria)
+
+    @pytest.mark.parametrize("bad_param, error", [
+        ('bad param', GMCParamMismatchError),
+        (create_param(10, 2), GMCParamMismatchError),
+        (create_param(3, 10), GMCParamMismatchError),
+        (create_param(10, 10), GMCParamMismatchError),
+    ])
+    def test_bad_param_raises_error(self, cop, bad_param, error):
+        with pytest.raises(error):
+            cop.params = bad_param
