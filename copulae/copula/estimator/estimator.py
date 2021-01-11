@@ -81,9 +81,9 @@ def fit_copula(copula: Copula, data: np.ndarray, x0: Optional[Union[np.ndarray, 
     m = method.lower()
     if m in {'ml'}:
         x0 = initial_params(copula, data, x0)
-        estimate_max_likelihood_params(copula, data, x0, options, verbose, scale)
+        return estimate_max_likelihood_params(copula, data, x0, options, verbose, scale)
     elif m in ('itau', 'irho'):
-        estimate_corr_inverse_params(copula, data, m)
+        return estimate_corr_inverse_params(copula, data, m)
     else:
         raise NotImplementedError(f"'{m}' is not implemented")
 
@@ -91,8 +91,7 @@ def fit_copula(copula: Copula, data: np.ndarray, x0: Optional[Union[np.ndarray, 
 def initial_params(copula: Copula, data: np.ndarray, x0: np.ndarray):
     # ensure that initial is defined. If it is defined, checks that all x0 values are finite
     # neither infinite nor nan
-    if x0 is not None and \
-            ((np.isscalar(x0) and not np.isfinite(x0)) or (not np.isscalar(x0) and all(np.isfinite(x0)))):
+    if x0 is not None and np.all(np.isfinite(x0)):
         return x0
 
     if is_elliptical(copula):
@@ -106,7 +105,7 @@ def initial_params(copula: Copula, data: np.ndarray, x0: np.ndarray):
             return rhos
 
     try:
-        start = estimate_corr_inverse_params(copula, data, 'itau')
+        start = estimate_corr_inverse_params(copula, data, 'itau').params
         ll = copula.log_lik(data)
 
         if np.isfinite(ll):

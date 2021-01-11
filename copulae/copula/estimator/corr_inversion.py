@@ -1,7 +1,7 @@
 import numpy as np
 
 from copulae.copula.estimator.misc import is_archimedean, is_elliptical
-from copulae.copula.summary import FitSummary
+from copulae.copula.estimator.summary import FitSummary
 from copulae.core import create_cov_matrix, near_psd, tri_indices
 from copulae.stats import kendall_tau, spearman_rho
 
@@ -43,10 +43,7 @@ def estimate_corr_inverse_params(copula, data: np.ndarray, type_: Literal['itau'
         raise NotImplementedError(f"Have not developed for '{copula.name} copula'")
 
     method = f"Inversion of {'Spearman Rho' if type_ == 'irho' else 'Kendall Tau'} Correlation"
-
-    copula.fit_smry = FitSummary(estimate, method, copula.log_lik(data), len(data))
-
-    return estimate
+    return FitSummary(estimate, method, copula.log_lik(data), len(data))
 
 
 def fit_cor(copula, data: np.ndarray, typ: str) -> np.ndarray:

@@ -4,7 +4,7 @@ import numpy as np
 from scipy.optimize import OptimizeResult, minimize
 
 from copulae.copula.estimator.misc import warn_no_convergence
-from copulae.copula.summary import FitSummary
+from copulae.copula.estimator.summary import FitSummary
 
 try:
     from typing import Literal, Protocol
@@ -62,14 +62,12 @@ def estimate_max_likelihood_params(copula, data: np.ndarray, x0: Union[np.ndarra
             return np.inf
 
     res: OptimizeResult = minimize(calc_log_lik, x0, **optim_options)
-
     if not res['success']:
         if verbose >= 1:
             warn_no_convergence()
-        return
+        estimate = np.nan if np.isscalar(x0) else np.repeat(np.nan, len(x0))
+    else:
+        estimate = res['x']
+        copula.params = estimate
 
-    estimate = res['x']
-    copula.params = estimate
-    copula.fit_smry = FitSummary(estimate, "Maximum likelihood", -res['fun'], len(data), optim_options, res)
-
-    return estimate
+    return FitSummary(estimate, "Maximum likelihood", -res['fun'], len(data), optim_options, res)

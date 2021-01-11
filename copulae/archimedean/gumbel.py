@@ -15,6 +15,11 @@ from ._shared import valid_rows_in_u
 from .abstract import AbstractArchimedeanCopula
 from .auxiliary import dsum_sibuya
 
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
 
 class GumbelCopula(AbstractArchimedeanCopula):
     r"""
@@ -245,7 +250,8 @@ class GumbelCopula(AbstractArchimedeanCopula):
     def rho(self):
         return self._rho(self.params)
 
-    def summary(self):
+    @select_summary
+    def summary(self, category: Literal['copula', 'fit'] = 'copula'):
         return Summary(self, {"theta": self.params})
 
     @property

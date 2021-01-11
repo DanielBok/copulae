@@ -6,15 +6,16 @@ import numpy as np
 import pandas as pd
 
 from copulae.copula.estimator import EstimationMethod, fit_copula
-from copulae.copula.exceptions import InputDataError, NotFittedError
-from copulae.copula.summary import FitSummary, SummaryType
+from copulae.copula.estimator.summary import FitSummary
+from copulae.copula.exceptions import InputDataError
+from copulae.copula.summary import SummaryType
 from copulae.core import pseudo_obs
 from copulae.types import Array, Numeric, Ties
 
 try:
-    from typing import Protocol
+    from typing import Literal, Protocol
 except ImportError:
-    from typing_extensions import Protocol
+    from typing_extensions import Literal, Protocol
 
 __all__ = ["BaseCopula", "CopulaCorrProtocol", "Param", "EstimationMethod", "TailDep"]
 
@@ -129,23 +130,12 @@ class BaseCopula(ABC, Generic[Param]):
             raise InputDataError('Dimension of data does not match copula')
 
         x0 = np.asarray(x0) if x0 is not None and not isinstance(x0, np.ndarray) and isinstance(x0, Collection) else x0
-        fit_copula(self, data, x0, method, verbose, optim_options, kwargs.get('scale', 1))
+        self._fit_smry = fit_copula(self, data, x0, method, verbose, optim_options, kwargs.get('scale', 1))
 
         if isinstance(data, pd.DataFrame):
             self._columns = list(data.columns)
 
         return self
-
-    @property
-    def fit_smry(self):
-        if self._fit_smry is None:
-            raise NotFittedError
-        return self._fit_smry
-
-    @fit_smry.setter
-    def fit_smry(self, summary: FitSummary):
-        assert isinstance(summary, FitSummary) or summary is None, "Setting invalid object as fit summary"
-        self._fit_smry = summary
 
     def log_lik(self, data: np.ndarray, *, to_pobs=True, ties: Ties = 'average') -> float:
         r"""
@@ -256,7 +246,7 @@ class BaseCopula(ABC, Generic[Param]):
         """
         raise NotImplementedError
 
-    def summary(self) -> SummaryType:
+    def summary(self, category: Literal['copula', 'fit'] = 'copula') -> SummaryType:
         """Constructs the summary information about the copula"""
         raise NotImplementedError
 
