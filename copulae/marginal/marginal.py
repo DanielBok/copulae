@@ -11,9 +11,9 @@ from .summary import Summary
 from .univariate import DistDetail, create_univariate, get_marginal_detail
 
 try:
-    from typing import TypedDict
+    from typing import Literal, TypedDict
 except ImportError:
-    from typing_extensions import TypedDict
+    from typing_extensions import Literal, TypedDict
 
 
 class MarginalCopulaParam(TypedDict):
@@ -69,28 +69,6 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
      1.000000  0.259487  0.404228
      0.259487  1.000000  0.178879
      0.404228  0.178879  1.000000
-                                      Fit Summary
-    ================================================================================
-    Log. Likelihood      : -379.64857752263424
-    Variance Estimate    : Not Implemented Yet
-    Method               : Maximum pseudo-likelihood
-    Data Points          : 3000
-    Optimization Setup
-    --------------------------------------------------------------------------------
-        bounds         : [(-1.000001, 1.000001), (-1.000001, 1.000001), (-1.000001, 1.000001)]
-        options        : {'maxiter': 20000, 'ftol': 1e-06, 'iprint': 1, 'disp': False, 'eps': 1.5e-08}
-        method         : SLSQP
-    Results
-    --------------------------------------------------------------------------------
-        x              : [0.25948651 0.40422775 0.17887947]
-        fun            : -379.64857752263424
-        jac            : [-0.00197815 -0.00209942  0.00335376]
-        nit            : 6
-        nfev           : 32
-        njev           : 6
-        status         : 0
-        message        : Optimization terminated successfully
-        success        : True
     """
 
     def __init__(self, copula: BaseCopula[Param], margins: MarginsInput):
@@ -143,9 +121,7 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
             self._marginals[i] = m.dist(*m.dist.fit(data[:, i]))
 
         # writing it as such to get past the type-hints flags
-        kwargs['verbose'] = verbose
-        self._copula.fit(data, x0, method, optim_options, ties, **kwargs)
-
+        self._copula.fit(data, x0, method, optim_options, ties, verbose=verbose, **kwargs)
         return self
 
     @property
@@ -183,7 +159,8 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
 
         return x
 
-    def summary(self):
+    @select_summary
+    def summary(self, category: Literal['copula', 'fit'] = 'copula'):
         return Summary(self.name, self.dim, self._copula, self._marginals)
 
     def _check_x_input(self, x: Array):

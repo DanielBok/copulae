@@ -11,6 +11,11 @@ from copulae.utility.annotations import *
 from ._shared import valid_rows_in_u
 from .abstract import AbstractArchimedeanCopula
 
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
 
 class FrankCopula(AbstractArchimedeanCopula):
     r"""
@@ -191,7 +196,8 @@ class FrankCopula(AbstractArchimedeanCopula):
     def rho(self):
         return self._rho(self.params)
 
-    def summary(self):
+    @select_summary
+    def summary(self, category: Literal['copula', 'fit'] = 'copula'):
         return Summary(self, {"theta": self.params})
 
     @property

@@ -9,6 +9,11 @@ from copulae.stats import multivariate_t as mvt, t
 from copulae.types import Array, Ties
 from copulae.utility.annotations import *
 
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
 
 class StudentParams(NamedTuple):
     df: float
@@ -172,7 +177,8 @@ class StudentCopula(AbstractEllipticalCopula[StudentParams]):
         r = mvt.rvs(cov=self.sigma, df=self._df, size=n, random_state=seed)
         return t.cdf(r, self._df)
 
-    def summary(self):
+    @select_summary
+    def summary(self, category: Literal['copula', 'fit'] = 'copula'):
         return Summary(self, {
             'Degree of Freedom': self.params.df,
             'Correlation Matrix': self.sigma

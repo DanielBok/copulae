@@ -199,7 +199,8 @@ class EmpiricalCopula(BaseCopula[None]):
         assert smoothing in ("none", "beta", "checkerboard"), "Smoothing must be 'none', 'beta' or 'checkerboard'"
         self._smoothing = smoothing
 
-    def summary(self):
+    @select_summary
+    def summary(self, category: Literal['copula', 'fit'] = 'copula'):
         return Summary(self, {
             "Dimensions": self.dim,
             "Ties method": self.ties,

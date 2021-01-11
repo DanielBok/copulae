@@ -301,6 +301,7 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
 
         return random_gmcm(n, self.params)
 
-    def summary(self):
+    @select_summary
+    def summary(self, category: Literal['copula', 'fit'] = 'copula'):
         """Constructs the summary information about the copula"""
         return Summary(self.params, self._fit_details)

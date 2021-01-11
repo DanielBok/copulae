@@ -84,7 +84,7 @@ def gof_copula(copula: Type[Copula], data: Union[pd.DataFrame, np.ndarray], reps
         Test statistics
     """
     data = GofData(data, ties, fit_ties)
-    return GofParametricBootstrap(copula, data, reps, multiprocess, **fit_options).fit()
+    return GofParametricBootstrap(copula, data, reps, multiprocess, verbose=0, **fit_options).fit()
 
 
 class GofParametricBootstrap:

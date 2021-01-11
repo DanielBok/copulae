@@ -8,6 +8,11 @@ from copulae.stats import multivariate_normal as mvn, norm
 from copulae.types import Array
 from copulae.utility.annotations import *
 
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
 
 class GaussianCopula(AbstractEllipticalCopula[np.ndarray]):
     r"""
@@ -86,5 +91,6 @@ class GaussianCopula(AbstractEllipticalCopula[np.ndarray]):
         r = mvn.rvs(cov=self.sigma, size=n, random_state=seed)
         return norm.cdf(r)
 
-    def summary(self):
+    @select_summary
+    def summary(self, category: Literal['copula', 'fit'] = 'copula'):
         return Summary(self, {'Correlation Matrix': self.sigma})

@@ -7,6 +7,11 @@ from copulae.stats import random_uniform
 from copulae.types import Array
 from copulae.utility.annotations import *
 
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
 
 class IndepCopula(BaseCopula[int]):
     def __init__(self, dim=2, fields: Collection[str] = None):
@@ -22,6 +27,9 @@ class IndepCopula(BaseCopula[int]):
         ----------
         dim: int, optional
             The dimension of the copula
+
+        fields: list of str
+            The names of the data's columns
         """
         super().__init__(dim, "Independent")
         if fields is not None:
@@ -52,5 +60,6 @@ class IndepCopula(BaseCopula[int]):
     def random(self, n: int, seed: int = None):
         return random_uniform(n, self.dim, seed)
 
-    def summary(self):
+    @select_summary
+    def summary(self, category: Literal['copula', 'fit'] = 'copula'):
         return Summary(self, {})
