@@ -142,3 +142,10 @@ def test_param_raises_error(key, value, error):
     }
     with pytest.raises(error):
         GMCParam(2, 2, **payload)
+
+
+@pytest.mark.parametrize("param", [param2, param3])
+def test_param_to_string(param):
+    # smoke test to get coverage
+    assert isinstance(repr(param), str)
+    assert isinstance(str(param), str)

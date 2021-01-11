@@ -40,12 +40,13 @@ def copulas():
 
 @pytest.mark.parametrize("cop", copulas())
 def test_summary(cop):
-    # haven't fit
-    with pytest.raises(NotFittedError):
-        cop.summary(category='fit')
+    if not issubclass(type(cop), (copulae.EmpiricalCopula, copulae.IndepCopula)):
+        # haven't fit raise error, Empirical and Independent copula do not need fitting
+        with pytest.raises(NotFittedError):
+            cop.summary(category='fit')
 
-    with pytest.raises(NotFittedError):
-        cop.summary('fit')
+        with pytest.raises(NotFittedError):
+            cop.summary('fit')
 
     # # no errors
     cop.summary()
@@ -59,3 +60,14 @@ def test_summary(cop):
 
     with pytest.raises(ValueError):
         cop.summary("raises error")
+
+
+@pytest.mark.parametrize("cop", copulas())
+@pytest.mark.parametrize("category", ['fit', 'copula'])
+def test_summary_representations(cop, category):
+    if category == 'fit':
+        cop.fit(data)
+
+    smry = cop.summary(category)
+    assert isinstance(smry.as_html(), str)
+    assert isinstance(repr(smry), str)
