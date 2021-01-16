@@ -1,6 +1,9 @@
 # Copulae
 
-Copulae is a package used to model complex dependency structures. Copulae implements common and popular copula structures to bind multiple univariate streams of data together. All copula implemented are multivariate by default. 
+Probably the second most popular copula package in Python. 😣
+
+Copulae is a package used to model complex dependency structures. Copulae implements common and popular copula
+structures to bind multiple univariate streams of data together. All copula implemented are multivariate by default.
 
 ###### Versions
 
@@ -105,7 +108,7 @@ I started working on the copulae package because I couldn't find a good existing
     - [ ] Generic Mixture Copula
     - [x] Marginal Copula
 - [ ] Vine Copulas
-- [ ] Copulae Tests
+- [ ] Copula Tests
     - [x] Radial Symmetry
     - [x] Exchangeability
     - [ ] Goodness of Fit
