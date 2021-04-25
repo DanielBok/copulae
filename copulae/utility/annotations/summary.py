@@ -2,16 +2,13 @@ import wrapt
 
 from copulae.copula import BaseCopula
 from copulae.copula.exceptions import NotFittedError
-from copulae.copula.summary import SummaryType
 
 __all__ = ['select_summary']
 
 
 @wrapt.decorator
-def select_summary(method, instance: BaseCopula, args, kwargs) -> SummaryType:
-    """
-    Attempts to cast output to a DataFrame if applicable. Class instance must have '_columns' attribute
-    """
+def select_summary(method, instance: BaseCopula, args, kwargs):
+    """Selects the correct summary based on the category"""
     category = args[0] if len(args) > 0 else kwargs.get('category', 'copula')
     if category == 'copula':
         return method(*args, **kwargs)
