@@ -1,13 +1,20 @@
-from typing import Tuple, Union
+from typing import Tuple, TypeVar
 
 import numpy as np
 import pandas as pd
 from scipy import stats
 
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
 __all__ = ['create_cov_matrix', 'EPS', 'pseudo_obs', 'rank_data', 'tri_indices']
 
 EPS = np.finfo('float').eps
 """Machine Epsilon"""
+
+ArrayVar = TypeVar('ArrayVar', np.ndarray, pd.DataFrame)
 
 
 def create_cov_matrix(params: np.ndarray):
@@ -34,7 +41,7 @@ def create_cov_matrix(params: np.ndarray):
     return sigma
 
 
-def pseudo_obs(data: Union[np.ndarray, pd.DataFrame], ties='average'):
+def pseudo_obs(data: ArrayVar, ties='average') -> ArrayVar:
     """
     Compute the pseudo-observations for the given data matrix
 
@@ -63,10 +70,45 @@ def pseudo_obs(data: Union[np.ndarray, pd.DataFrame], ties='average'):
 
     Returns
     -------
-    numpy array
+    numpy.array or pandas.DataFrame
         matrix or vector of the same dimension as `data` containing the pseudo observations
+
+    Examples
+    --------
+    >>> from copulae import pseudo_obs
+    >>> from copulae.datasets import load_marginal_data
+    >>> import numpy as np
+    >>> data = load_marginal_data()
+    >>> data.head(3)
+        STUDENT      NORM       EXP
+    0 -0.485878  2.646041  0.393322
+    1 -1.088878  2.906977  0.253731
+    2 -0.462133  3.166951  0.480696
+    >>> pseudo_obs(data).head(3)  # pseudo-obs is a DataFrame because input is a DataFrame
+        STUDENT      NORM       EXP
+    0  0.325225  0.188604  0.557814
+    1  0.151616  0.399533  0.409530
+    2  0.336221  0.656115  0.626458
+    >>> np.random.seed(1)
+    >>> rand = np.random.normal(size=(100, 3))
+    >>> rand[:3].round(3)
+    array([[ 1.624, -0.612, -0.528],
+           [-1.073,  0.865, -2.302],
+           [ 1.745, -0.761,  0.319]])
+    >>> pseudo_obs(rand)[:3].round(3)  # otherwise returns numpy arrays
+    array([[0.921, 0.208, 0.248],
+           [0.168, 0.792, 0.01 ],
+           [0.941, 0.178, 0.584]])
+    >>> pseudo_obs(rand.tolist())[:3].round(3)
+    array([[0.921, 0.208, 0.248],
+           [0.168, 0.792, 0.01 ],
+           [0.941, 0.178, 0.584]])
     """
-    return rank_data(data, 1, ties) / (len(data) + 1)
+    u = rank_data(data, 1, ties) / (len(data) + 1)
+    if isinstance(data, pd.DataFrame):
+        u = pd.DataFrame(u, index=data.index, columns=data.columns)
+
+    return u
 
 
 def rank_data(obs: np.ndarray, axis=0, ties='average'):
@@ -108,7 +150,7 @@ def rank_data(obs: np.ndarray, axis=0, ties='average'):
             raise ValueError(f"No axis named 3 for object type {type(obs)}")
 
 
-def tri_indices(n: int, m=0, side='both') -> Tuple[np.ndarray, np.ndarray]:
+def tri_indices(n: int, m=0, side: Literal['lower', 'upper', 'both'] = 'both') -> Tuple[np.ndarray, np.ndarray]:
     """
     Return the indices for the triangle of an (n, n) array
 
@@ -147,7 +189,7 @@ def tri_indices(n: int, m=0, side='both') -> Tuple[np.ndarray, np.ndarray]:
     if side not in {'lower', 'upper', 'both'}:
         raise ValueError("side option must be one of 'lower', 'upper' or 'both'")
 
-    l_i = ([], [])  # lower indices
+    l_i = [], []  # lower indices
     if side in {'lower', 'both'}:
         for i in range(n - m):
             for j in range(i + m, n):
@@ -155,7 +197,7 @@ def tri_indices(n: int, m=0, side='both') -> Tuple[np.ndarray, np.ndarray]:
                 l_i[0].append(j)
 
         if side == 'lower':
-            return tuple(np.array(x) for x in l_i)
+            return np.array(l_i[0]), np.array(l_i[1])
 
     u_i = [[], []]  # upper indices
     if side in {'upper', 'both'}:
@@ -164,6 +206,6 @@ def tri_indices(n: int, m=0, side='both') -> Tuple[np.ndarray, np.ndarray]:
                 u_i[0].append(i)
                 u_i[1].append(j)
         if side == 'upper':
-            return tuple(np.array(x) for x in u_i)
+            return np.array(u_i[0]), np.array(u_i[1])
 
-    return tuple(np.array([*u, *l]) for u, l in zip(u_i, l_i))
+    return np.array([*u_i[0], *l_i[0]]), np.array([*u_i[1], *l_i[1]])
