@@ -30,7 +30,7 @@ class EmpiricalCopula(BaseCopula[None]):
 
     Examples
     --------
-    >>> from copulae import EmpiricalCopula
+    >>> from copulae import EmpiricalCopula, pseudo_obs
     >>> from copulae.datasets import load_marginal_data
     >>> df = load_marginal_data()
     >>> df.head(3)
@@ -38,21 +38,25 @@ class EmpiricalCopula(BaseCopula[None]):
     0 -0.485878  2.646041  0.393322
     1 -1.088878  2.906977  0.253731
     2 -0.462133  3.166951  0.480696
-    >>> emp_cop = EmpiricalCopula(3, df, smoothing="beta")
+    >>> u = pseudo_obs(df)  # data must be converted to pseudo observations
+    >>> emp_cop = EmpiricalCopula(u, smoothing="beta")
     >>> data = emp_cop.data  # getting the pseudo-observation data (this is the converted df)
     >>> data[:3]
-    array([[0.32522493, 0.1886038 , 0.55781406],
-           [0.15161613, 0.39953349, 0.40953016],
-           [0.33622126, 0.65611463, 0.62645785]])
+        STUDENT      NORM       EXP
+    0  0.325225  0.188604  0.557814
+    1  0.151616  0.399533  0.409530
+    2  0.336221  0.656115  0.626458
     # must feed pseudo-observations into cdf
     >>> emp_cop.cdf(data[:2])
     array([0.06865595, 0.06320104])
-    >>> emp_cop.pdf([[0.5, 0.5, 0.5]])
-    0.009268568506099015
+    >>> emp_cop.pdf([[0.5, 0.5, 0.5],
+    ...              [0.6, 0.4, 0.6]])
+    array([0.00926857, 0.00868833])
     >>> emp_cop.random(3, seed=10)
-    array([[0.59046984, 0.98467178, 0.16494502],
-           [0.31989337, 0.28090636, 0.09063645],
-           [0.60379873, 0.61779407, 0.54215262]])
+        STUDENT      NORM       EXP
+    0  0.590470  0.984672  0.164945
+    1  0.319893  0.280906  0.090636
+    2  0.603799  0.617794  0.542153
     """
 
     @validate_data_dim({"data": 2})
@@ -138,7 +142,7 @@ class EmpiricalCopula(BaseCopula[None]):
         cdf = emp_dist_func(u, uu, self._smoothing, self._offset)
         return np.log(cdf) if log else cdf
 
-    def fit(self, data, x0=None, method='ml', optim_options=None, ties='average', verbose=1):
+    def fit(self, data, x0=None, method='ml', optim_options=None, ties='average', verbose=1, **kwargs):
         if verbose > 1:
             warn("EmpiricalCopula does not need 'fitting'")
         return self
@@ -155,7 +159,6 @@ class EmpiricalCopula(BaseCopula[None]):
     @squeeze_output
     def pdf(self, u: Array, log=False):
         assert self.smoothing == "beta", "Empirical Copula only has density (PDF) for 'beta' smoothing"
-        u = self.pobs(u, self.ties)
 
         data_rank = rank_data(self.data, 1, self.ties)
         n = len(self.data)
@@ -231,9 +234,9 @@ class EmpiricalCopula(BaseCopula[None]):
         """
         # because it is pseudo-observations, and already ranked within the columns, we can just
         # multiply by the number of rows in the original data set to get the position rank
-        index = np.floor(u * len(self.data)).astype(int)
+        index = np.array(np.floor(u * len(self.data)), int)
         data = np.array(self.data)
-        source = np.take_along_axis(np.array(data), data.argsort(axis=0), axis=0)
+        source = np.take_along_axis(data, data.argsort(axis=0), axis=0)
 
         # marginals derived row by row based on 'lowest' position, we could offer an interpolation in
         # the future, but not sure how popular this method is

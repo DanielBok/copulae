@@ -7,11 +7,6 @@ from copulae.copula import Summary
 from copulae.datasets import load_marginal_data, load_smi
 
 
-@pytest.fixture
-def smi():
-    return load_smi().iloc[:, :4]
-
-
 @pytest.fixture(scope="module")
 def u():
     return np.array([
@@ -23,24 +18,17 @@ def u():
     ])
 
 
+@pytest.fixture(scope="module")
+def smi():
+    return pseudo_obs(load_smi().iloc[:, :4])
+
+
 @pytest.mark.parametrize("smoothing, expected", [
-    (None, [0.0567375886524823,
-            0.26241134751773,
-            0.099290780141844,
-            0.418439716312057,
-            0.290780141843972]),
-    ("beta", [0.0648270720708347,
-              0.260103708938397,
-              0.102191155405744,
-              0.422495043230427,
-              0.292511307174238]),
-    ("checkerboard", [0.0567375886524823,
-                      0.265957446808511,
-                      0.102836879432624,
-                      0.418439716312057,
-                      0.290780141843972]),
+    (None, [0.05673759, 0.26241135, 0.09929078, 0.41843972, 0.29078014]),
+    ("beta", [0.06482708, 0.26010368, 0.10219117, 0.42249506, 0.29251128]),
+    ("checkerboard", [0.05673762, 0.26595741, 0.10283691, 0.41843972, 0.29078014]),
 ])
-def test_empirical_cdf(u, smi, smoothing, expected):
+def test_empirical_cdf(smi, u, smoothing, expected):
     cop = EmpiricalCopula(smi, smoothing=smoothing)
     assert_almost_equal(cop.cdf(u), expected)
 
@@ -48,10 +36,11 @@ def test_empirical_cdf(u, smi, smoothing, expected):
 @pytest.mark.parametrize("log", [True, False])
 def test_empirical_pdf(smi, u, log):
     cop = EmpiricalCopula(smi, smoothing="beta")
-    pdf = cop.pdf(u, log) if log else np.log(cop.pdf(u))
+    pdf = cop.pdf(u, log)
+    if not log:
+        pdf = np.log(pdf)
 
-    expected = [-38.968738, -7.304777, -14.892165, -5.423080, -24.478464]
-
+    expected = [-38.96873715, -7.30477533, -14.89215812, -5.42307982, -24.47846229]
     assert_almost_equal(pdf, expected, decimal=6)
 
 
