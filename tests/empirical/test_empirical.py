@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 from numpy.testing import assert_almost_equal
+from pandas.testing import assert_frame_equal
 
 from copulae import EmpiricalCopula, pseudo_obs
 from copulae.copula import Summary
@@ -63,10 +64,8 @@ def test_empirical_summary(smi):
 
 
 def test_empirical_to_margins():
-    data = load_marginal_data()
-    cop = EmpiricalCopula(data)
+    original = load_marginal_data()
+    test_input = pseudo_obs(original)[:6]
+    output = EmpiricalCopula.to_marginals(test_input, original)
 
-    test_input = pseudo_obs(data)[:6]
-    output = cop.to_marginals(test_input)
-
-    assert_almost_equal(output, data.iloc[:6].to_numpy())
+    assert_frame_equal(output, original.iloc[:6])
