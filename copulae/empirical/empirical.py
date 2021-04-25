@@ -215,9 +215,9 @@ class EmpiricalCopula(BaseCopula[None]):
             "Smoothing": self._smoothing,
         })
 
-    @validate_data_dim({"u": 2})
-    @cast_output
-    def to_marginals(self, u: Matrix) -> Union[pd.DataFrame, np.ndarray]:
+    @validate_data_dim({"u": 2, "original": 2})
+    @classmethod
+    def to_marginals(cls, u: Matrix, original: Matrix) -> Union[pd.DataFrame, np.ndarray]:
         """
         Transforms a sample marginal data (pseudo-observations) to empirical margins based on the
         input dataset
@@ -226,22 +226,49 @@ class EmpiricalCopula(BaseCopula[None]):
         ----------
         u
             Sample marginals (pseudo observations). Values must be between [0, 1]
+        original
+            The original dataset (do not cast these into pseudo-observations)
 
         Returns
         -------
         np.ndarray or pd.DataFrame
             Transformed marginals
+
+        Examples
+        --------
+        >>> from copulae import EmpiricalCopula, pseudo_obs
+        >>> from copulae.datasets import load_marginal_data
+        >>> src = load_marginal_data()
+        >>> src.head(3)
+            STUDENT      NORM       EXP
+        0 -0.485878  2.646041  0.393322
+        1 -1.088878  2.906977  0.253731
+        2 -0.462133  3.166951  0.480696
+        # Pretend to get some psuedo marginals (~new data)
+        >>> sample_marginals = pseudo_obs(src)[:3] + 0.01
+        >>> sample_marginals
+            STUDENT      NORM       EXP
+        0  0.335225  0.198604  0.567814
+        1  0.161616  0.409533  0.419530
+        2  0.346221  0.666115  0.636458
+        # Get the empirical marginals
+        >>> EmpiricalCopula.to_marginals(sample_marginals, src)
+            STUDENT      NORM       EXP
+        0 -0.465186  2.663224  0.408747
+        1 -1.054686  2.917943  0.261550
+        2 -0.428498  3.176723  0.492262
         """
         # because it is pseudo-observations, and already ranked within the columns, we can just
         # multiply by the number of rows in the original data set to get the position rank
-        index = np.array(np.floor(u * len(self.data)), int)
-        data = np.array(self.data)
+        index = np.array(np.floor(u * len(original)), int)
+        data = np.array(original)
         source = np.take_along_axis(data, data.argsort(axis=0), axis=0)
 
         # marginals derived row by row based on 'lowest' position, we could offer an interpolation in
         # the future, but not sure how popular this method is
         marginals = np.transpose([source[r, c] for c, r in enumerate(index.T)])
-        return self._format_output(marginals)
+
+        return pd.DataFrame(marginals, columns=original.columns) if isinstance(original, pd.DataFrame) else marginals
 
     @property
     def ties(self):
