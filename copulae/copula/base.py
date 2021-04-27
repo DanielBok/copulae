@@ -79,7 +79,7 @@ class BaseCopula(ABC, Generic[Param]):
 
     def fit(self, data: Union[pd.DataFrame, np.ndarray], x0: Union[Collection[float], np.ndarray] = None,
             method: EstimationMethod = 'ml', optim_options: dict = None, ties: Ties = 'average', verbose=1,
-            **kwargs):
+            to_pobs=True, **kwargs):
         """
         Fit the copula with specified data
 
@@ -105,6 +105,10 @@ class BaseCopula(ABC, Generic[Param]):
         verbose: int, optional
             Log level for the estimator. The higher the number, the more verbose it is. 0 prints nothing.
 
+        to_pobs: bool
+            If True, casts the input data along the column axis to uniform marginals (i.e. convert variables to
+            values between [0, 1]). Set this to False if the input data are already uniform marginals.
+
         kwargs
             Other keyword arguments. See Notes for more details
 
@@ -119,13 +123,24 @@ class BaseCopula(ABC, Generic[Param]):
 
         See Also
         --------
-        :code:`scipy.optimize.minimize`: the `scipy minimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize>`_ function use for optimization
+        :py:meth:`~copulae.BaseCopula.pobs`
+            The psuedo-observation method converts non-uniform data into uniform marginals.
+
+        :code:`scipy.optimize.minimize`
+            the `scipy minimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#scipy.optimize.minimize>`_ function use for optimization
         """
-        data = self.pobs(data, ties)
+        if not isinstance(data, (pd.DataFrame, np.ndarray)):
+            data = np.asarray(data)
+
+        data = self.pobs(data, ties) if to_pobs else data
+
         if data.ndim != 2:
             raise InputDataError('Data must be a matrix of dimension (n x d)')
         elif self.dim != data.shape[1]:
             raise InputDataError('Dimension of data does not match copula')
+        elif np.any((data < 0) | (data > 1)):
+            raise InputDataError('Input data must be between [0, 1] (marginals). Set to_pobs=True if you want '
+                                 'copulae to convert this automatically for you')
 
         x0 = np.asarray(x0) if x0 is not None and not isinstance(x0, np.ndarray) and isinstance(x0, Collection) else x0
         self._fit_smry = fit_copula(self, data, x0, method, verbose, optim_options, kwargs.get('scale', 1))
@@ -157,7 +172,6 @@ class BaseCopula(ABC, Generic[Param]):
         -------
         float
             Log Likelihood
-
         """
         data = self.pobs(data, ties) if to_pobs else data
         return self.pdf(data, log=True).sum()

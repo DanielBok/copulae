@@ -19,16 +19,27 @@ __all__ = ['fit_copula', 'EstimationMethod']
 
 
 class Copula(Protocol):
-    name: str
-    dim: int
-    bounds: Tuple[Union[int, float, np.ndarray], Union[int, float, np.ndarray]]
-    params: Any
-
     def pdf(self, u: Array, log=False) -> Union[np.ndarray, float]:
         raise NotImplementedError
 
-    def log_lik(self, data: np.ndarray, *, to_pobs=True, ties: Ties = 'average'):
+    def log_lik(self, data: np.ndarray, *, to_pobs=True, ties: Ties = 'average') -> float:
         raise NotImplementedError
+
+    @property
+    def name(self) -> str:
+        return NotImplemented
+
+    @property
+    def dim(self) -> int:
+        return NotImplemented
+
+    @property
+    def params(self) -> Any:
+        return NotImplemented
+
+    @property
+    def bounds(self) -> Tuple[Union[int, float, np.ndarray], Union[int, float, np.ndarray]]:
+        return NotImplemented
 
 
 EstimationMethod = Literal['ml', 'irho', 'itau']
