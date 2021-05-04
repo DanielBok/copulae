@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import pytest
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
@@ -12,13 +13,6 @@ def copula(residual_data: np.ndarray):
     dim = residual_data.shape[1]
     cop = ClaytonCopula(dim=dim)
     cop.params = 0.3075057
-    return cop
-
-
-@pytest.fixture(scope="module")
-def fitted_clayton(residual_data):
-    cop = ClaytonCopula(dim=residual_data.shape[1])
-    cop.fit(residual_data)
     return cop
 
 
@@ -91,8 +85,14 @@ def test_dipsi(copula, U5, degree, log, expected):
         assert_array_almost_equal(copula.dipsi(U5, degree, log), expected, 4)
 
 
-def test_fitted_parameters_match_target(fitted_clayton):
-    assert_almost_equal(fitted_clayton.params, 0.3075057, 4)
+@pytest.mark.parametrize("as_df", [False, True])
+def test_fitted_parameters_match_target(residual_data, as_df):
+    if as_df:
+        residual_data = pd.DataFrame(residual_data, columns=[f'V{i}' for i in range(residual_data.shape[1])])
+
+    cop = ClaytonCopula(dim=residual_data.shape[1])
+    cop.fit(residual_data)
+    assert_almost_equal(cop.params, 0.3075057, 4)
 
 
 def test_fitted_log_likelihood_match_target(copula, U):
@@ -163,8 +163,11 @@ def test_gaussian_random_generates_correctly(copula):
     assert copula.random(5000).shape == (5000, copula.dim)
 
 
-def test_summary(fitted_clayton):
-    smry = fitted_clayton.summary()
+def test_summary(residual_data):
+    cop = ClaytonCopula(dim=residual_data.shape[1])
+    cop.fit(residual_data)
+    smry = cop.summary()
+
     assert isinstance(str(smry), str)
     assert isinstance(smry.as_html(), str)
 

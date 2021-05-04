@@ -83,6 +83,8 @@ def fit_copula(copula: Copula, data: np.ndarray, x0: Optional[Union[np.ndarray, 
     :code:`scipy.optimize.minimize`: the optimization function
     """
     options = form_options(optim_options or {}, verbose, data, copula)
+    if not isinstance(data, np.ndarray):
+        data = np.asarray(data)
 
     if np.any(data) < 0 or np.any(data) > 1:
         raise ValueError("data must be in [0, 1] -- you probably forgot to convert data to pseudo-observations")

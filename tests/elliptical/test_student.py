@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import pytest
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
@@ -23,14 +24,6 @@ def copula(residual_data: np.ndarray):
     return cop
 
 
-@pytest.fixture(scope='module')
-def fitted_student(residual_data):
-    dim = residual_data.shape[1]
-    cop = StudentCopula(dim)
-    cop.fit(residual_data)
-    return cop
-
-
 def test_fitted_log_likelihood_match_target(copula, residual_data):
     target_log_lik = 838.7959
     U = copula.pobs(residual_data)
@@ -39,11 +32,16 @@ def test_fitted_log_likelihood_match_target(copula, residual_data):
     assert np.isclose(log_lik, target_log_lik, atol=1e-2)
 
 
-def test_fitted_parameters_match_target(fitted_student):
-    params = fitted_student.params
+@pytest.mark.parametrize("as_df", [False, True])
+def test_fitted_parameters_match_target(residual_data, as_df):
+    if as_df:
+        residual_data = pd.DataFrame(residual_data, columns=[f'V{i}' for i in range(residual_data.shape[1])])
 
-    assert_array_almost_equal(target_rho, params.rho, DP)
-    assert_almost_equal(target_df, params.df, DP)
+    cop = StudentCopula(residual_data.shape[1])
+    cop.fit(residual_data)
+
+    assert_array_almost_equal(target_rho, cop.params.rho, DP)
+    assert_almost_equal(target_df, cop.params.df, DP)
 
 
 def test_student_random_generates_correctly(copula):
@@ -60,7 +58,10 @@ def test_student_pdf(copula, residual_data):
     assert_array_almost_equal(log_pdf, np.log(expected_pdf), DP)
 
 
-def test_summary(fitted_student):
-    summary = fitted_student.summary()
+def test_summary(residual_data):
+    cop = StudentCopula(residual_data.shape[1])
+    cop.fit(residual_data)
+    summary = cop.summary()
+
     assert isinstance(str(summary), str)
     assert isinstance(summary.as_html(), str)

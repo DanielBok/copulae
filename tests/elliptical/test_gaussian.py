@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import pytest
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
@@ -21,14 +22,6 @@ def copula(residual_data: np.ndarray):
     return cop
 
 
-@pytest.fixture(scope='module')
-def fitted_gaussian(residual_data):
-    dim = residual_data.shape[1]
-    cop = GaussianCopula(dim)
-    cop.fit(residual_data)
-    return cop
-
-
 def test_fitted_log_likelihood_match_target(copula, residual_data):
     target_log_lik = 810.931
     U = copula.pobs(residual_data)
@@ -37,8 +30,14 @@ def test_fitted_log_likelihood_match_target(copula, residual_data):
     assert_almost_equal(log_lik, target_log_lik, DP)
 
 
-def test_fitted_parameters_match_target(fitted_gaussian):
-    assert_array_almost_equal(fitted_gaussian.params, target_params, 4)
+@pytest.mark.parametrize("as_df", [False, True])
+def test_fitted_parameters_match_target(residual_data, as_df):
+    if as_df:
+        residual_data = pd.DataFrame(residual_data, columns=[f'V{i}' for i in range(residual_data.shape[1])])
+
+    cop = GaussianCopula(residual_data.shape[1])
+    cop.fit(residual_data)
+    assert_array_almost_equal(cop.params, target_params, 4)
 
 
 def test_gaussian_cdf(copula, U5):
@@ -65,7 +64,10 @@ def test_gaussian_random_generates_correctly(copula):
     assert copula.random(10).shape == (10, copula.dim)
 
 
-def test_summary(fitted_gaussian):
-    summary = fitted_gaussian.summary()
+def test_summary(residual_data):
+    cop = GaussianCopula(residual_data.shape[1])
+    cop.fit(residual_data)
+    summary = cop.summary()
+
     assert isinstance(str(summary), str)
     assert isinstance(summary.as_html(), str)

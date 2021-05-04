@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import pytest
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
@@ -10,13 +11,6 @@ from copulae.special import log1mexp
 @pytest.fixture
 def copula(residual_data):
     cop = FrankCopula(1.295, dim=residual_data.shape[1])
-    return cop
-
-
-@pytest.fixture(scope="module")
-def fitted_frank(residual_data):
-    cop = FrankCopula(dim=residual_data.shape[1])
-    cop.fit(residual_data, scale=1e6)
     return cop
 
 
@@ -68,8 +62,15 @@ def test_dipsi(copula, U5, degree, log, expected):
         assert_array_almost_equal(copula.dipsi(U5, degree, log), expected, 4)
 
 
-def test_fit(fitted_frank):
-    assert_almost_equal(fitted_frank.params, 1.29505, 5)
+@pytest.mark.parametrize("as_df", [False, True])
+def test_fitted_parameters_match_target(residual_data, as_df):
+    if as_df:
+        residual_data = pd.DataFrame(residual_data, columns=[f'V{i}' for i in range(residual_data.shape[1])])
+
+    cop = FrankCopula(dim=residual_data.shape[1])
+    cop.fit(residual_data, scale=1e6)
+
+    assert_almost_equal(cop.params, 1.29505, 5)
 
 
 @pytest.mark.parametrize('log, expected', [
@@ -132,8 +133,11 @@ def test_rho(theta, expected):
     assert_almost_equal(FrankCopula(theta, 2).rho, expected)
 
 
-def test_summary(fitted_frank):
-    smry = fitted_frank.summary()
+def test_summary(residual_data):
+    cop = FrankCopula(dim=residual_data.shape[1])
+    cop.fit(residual_data, scale=1e6)
+    smry = cop.summary()
+
     assert isinstance(str(smry), str)
     assert isinstance(smry.as_html(), str)
 
