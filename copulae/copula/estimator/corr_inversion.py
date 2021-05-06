@@ -68,10 +68,10 @@ def fit_cor(copula, data: np.ndarray, typ: str) -> np.ndarray:
 
     indices = tri_indices(copula.dim, 1, 'lower')
     if typ == 'itau':
-        tau = kendall_tau(data)[indices]
+        tau = np.asarray(kendall_tau(data))[indices]
         theta = copula.itau(tau)
     elif typ == 'irho':
-        rho = spearman_rho(data)[indices]
+        rho = np.asarray(spearman_rho(data))[indices]
         theta = copula.irho(rho)
     else:
         raise ValueError("Correlation Inversion must be either 'itau' or 'irho'")
