@@ -1,8 +1,10 @@
 import numpy as np
+import pandas as pd
 import pytest
 from numpy.testing import assert_array_almost_equal
+from pandas.testing import assert_frame_equal
 
-from copulae.stats import corr, pearson_rho, spearman_rho, kendall_tau
+from copulae.stats import corr, kendall_tau, pearson_rho, spearman_rho
 
 DP = 3
 
@@ -13,13 +15,18 @@ def data():
     return np.random.uniform(-10, 10, size=(30, 3))
 
 
-def test_corr(data):
-    assert_array_almost_equal(
-        corr(data),
-        np.array([[1.0000000, -0.16871767, -0.23407923],
-                  [-0.1687177, 1.00000000, 0.05121912],
-                  [-0.2340792, 0.05121912, 1.00000000]]),
-        DP)
+@pytest.mark.parametrize('as_df', [True, False])
+def test_corr(data, as_df):
+    expected = np.array([[1.0000000, -0.16871767, -0.23407923],
+                         [-0.1687177, 1.00000000, 0.05121912],
+                         [-0.2340792, 0.05121912, 1.00000000]])
+
+    if as_df:
+        columns = [f'V{i + 1}' for i in range(data.shape[1])]
+        data = pd.DataFrame(data, columns=columns)
+        assert_frame_equal(corr(data), pd.DataFrame(expected, index=columns, columns=columns))
+    else:
+        assert_array_almost_equal(corr(data), expected, DP)
 
 
 def test_corr_pearson(data: np.array):
@@ -108,16 +115,45 @@ def test_corr_spearman(data: np.array):
                               DP)
 
 
-def test_2_vector_api(data: np.ndarray):
-    assert np.isclose(corr(data[:, 0], data[:, 1])[0, 1], -0.1687177, atol=DP)
+@pytest.mark.parametrize("as_series, x_name, y_name, exp_x_name, exp_y_name", [
+    (True, 'X1', 'X2', 'X1', 'X2'),
+    (True, '', '', 'X', 'Y'),
+    (True, None, None, 'X', 'Y'),
+    (True, 'V', 'V', 'V1', 'V2'),
+    (False, '', '', '', '')])
+@pytest.mark.parametrize("use", ['everything', 'complete', 'pairwise.complete'])
+def test_2_vector_api(data: np.ndarray, as_series, use, x_name, y_name, exp_x_name, exp_y_name):
+    expected = -0.1687177
+    x, y = data[:, 0], data[:, 1]
 
+    if as_series:
+        x = pd.Series(x, name=x_name)
+        y = pd.Series(x, name=y_name)
+
+    res = corr(x, y, use=use)
+
+    if as_series:
+        assert np.isclose(res.to_numpy()[0, 1], expected, atol=DP)
+        name = [exp_x_name, exp_y_name]
+        assert_frame_equal(res, pd.DataFrame(res.to_numpy(), index=name, columns=name))
+    else:
+        assert np.isclose(res[0, 1], expected, atol=DP)
+
+
+@pytest.mark.parametrize("use, expected", [
+    ('everything', np.nan),
+    ('complete', -0.16634284),
+    ('pairwise.complete', -0.16634284),
+])
+def test_2_vector_with_nan(data, use, expected):
     data[-1, 0] = np.nan
 
-    with np.errstate(invalid='ignore'):
-        # Adding ignore because comparing nans raise invalid runtime warning
-        assert np.isnan(corr(data[:, 0], data[:, 1])[0, 1])
-    assert np.isclose(corr(data[:, 0], data[:, 1], use='complete')[0, 1], -0.16634284, atol=DP)
-    assert np.isclose(corr(data[:, 0], data[:, 1], use='complete')[0, 1], -0.16634284, atol=DP)
+    if np.isnan(expected):
+        with np.errstate(invalid='ignore'):
+            # Adding ignore because comparing nans raise invalid runtime warning
+            assert np.isnan(corr(data[:, 0], data[:, 1], use=use)[0, 1])
+    else:
+        assert np.isclose(corr(data[:, 0], data[:, 1], use=use)[0, 1], expected, atol=DP)
 
 
 def test_raise_error_if_invalid_method(data: np.ndarray):

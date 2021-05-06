@@ -1,15 +1,51 @@
-from typing import Tuple
+from functools import wraps
+from typing import Tuple, Union
 
 import numpy as np
+import pandas as pd
 from scipy import stats
 
-__all__ = ['corr', 'kendall_tau', 'pearson_rho', 'spearman_rho']
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+
+__all__ = ['corr', 'kendall_tau', 'pearson_rho', 'spearman_rho', 'CorrMethod', 'CorrDataUse']
+
+CorrMethod = Literal['pearson', 'kendall', 'spearman', 'tau', 'rho']
+CorrDataUse = Literal['everything', 'complete', 'pairwise.complete']
 
 
 def format_docstring(notes):
     def decorator(func):
         func.__doc__ = func.__doc__ % notes
         return func
+
+    return decorator
+
+
+def format_output(f):
+    """Formats the output as a DataFrame based on the inputs"""
+
+    @wraps(f)
+    def decorator(x: Union[np.ndarray, pd.Series, pd.DataFrame],
+                  y: Union[np.ndarray, pd.Series] = None,
+                  method: CorrMethod = 'pearson',
+                  use: CorrDataUse = 'everything') -> Union[np.ndarray, pd.DataFrame]:
+        _corr = f(np.asarray(x), y if y is None else np.asarray(y), method, use)
+        if isinstance(x, pd.DataFrame):
+            return pd.DataFrame(_corr, index=x.columns, columns=x.columns)
+
+        elif isinstance(x, pd.Series) and isinstance(y, pd.Series):
+            x_name = x.name or 'X'
+            y_name = y.name or 'Y'
+
+            if x_name == y_name:
+                x_name, y_name = f'{x_name}1', f'{y_name}2'
+            names = [x_name, y_name]
+            return pd.DataFrame(_corr, index=names, columns=names)
+
+        return _corr
 
     return decorator
 
@@ -57,19 +93,24 @@ __notes__ = """
 """.strip()
 
 
+@format_output
 @format_docstring(__notes__)
-def corr(x: np.ndarray, y: np.ndarray = None, method='pearson', use='everything'):
+def corr(x: Union[np.ndarray, pd.Series, pd.DataFrame],
+         y: Union[np.ndarray, pd.Series] = None,
+         method: CorrMethod = 'pearson',
+         use: CorrDataUse = 'everything') -> Union[pd.DataFrame, np.ndarray]:
     """
     Calculates the correlation
 
     Parameters
     ----------
-    x: ndarray
+    x: ndarray, pd.Series, pd.DataFrame
         Numeric vector to compute correlation. If matrix, `y` can be omitted and correlation will be calculated
         amongst the different columns
 
-    y: ndarray, optional
-        Numeric vector to compute correlation against `x`
+    y: ndarray, pd.Series, optional
+        Numeric vector to compute correlation against `x`. If `y` is provided, both `x` and `y` must be a
+        1-dimensional vector
 
     method: {'pearson', 'spearman', 'kendall'}, optional
         The method for calculating correlation
@@ -79,20 +120,20 @@ def corr(x: np.ndarray, y: np.ndarray = None, method='pearson', use='everything'
 
     Returns
     -------
-    ndarray
+    DataFrame or ndarray
         Correlation matrix
 
     Notes
     -----
     %s
     """
-    use = _validate_use(use)
-    corr_func = _get_corr_func(method)
+    x = np.asarray(x)
 
-    def compute_corr(u, v):
-        return np.nan if any(~np.isfinite(u) | ~np.isfinite(v)) else corr_func(u, v)[0]
+    use = _validate_use(use)
+    compute_corr = _get_corr_func(method)
 
     if y is not None:
+        y = np.asarray(y)
         c = np.identity(2)
         c[0, 1] = c[1, 0] = compute_corr(*_form_xy_vector(x, y, use))
 
@@ -107,7 +148,8 @@ def corr(x: np.ndarray, y: np.ndarray = None, method='pearson', use='everything'
 
 
 @format_docstring(__notes__)
-def pearson_rho(x: np.ndarray, y: np.ndarray = None, use='everything'):
+def pearson_rho(x: np.ndarray, y: np.ndarray = None, use: CorrDataUse = 'everything') -> Union[
+    pd.DataFrame, np.ndarray]:
     """
     Calculates the Pearson correlation
 
@@ -125,7 +167,7 @@ def pearson_rho(x: np.ndarray, y: np.ndarray = None, use='everything'):
 
     Returns
     -------
-    ndarray
+    DataFrame or ndarray
         Correlation matrix
 
     Notes
@@ -136,7 +178,8 @@ def pearson_rho(x: np.ndarray, y: np.ndarray = None, use='everything'):
 
 
 @format_docstring(__notes__)
-def kendall_tau(x: np.ndarray, y: np.ndarray = None, use='everything'):
+def kendall_tau(x: np.ndarray, y: np.ndarray = None, use: CorrDataUse = 'everything') -> Union[
+    pd.DataFrame, np.ndarray]:
     """
     Calculates the Kendall's Tau correlation
 
@@ -154,7 +197,7 @@ def kendall_tau(x: np.ndarray, y: np.ndarray = None, use='everything'):
 
     Returns
     -------
-    ndarray
+    DataFrame or ndarray
         Correlation matrix
 
     Notes
@@ -165,7 +208,8 @@ def kendall_tau(x: np.ndarray, y: np.ndarray = None, use='everything'):
 
 
 @format_docstring(__notes__)
-def spearman_rho(x: np.ndarray, y: np.ndarray = None, use='everything'):
+def spearman_rho(x: np.ndarray, y: np.ndarray = None, use: CorrDataUse = 'everything') -> Union[
+    pd.DataFrame, np.ndarray]:
     """
     Calculates the Spearman's Rho correlation
 
@@ -183,7 +227,7 @@ def spearman_rho(x: np.ndarray, y: np.ndarray = None, use='everything'):
 
     Returns
     -------
-    ndarray
+    DataFrame or ndarray
         Correlation matrix
 
     Notes
@@ -201,11 +245,6 @@ def _get_corr_func(method: str):
     ----------
     method: str
         Correlation function name
-
-    Returns
-    -------
-    Callable
-        The correlation function
     """
 
     method = method.lower()
@@ -215,11 +254,16 @@ def _get_corr_func(method: str):
         raise ValueError(f"method must be one of {', '.join(valid_methods)}")
 
     if method in {'kendall', 'tau'}:
-        return stats.kendalltau
+        corr_func = stats.kendalltau
     elif method in {'spearman', 'rho'}:
-        return stats.spearmanr
+        corr_func = stats.spearmanr
     else:
-        return stats.pearsonr
+        corr_func = stats.pearsonr
+
+    def compute_corr(u: np.ndarray, v: np.ndarray) -> float:
+        return np.nan if any(~np.isfinite(u) | ~np.isfinite(v)) else corr_func(u, v)[0]
+
+    return compute_corr
 
 
 def _validate_use(use: str):
