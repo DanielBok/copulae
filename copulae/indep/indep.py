@@ -1,11 +1,12 @@
-from typing import Collection
+from typing import Collection, Union
 from warnings import warn
 
 import numpy as np
+import pandas as pd
 
-from copulae.copula import BaseCopula, Summary
+from copulae.copula import BaseCopula, EstimationMethod, Summary
 from copulae.stats import random_uniform
-from copulae.types import Array
+from copulae.types import Array, Ties
 from copulae.utility.annotations import *
 from .summary import FitSummary
 
@@ -45,7 +46,9 @@ class IndepCopula(BaseCopula[int]):
     def cdf(self, x: Array, log=False):
         return np.log(x).sum(1) if log else x.prod(1)
 
-    def fit(self, data, x0=None, method='ml', verbose=1, optim_options=None, ties='average'):
+    def fit(self, data: Union[pd.DataFrame, np.ndarray], x0: Union[Collection[float], np.ndarray] = None,
+            method: EstimationMethod = 'ml', optim_options: dict = None, ties: Ties = 'average', verbose=1,
+            to_pobs=True, scale=1.0):
         if verbose > 1:
             warn("IndepCopula does not need 'fitting'")
         return self

@@ -79,7 +79,7 @@ class BaseCopula(ABC, Generic[Param]):
 
     def fit(self, data: Union[pd.DataFrame, np.ndarray], x0: Union[Collection[float], np.ndarray] = None,
             method: EstimationMethod = 'ml', optim_options: dict = None, ties: Ties = 'average', verbose=1,
-            to_pobs=True, **kwargs):
+            to_pobs=True, scale=1.0):
         """
         Fit the copula with specified data
 
@@ -109,14 +109,7 @@ class BaseCopula(ABC, Generic[Param]):
             If True, casts the input data along the column axis to uniform marginals (i.e. convert variables to
             values between [0, 1]). Set this to False if the input data are already uniform marginals.
 
-        kwargs
-            Other keyword arguments. See Notes for more details
-
-        Notes
-        -----
-        Other valid keyword arguments and their purpose
-
-        :code:`scale`
+        scale: float
             Amount to scale the objective function value of the numerical optimizer. This is helpful in
             achieving higher accuracy as it increases the sensitivity of the optimizer. The downside is
             that the optimizer could likely run longer as a result. Defaults to 1.
@@ -143,14 +136,15 @@ class BaseCopula(ABC, Generic[Param]):
                                  'copulae to convert this automatically for you')
 
         x0 = np.asarray(x0) if x0 is not None and not isinstance(x0, np.ndarray) and isinstance(x0, Collection) else x0
-        self._fit_smry = fit_copula(self, data, x0, method, verbose, optim_options, kwargs.get('scale', 1))
+        self._fit_smry = fit_copula(self, data, x0, method, verbose, optim_options, scale)
 
         if isinstance(data, pd.DataFrame):
             self._columns = list(data.columns)
+            print(data.describe())
 
         return self
 
-    def log_lik(self, data: np.ndarray, *, to_pobs=True, ties: Ties = 'average') -> float:
+    def log_lik(self, data: Union[np.ndarray, pd.DataFrame], *, to_pobs=True, ties: Ties = 'average') -> float:
         r"""
          Returns the log likelihood (LL) of the copula given the data.
 

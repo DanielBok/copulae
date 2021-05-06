@@ -1,6 +1,7 @@
 from typing import Any, Optional, Tuple, Union
 
 import numpy as np
+import pandas as pd
 
 from copulae.copula.estimator.misc import is_archimedean, is_elliptical
 from copulae.core import tri_indices
@@ -37,6 +38,10 @@ class Copula(Protocol):
     def params(self) -> Any:
         return NotImplemented
 
+    @params.setter
+    def params(self, x: Any):
+        raise NotImplementedError
+
     @property
     def bounds(self) -> Tuple[Union[int, float, np.ndarray], Union[int, float, np.ndarray]]:
         return NotImplemented
@@ -45,7 +50,8 @@ class Copula(Protocol):
 EstimationMethod = Literal['ml', 'irho', 'itau']
 
 
-def fit_copula(copula: Copula, data: np.ndarray, x0: Optional[Union[np.ndarray, float]], method: EstimationMethod,
+def fit_copula(copula: Copula, data: Union[pd.DataFrame, np.ndarray],
+               x0: Optional[Union[np.ndarray, float]], method: EstimationMethod,
                verbose: int, optim_options: Optional[dict], scale: float):
     """
     Estimator for any copula

@@ -106,7 +106,7 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
         return self._copula.cdf(u, log)
 
     def fit(self, data: Union[pd.DataFrame, np.ndarray], x0: Union[Collection[float], np.ndarray] = None, method='ml',
-            verbose=1, optim_options: dict = None, ties='average', **kwargs):
+            verbose=1, optim_options: dict = None, ties='average', to_pobs=True, scale=1.0):
         if isinstance(data, pd.DataFrame):
             self._columns = list(data.columns)
 
@@ -120,7 +120,7 @@ class MarginalCopula(BaseCopula[MarginalCopulaParam]):
             self._marginals[i] = m.dist(*m.dist.fit(data[:, i]))
 
         # writing it as such to get past the type-hints flags
-        self._copula.fit(data, x0, method, optim_options, ties, verbose=verbose, **kwargs)
+        self._copula.fit(data, x0, method, optim_options, ties, verbose, to_pobs, scale)
         self._fit_smry = self._copula._fit_smry
         return self
 

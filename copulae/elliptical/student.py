@@ -69,7 +69,7 @@ class StudentCopula(AbstractEllipticalCopula[StudentParams]):
         return mvt.logcdf(q, cov=sigma, df=df) if log else mvt.cdf(q, cov=sigma, df=df)
 
     def fit(self, data: np.ndarray, x0: Union[Collection[float], np.ndarray] = None, method: EstimationMethod = 'ml',
-            optim_options: dict = None, ties: Ties = 'average', verbose=1, fix_df=False):
+            optim_options: dict = None, ties: Ties = 'average', verbose=1, to_pobs=True, scale=1.0, fix_df=False):
         """
         Fit the copula with specified data
 
@@ -95,6 +95,15 @@ class StudentCopula(AbstractEllipticalCopula[StudentParams]):
         verbose: int, optional
             Log level for the estimator. The higher the number, the more verbose it is. 0 prints nothing.
 
+        to_pobs: bool
+            If True, casts the input data along the column axis to uniform marginals (i.e. convert variables to
+            values between [0, 1]). Set this to False if the input data are already uniform marginals.
+
+        scale: float
+            Amount to scale the objective function value of the numerical optimizer. This is helpful in
+            achieving higher accuracy as it increases the sensitivity of the optimizer. The downside is
+            that the optimizer could likely run longer as a result. Defaults to 1.
+
         fix_df: bool, optional
             If True, the degree of freedom specified by the user (param) is fixed and will not change. Otherwise,
             the degree of freedom is subject to changes during the fitting phase.
@@ -108,7 +117,7 @@ class StudentCopula(AbstractEllipticalCopula[StudentParams]):
                 optim_options = {'constraints': []}
             optim_options['constraints'].append({'type': 'eq', 'fun': lambda x: x[0] - self._df})  # df doesn't change
 
-        return super().fit(data, x0, method, optim_options, ties, verbose)
+        return super().fit(data, x0, method, optim_options, ties, verbose, to_pobs, scale)
 
     def irho(self, rho: Array):
         """
