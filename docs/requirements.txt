@@ -2,6 +2,7 @@ copulae
 ipython>=7
 mkdocs>=1.0
 nbsphinx==0.7.1
+numpy>=1.20
 pydata-sphinx-theme==0.4.1
 sphinx==3.1.2
 sphinx-autodoc-typehints==1.11.0
