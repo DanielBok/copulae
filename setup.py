@@ -35,7 +35,7 @@ except ImportError:
         pass
 
 requirements = [
-    'numpy >=1.19',
+    'numpy >=1.20',
     'pandas >=1.1',
     'scikit-learn >=0.23',
     'scipy >=1.5',

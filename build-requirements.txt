@@ -1,5 +1,5 @@
 cython>=0.29
-numpy>=1.15
+numpy>=1.20
 pandas>=0.23
 pytest>=5.4
 pytest-cov>=2.10
