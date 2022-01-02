@@ -1,9 +1,20 @@
+import sys
+
 import numpy as np
 from sklearn.cluster import KMeans
 
 from copulae.core import pseudo_obs
 from copulae.mixtures.gmc.parameter import GMCParam
 from .summary import FitSummary
+
+if sys.platform == 'win32':
+    try:
+        from sklearnex import patch_sklearn
+
+        patch_sklearn()
+        del patch_sklearn
+    except ImportError:
+        pass
 
 
 def k_means(data: np.ndarray, n_clusters: int, n_dim: int, ties='average'):

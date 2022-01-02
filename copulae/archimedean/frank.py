@@ -41,9 +41,10 @@ class FrankCopula(AbstractArchimedeanCopula):
         dim: int, optional
             Dimension of the copula
         """
-        super().__init__(dim, theta, 'Frank')
-        assert not (dim != 2 and theta < 0), 'Frank Copula parameter must be >= 0 when dimension == 2'
+        if dim > 2 and theta < 0:
+            raise ValueError('Frank Copula parameter cannot be negative when dimension > 2')
 
+        super().__init__(dim, theta, 'Frank')
         self._bounds = (-np.inf if dim == 2 else 0), np.inf
 
     @cast_input(['u'])
