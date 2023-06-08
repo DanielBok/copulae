@@ -121,7 +121,7 @@ class GaussianMixtureCopula(BaseCopula[GMCParam]):
 
         out = np.zeros(len(x))
         for prob, mean, cov in self.params:
-            out += prob * (mvn.logcdf(x, mean, cov) if log else mvn.logcdf(x, mean, cov))
+            out += prob * (mvn.logcdf(x, mean, cov) if log else mvn.cdf(x, mean, cov))
 
         return out
 
