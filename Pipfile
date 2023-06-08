@@ -13,6 +13,8 @@ scikit-learn = "*"
 cython = "*"
 statsmodels = "*"
 typing-extensions = "*"
+coverage = "*"
+pytest-cov = "*"
 
 [dev-packages]
 
