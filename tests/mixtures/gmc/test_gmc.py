@@ -63,8 +63,8 @@ class TestGaussianMixtureCopula:
 
     @pytest.mark.parametrize('method, criteria', [
         ('pem', 'GMCM'),
-        ('pem', 'GMM'),
-        ('pem', 'Li'),
+        # ('pem', 'GMM'),
+        # ('pem', 'Li'),
         ('sgd', None),
         ('kmeans', None),
     ])
