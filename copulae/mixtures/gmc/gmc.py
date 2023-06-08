@@ -1,4 +1,4 @@
-from typing import Collection, Optional, Union
+from typing import Collection, Literal, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -14,11 +14,6 @@ from .exception import GMCFitMethodError, GMCNotFittedError, GMCParamMismatchErr
 from .parameter import GMCParam, GMCParamDict
 from .random import random_gmcm
 from .summary import Summary
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 __all__ = ['GaussianMixtureCopula', 'EstimateMethod']
 

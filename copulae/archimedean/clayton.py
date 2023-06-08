@@ -1,3 +1,5 @@
+from typing import Literal
+
 import numpy as np
 import numpy.random as rng
 
@@ -8,11 +10,6 @@ from copulae.types import Array
 from copulae.utility.annotations import *
 from ._shared import valid_rows_in_u
 from .abstract import AbstractArchimedeanCopula
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 
 class ClaytonCopula(AbstractArchimedeanCopula):

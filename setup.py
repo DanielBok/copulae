@@ -40,7 +40,7 @@ requirements = [
     'scikit-learn >=0.23',
     'scipy >=1.5',
     'statsmodels >=0.12.1',
-    "typing-extensions >=3.7.4.3; python_version < '3.8'",
+    "typing-extensions >=4.0.0; python_version < '3.11'",
     "wheel >=0.36",
     'wrapt >=1.12'
 ]

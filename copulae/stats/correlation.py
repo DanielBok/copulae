@@ -1,14 +1,9 @@
 from functools import wraps
-from typing import Tuple, Union
+from typing import Literal, Tuple, Union
 
 import numpy as np
 import pandas as pd
 from scipy import stats
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 __all__ = ['corr', 'kendall_tau', 'pearson_rho', 'spearman_rho', 'CorrMethod', 'CorrDataUse']
 

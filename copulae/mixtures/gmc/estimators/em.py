@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Literal
 from warnings import warn
 
 import numpy as np
@@ -9,11 +9,6 @@ from copulae.mixtures.gmc.marginals import gmm_marginal_ppf
 from copulae.mixtures.gmc.parameter import GMCParam
 from .exceptions import FitException, InvalidStoppingCriteria
 from .summary import FitSummary
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 Criteria = Literal["GMCM", "GMM", "Li"]
 

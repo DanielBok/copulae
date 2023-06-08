@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Literal, Optional, Union
 from warnings import warn
 
 import numpy as np
@@ -13,11 +13,6 @@ from copulae.types import Array, EPSILON, Matrix, Ties
 from copulae.utility.annotations import *
 from .distribution import emp_dist_func
 from .summary import FitSummary
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 Smoothing = Literal['none', 'beta', 'checkerboard']
 

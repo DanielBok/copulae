@@ -1,4 +1,4 @@
-from typing import Collection, Union
+from typing import Collection, Literal, Union
 from warnings import warn
 
 import numpy as np
@@ -9,11 +9,6 @@ from copulae.stats import random_uniform
 from copulae.types import Array, Ties
 from copulae.utility.annotations import *
 from .summary import FitSummary
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 
 class IndepCopula(BaseCopula[int]):

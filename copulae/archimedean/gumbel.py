@@ -1,6 +1,6 @@
 import warnings
 from collections import defaultdict
-from typing import Optional
+from typing import Literal, Optional
 
 import numpy as np
 from scipy.special import gammaln
@@ -14,11 +14,6 @@ from copulae.utility.annotations import *
 from ._shared import valid_rows_in_u
 from .abstract import AbstractArchimedeanCopula
 from .auxiliary import dsum_sibuya
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 
 class GumbelCopula(AbstractArchimedeanCopula):

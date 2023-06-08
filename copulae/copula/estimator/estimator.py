@@ -1,4 +1,4 @@
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Literal, Optional, Protocol, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -10,11 +10,6 @@ from copulae.types import Array, Ties
 from copulae.utility.dict import merge_dict
 from .corr_inversion import estimate_corr_inverse_params
 from .max_likelihood import estimate_max_likelihood_params
-
-try:
-    from typing import Literal, Protocol
-except ImportError:
-    from typing_extensions import Literal, Protocol
 
 __all__ = ['fit_copula', 'EstimationMethod']
 
