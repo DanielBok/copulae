@@ -1,14 +1,11 @@
+from typing import Literal
+
 import numpy as np
 
 from copulae.copula.estimator.misc import is_archimedean, is_elliptical
 from copulae.copula.estimator.summary import FitSummary
 from copulae.core import create_cov_matrix, near_psd, tri_indices
 from copulae.stats import kendall_tau, spearman_rho
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 __all__ = ['estimate_corr_inverse_params']
 

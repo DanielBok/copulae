@@ -1,21 +1,17 @@
 from inspect import Parameter, signature
 from itertools import zip_longest
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, TypedDict, Union
 
 from scipy import stats
 from scipy.stats.distributions import rv_frozen
-
-try:
-    from typing import TypedDict
-except ImportError:
-    from typing_extensions import TypedDict
+from typing_extensions import NotRequired
 
 __all__ = ["DistDetail", "create_univariate", "get_marginal_detail"]
 
 
 class DistDetail(TypedDict, total=False):
     type: Union[stats.rv_continuous, str]
-    parameters: Optional[Dict[str, float]]
+    parameters: NotRequired[Dict[str, float]]
 
 
 def create_univariate(details: DistDetail) -> rv_frozen:

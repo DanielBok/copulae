@@ -1,13 +1,8 @@
 from numbers import Number
-from typing import Collection, Optional, Union
+from typing import Collection, Literal, Optional, Union
 
 import numpy as np
 import pandas as pd
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 EPSILON = np.finfo('float').eps
 

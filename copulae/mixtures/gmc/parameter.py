@@ -1,14 +1,9 @@
-from typing import Collection as C, Iterable, Tuple, Union
+from typing import Collection as C, Iterable, Tuple, TypedDict, Union
 
 import numpy as np
 
 from copulae.core import near_psd
 from copulae.mixtures.gmc.exception import GMCParamError
-
-try:
-    from typing import TypedDict
-except ImportError:
-    from typing_extensions import TypedDict
 
 __all__ = ['GMCParam', 'GMCParamDict']
 

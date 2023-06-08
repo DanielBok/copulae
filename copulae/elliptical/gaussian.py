@@ -1,4 +1,4 @@
-from typing import Collection, Union
+from typing import Collection, Union, Literal
 
 import numpy as np
 
@@ -7,11 +7,6 @@ from copulae.elliptical.abstract import AbstractEllipticalCopula
 from copulae.stats import multivariate_normal as mvn, norm
 from copulae.types import Array
 from copulae.utility.annotations import *
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 
 class GaussianCopula(AbstractEllipticalCopula[np.ndarray]):

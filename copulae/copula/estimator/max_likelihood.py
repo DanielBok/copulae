@@ -1,15 +1,10 @@
-from typing import Collection, Union
+from typing import Collection, Literal, Protocol, Union
 
 import numpy as np
 from scipy.optimize import OptimizeResult, minimize
 
 from copulae.copula.estimator.misc import warn_no_convergence
 from copulae.copula.estimator.summary import FitSummary
-
-try:
-    from typing import Literal, Protocol
-except ImportError:
-    from typing_extensions import Literal, Protocol
 
 __all__ = ['estimate_max_likelihood_params']
 

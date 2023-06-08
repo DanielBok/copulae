@@ -1,4 +1,4 @@
-from typing import Collection, Dict, List, Union
+from typing import Collection, Dict, List, Literal, TypedDict, Union
 
 import numpy as np
 import pandas as pd
@@ -9,11 +9,6 @@ from copulae.types import Array
 from copulae.utility.annotations import *
 from .summary import Summary
 from .univariate import DistDetail, create_univariate, get_marginal_detail
-
-try:
-    from typing import Literal, TypedDict
-except ImportError:
-    from typing_extensions import Literal, TypedDict
 
 
 class MarginalCopulaParam(TypedDict):

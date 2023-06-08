@@ -1,4 +1,4 @@
-from typing import Collection, NamedTuple, Union
+from typing import Collection, Literal, NamedTuple, Union
 
 import numpy as np
 
@@ -8,11 +8,6 @@ from copulae.elliptical.abstract import AbstractEllipticalCopula
 from copulae.stats import multivariate_t as mvt, t
 from copulae.types import Array, Ties
 from copulae.utility.annotations import *
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 
 class StudentParams(NamedTuple):

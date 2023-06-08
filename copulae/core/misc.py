@@ -1,13 +1,8 @@
-from typing import Tuple, TypeVar
+from typing import Literal, Tuple, TypeVar
 
 import numpy as np
 import pandas as pd
 from scipy import stats
-
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
 
 __all__ = ['create_cov_matrix', 'EPS', 'pseudo_obs', 'rank_data', 'tri_indices']
 

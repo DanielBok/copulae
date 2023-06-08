@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from numbers import Number
-from typing import Collection, Generic, List, NamedTuple, Tuple, TypeVar, Union
+from typing import Collection, Generic, List, Literal, NamedTuple, Protocol, Tuple, TypeVar, Union
 
 import numpy as np
 import pandas as pd
@@ -10,11 +10,6 @@ from copulae.copula.exceptions import InputDataError
 from copulae.copula.summary import SummaryType
 from copulae.core import pseudo_obs
 from copulae.types import Array, Numeric, Ties
-
-try:
-    from typing import Literal, Protocol
-except ImportError:
-    from typing_extensions import Literal, Protocol
 
 __all__ = ["BaseCopula", "CopulaCorrProtocol", "Param", "EstimationMethod", "TailDep"]
 
