@@ -4,7 +4,11 @@ from typing import Dict, Optional, TypedDict, Union
 
 from scipy import stats
 from scipy.stats.distributions import rv_frozen
-from typing_extensions import NotRequired
+
+try:
+    from typing import NotRequired
+except ImportError:
+    from typing_extensions import NotRequired
 
 __all__ = ["DistDetail", "create_univariate", "get_marginal_detail"]
 
