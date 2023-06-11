@@ -5,7 +5,6 @@ import re
 import sys
 from pathlib import Path
 
-import numpy as np
 from setuptools import Extension, find_packages, setup
 
 IS_DEV_MODE = False
@@ -33,23 +32,6 @@ except ImportError:
 
     class Options:
         pass
-
-requirements = [
-    'numpy >=1.20',
-    'pandas >=1.1',
-    'scikit-learn >=0.23',
-    'scipy >=1.5',
-    'statsmodels >=0.12.1',
-    "typing-extensions >=4.0.0; python_version < '3.11'",
-    "wheel >=0.36",
-    'wrapt >=1.12'
-]
-
-setup_requires = [
-    'cython',
-    'numpy',
-    'scipy'
-]
 
 
 def build_ext_modules():
@@ -81,6 +63,7 @@ def build_ext_modules():
                 include_dirs = []
                 with open(_fp + ext) as f:
                     if re.search(r'^cimport numpy as c?np$', f.read(), re.MULTILINE) is not None:
+                        import numpy as np
                         include_dirs.append(np.get_include())
 
                 extensions.append(Extension(
@@ -120,8 +103,6 @@ def get_git_version():
 setup(
     packages=find_packages(include=['copulae', 'copulae.*']),
     version=get_git_version(),  # get latest tagged version
-    setup_requires=setup_requires,
-    install_requires=requirements,
     zip_safe=False,
     ext_modules=build_ext_modules(),
 )
