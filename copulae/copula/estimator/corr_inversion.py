@@ -31,11 +31,16 @@ def estimate_corr_inverse_params(copula, data: np.ndarray, type_: Literal['itau'
     icor = fit_cor(copula, data, type_)
 
     if is_elliptical(copula):
+        from copulae.elliptical.student import StudentCopula, StudentParams
         estimate = icor
-        copula.params[:] = estimate
+        if isinstance(copula, StudentCopula):
+            # itau and irho must fix degree of freedom
+            copula.params = StudentParams(copula.params.df, estimate)
+        else:
+            copula.params[:] = estimate
+
     elif is_archimedean(copula):
-        estimate = np.mean(icor)
-        copula.params = estimate
+        estimate = copula.params = np.mean(icor)
     else:
         raise NotImplementedError(f"Have not developed for '{copula.name} copula'")
 
