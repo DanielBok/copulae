@@ -6,7 +6,7 @@ from copulae.indep import *
 from copulae.marginal import *
 from copulae.mixtures import *
 
-__version__ = "0.7.7"
+__version__ = "0.7.8"
 
 
 def doc():
