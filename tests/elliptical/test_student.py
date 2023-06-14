@@ -65,3 +65,18 @@ def test_summary(residual_data):
 
     assert isinstance(str(summary), str)
     assert isinstance(summary.as_html(), str)
+
+
+@pytest.mark.parametrize('method, has_error', [
+    ('ml', False),
+    ('itau', False),
+    ('irho', True),
+])
+def test_student_copula_fit(method, residual_data, has_error):
+    cop = StudentCopula(residual_data.shape[1])
+
+    if has_error:
+        with pytest.raises(TypeError):
+            cop.fit(residual_data, method=method)
+    else:
+        cop.fit(residual_data)
