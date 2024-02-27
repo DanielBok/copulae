@@ -37,7 +37,7 @@ def k_means(data: np.ndarray, n_clusters: int, n_dim: int, ties='average'):
         effective only if the data has not been converted to its pseudo observations form
     """
     u = pseudo_obs(data, ties)
-    km = KMeans(n_clusters, algorithm='full')
+    km = KMeans(n_clusters)
     km.fit(u)
 
     groups, prob = np.unique(km.labels_, return_counts=True)
