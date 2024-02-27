@@ -15,6 +15,7 @@ statsmodels = "*"
 typing-extensions = "*"
 coverage = "*"
 pytest-cov = "*"
+ipython = "*"
 
 [dev-packages]
 
