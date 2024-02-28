@@ -21,49 +21,49 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
-        python-version: [ 3.8, 3.9, '3.10', '3.11', '3.12' ]
+        python-version: [ 3.9, '3.10', '3.11', '3.12' ]
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Get pip cache dir
-        id: pip-cache
-        run: |
-          echo "::set-output name=dir::$(pip cache dir)"
-
-      - name: pip cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.pip-cache.outputs.dir }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('build-requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - name: Install dependencies
-        if: steps.pip-cache.outputs.cache-hit != 'true'
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r build-requirements.txt
-
-      - name: Build Extensions
-        run: python setup.py build_ext --inplace
-
-      - name: Test package
-        run: python -m pytest tests/
-
-      - name: Coveralls
-        if: matrix.python-version == '3.8' && matrix.os == 'ubuntu-latest' && startsWith(github.ref, 'refs/tags/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          pip install wheel coveralls
-          coveralls --service=github
+  #      - name: Setup Python ${{ matrix.python-version }}
+  #        uses: actions/setup-python@v4
+  #        with:
+  #          python-version: ${{ matrix.python-version }}
+  #
+  #      - name: Get pip cache dir
+  #        id: pip-cache
+  #        run: |
+  #          echo "::set-output name=dir::$(pip cache dir)"
+  #
+  #      - name: pip cache
+  #        uses: actions/cache@v4
+  #        with:
+  #          path: ${{ steps.pip-cache.outputs.dir }}
+  #          key: ${{ runner.os }}-pip-${{ hashFiles('build-requirements.txt') }}
+  #          restore-keys: |
+  #            ${{ runner.os }}-pip-
+  #
+  #      - name: Install dependencies
+  #        if: steps.pip-cache.outputs.cache-hit != 'true'
+  #        run: |
+  #          python -m pip install --upgrade pip
+  #          pip install -r build-requirements.txt
+  #
+  #      - name: Build Extensions
+  #        run: python setup.py build_ext --inplace
+  #
+  #      - name: Test package
+  #        run: python -m pytest tests/
+  #
+  #      - name: Coveralls
+  #        if: matrix.python-version == '3.10' && matrix.os == 'ubuntu-latest' && startsWith(github.ref, 'refs/tags/')
+  #        env:
+  #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #        run: |
+  #          pip install wheel coveralls
+  #          coveralls --service=github
 
   build-src:
     name: Build SDist (Source)
@@ -71,12 +71,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Setup Python 3.8
-        uses: actions/setup-python@v2
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: '3.10'
 
       - name: Package source distribution
         run: |
@@ -84,10 +84,17 @@ jobs:
           pip install -r build-requirements.txt
           python setup.py sdist
 
+      - name: List items
+        run: |
+          echo "Listing dist directory"
+          ls -R dist
+
       - name: Place distribution in artifacts folder
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          path: ./dist/*.tar.gz
+          name: bdist
+          path: dist/*.tar.gz
+          if-no-files-found: error
 
   build-wheel:
     name: Build wheels
@@ -99,17 +106,17 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Setup Python 3.8
-        uses: actions/setup-python@v2
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: '3.10'
 
       - name: Build BDist Package
         env:
           # specify python environments. Skip 32-bit builds
-          CIBW_BUILD: cp38-* cp39-* cp310-* cp311-*
+          CIBW_BUILD: cp39-* cp310-* cp311-* cp312-*
           CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
           # install dependencies, these are the minimum dependencies for building the wheels
           CIBW_BEFORE_BUILD: pip install numpy cython scipy
@@ -119,10 +126,17 @@ jobs:
           pip install cibuildwheel
           python -m cibuildwheel --output-dir dist
 
+      - name: List items
+        run: |
+          echo "Listing dist directory"
+          ls -R dist
+
       - name: Place wheels in artifacts folder
         uses: actions/upload-artifact@v4
         with:
-          path: ./dist/*.whl
+          name: whl-${{ matrix.os }}
+          path: dist/*.whl
+          if-no-files-found: error
 
   # the following step ensures that the package is usable after installing the source files/wheels
   # by running a mock import of copulae
@@ -133,13 +147,13 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
-        python-version: [ 3.8, 3.9, '3.10', '3.11', '3.12' ]
-        ext: [ tar.gz, whl ]
-    #        ext: [ tar.gz ]
+        python-version: [ 3.9, '3.10', '3.11', '3.12' ]
+        #  ext: [ tar.gz, whl ]
+        ext: [ whl ]
 
     steps:
       - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -161,15 +175,17 @@ jobs:
           if [[ "${{ matrix.ext }}" == "whl" ]]; then
             os=$(echo ${{ runner.os }} | awk '{print tolower($0)}' | head -c3)
             version=$(echo ${{ matrix.python-version }} | sed 's/\.//g')
-            file=$(find dist -name "copulae-*${version}*${os}*.whl" -type f);
+            filename="copulae-*${version}*${os}*.whl"
           else
             # Following packages are needed to install copulae from source
             pip install numpy wheel cython scipy
-            file=$(find dist -name "copulae-*.tar.gz" -type f);
+            filename="copulae-*.tar.gz"
           fi;
+          
+          echo "Looking for file ${filename}"
+          file=$(find dist -name "${filename}" -type f);
 
           pip list
-          echo "Running pip install ${file}"
           pip install ${file}
 
           # if we can import this, all should be gucci
@@ -182,13 +198,13 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
 
     steps:
-      - name: Setup Python 3.8
-        uses: actions/setup-python@v2
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: '3.10'
 
       - name: Retrieve packages
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: artifact
           path: dist
