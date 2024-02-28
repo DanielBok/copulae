@@ -120,7 +120,7 @@ jobs:
           python -m cibuildwheel --output-dir dist
 
       - name: Place wheels in artifacts folder
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           path: ./dist/*.whl
 
@@ -144,9 +144,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Retrieve packages
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           path: dist
+
+      - name: List items
+        run: |
+          echo "Listing current directory"
+          ls -R
 
       - name: Test Package Installation
         run: |
