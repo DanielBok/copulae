@@ -206,7 +206,6 @@ jobs:
       - name: Retrieve packages
         uses: actions/download-artifact@v4
         with:
-          name: artifact
           path: dist
 
       - name: Install twine
