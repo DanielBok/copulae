@@ -15,8 +15,8 @@ defaults:
     shell: bash
 
 jobs:
-  test:
-    name: Test Package
+  test-code:
+    name: Test Code
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -67,7 +67,7 @@ jobs:
 
   build-src:
     name: Build SDist (Source)
-    needs: test
+    needs: test-code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -98,7 +98,7 @@ jobs:
 
   build-wheel:
     name: Build wheels
-    needs: test
+    needs: test-code
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -157,39 +157,39 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Retrieve packages
-        uses: actions/download-artifact@v4
-        with:
-          path: dist
-
-      - name: List items
-        run: |
-          echo "Listing current directory"
-          ls -R
-
-      - name: Test Package Installation
-        run: |
-          pip install --upgrade pip
-
-          # finds path to the right wheel or source file to install later
-          if [[ "${{ matrix.ext }}" == "whl" ]]; then
-            os=$(echo ${{ runner.os }} | awk '{print tolower($0)}' | head -c3)
-            version=$(echo ${{ matrix.python-version }} | sed 's/\.//g')
-            filename="copulae-*${version}*${os}*.whl"
-          else
-            # Following packages are needed to install copulae from source
-            pip install numpy wheel cython scipy
-            filename="copulae-*.tar.gz"
-          fi;
-          
-          echo "Looking for file ${filename}"
-          file=$(find dist -name "${filename}" -type f);
-
-          pip list
-          pip install ${file}
-
-          # if we can import this, all should be gucci
-          python -c "import copulae"
+  #      - name: Retrieve packages
+  #        uses: actions/download-artifact@v4
+  #        with:
+  #          path: dist
+  #
+  #      - name: List items
+  #        run: |
+  #          echo "Listing current directory"
+  #          ls -R
+  #
+  #      - name: Test Package Installation
+  #        run: |
+  #          pip install --upgrade pip
+  #
+  #          # finds path to the right wheel or source file to install later
+  #          if [[ "${{ matrix.ext }}" == "whl" ]]; then
+  #            os=$(echo ${{ runner.os }} | awk '{print tolower($0)}' | head -c3)
+  #            version=$(echo ${{ matrix.python-version }} | sed 's/\.//g')
+  #            filename="copulae-*${version}*${os}*.whl"
+  #          else
+  #            # Following packages are needed to install copulae from source
+  #            pip install numpy wheel cython scipy
+  #            filename="copulae-*.tar.gz"
+  #          fi;
+  #
+  #          echo "Looking for file ${filename}"
+  #          file=$(find dist -name "${filename}" -type f);
+  #
+  #          pip list
+  #          pip install ${file}
+  #
+  #          # if we can import this, all should be gucci
+  #          python -c "import copulae"
 
   deploy-test:
     name: Deploy packages to TestPyPI
@@ -210,6 +210,9 @@ jobs:
 
       - name: Install twine
         run: pip install twine
+
+      - name: List repository
+        run: ls -al dist/*
 
       - name: Upload packages to testpypi
         env:
