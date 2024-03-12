@@ -214,11 +214,24 @@ jobs:
       - name: List repository
         run: ls -al dist/*
 
+      - name: Checkout utilities
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/utils
+          sparse-checkout-cone-mode: false
+
+      - name: Find and copy packages to files/
+        run: |
+          mkdir files
+          ls -al .github/*
+          python .github/utils/find.py -from dist -pattern "(.tar.gz|.whl)$" -to files
+
       - name: Upload packages to testpypi
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_TEST_UID }}
           TWINE_PASSWORD: ${{ secrets.PYPI_TEST_PWD }}
-        run: python -m twine upload --skip-existing --repository testpypi dist/*
+        run: python -m twine upload --skip-existing --repository testpypi files/*
 
   deploy:
     name: Deploy packages to PyPI
