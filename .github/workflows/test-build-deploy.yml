@@ -203,16 +203,8 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Retrieve packages
-        uses: actions/download-artifact@v4
-        with:
-          path: dist
-
       - name: Install twine
         run: pip install twine
-
-      - name: List repository
-        run: ls -al dist/*
 
       - name: Checkout utilities
         uses: actions/checkout@v4
@@ -221,17 +213,22 @@ jobs:
             .github/utils
           sparse-checkout-cone-mode: false
 
+      - name: Retrieve packages
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
       - name: Find and copy packages to files/
         run: |
           mkdir files
-          ls -al .github/*
-          python .github/utils/find.py -from dist -pattern "(.tar.gz|.whl)$" -to files
+          ls -ltR
+          python .github/utils/find.py -from dist -to files -pattern "(.tar.gz|.whl)$"
 
       - name: Upload packages to testpypi
         env:
-          TWINE_USERNAME: ${{ secrets.PYPI_TEST_UID }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_TEST_PWD }}
-        run: python -m twine upload --skip-existing --repository testpypi files/*
+          TWINE_USERNAME: ${{ secrets.PYPI_TEST_TOKEN_NAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_TEST_API_TOKEN }}
+        run: python -m twine upload --skip-existing --repository testpypi files/* --verbose
 
   deploy:
     name: Deploy packages to PyPI
@@ -245,16 +242,29 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Install twine
+        run: pip install twine
+
+      - name: Checkout utilities
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/utils
+          sparse-checkout-cone-mode: false
+
       - name: Retrieve packages
         uses: actions/download-artifact@v4
         with:
           path: dist
 
-      - name: Install twine
-        run: pip install twine
+      - name: Find and copy packages to files/
+        run: |
+          mkdir files
+          ls -ltR
+          python .github/utils/find.py -from dist -to files -pattern "(.tar.gz|.whl)$"
 
       - name: Upload packages to pypi
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_UID }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PWD }}
-        run: python -m twine upload --skip-existing dist/*
+        run: python -m twine upload --skip-existing dist/* --verbose
