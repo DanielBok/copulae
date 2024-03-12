@@ -48,6 +48,8 @@ def find_and_copy(from_folder: Path,
     else:
         pat = re.compile(pattern)
 
+    print(f"Copying files from {from_folder} to {to_folder}")
+
     for file in Path(from_folder).rglob('*'):
         if file.is_file():
             if pat is None or pat.search(file.as_posix()):
