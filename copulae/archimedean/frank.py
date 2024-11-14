@@ -123,7 +123,10 @@ class FrankCopula(AbstractArchimedeanCopula):
     def params(self, theta):
         if self.dim > 2 and theta < 0:
             raise ValueError('theta must be positive when dim > 2')
-        self._theta = float(theta)
+        if np.isscalar(theta):
+            self._theta = float(theta)
+        elif isinstance(theta, np.ndarray) and theta.size == 1:
+            self._theta = float(theta.item()) 
 
     @validate_data_dim({"u": [1, 2]})
     @shape_first_input_to_cop_dim

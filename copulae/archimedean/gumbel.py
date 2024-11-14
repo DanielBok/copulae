@@ -156,7 +156,10 @@ class GumbelCopula(AbstractArchimedeanCopula):
     def itau(self, tau):
         warning_message = "For the Gumbel copula, tau must be >= 0. Replacing negative values by 0."
         if np.size(tau) == 1:
-            tau = float(tau)
+            if np.isscalar(tau):
+                tau = float(tau)
+            elif isinstance(tau, np.ndarray) and tau.size == 1:
+                tau = float(tau.item())
             if tau < 0:
                 warnings.warn(warning_message)
                 return 1
@@ -175,7 +178,10 @@ class GumbelCopula(AbstractArchimedeanCopula):
 
     @params.setter
     def params(self, theta: float):
-        theta = float(theta)
+        if np.isscalar(theta):
+            theta = float(theta)
+        elif isinstance(theta, np.ndarray) and theta.size == 1:
+            theta = float(theta.item())
 
         if theta < 1:
             raise ValueError('<theta> must be >= 1 for Gumbel copula')
