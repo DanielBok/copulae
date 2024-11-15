@@ -101,4 +101,8 @@ def shape_first_input_to_cop_dim(method, instance: BaseCopula, args, kwargs):
 def squeeze_output(method, _, args, kwargs) -> Union[np.ndarray, pd.Series, float]:
     """Squeezes the output to a float if the size is one"""
     output: Union[float, np.ndarray, pd.Series] = method(*args, **kwargs)
-    return float(output) if np.isscalar(output) or output.size == 1 else output
+    if np.isscalar(output):
+        return float(output)
+    elif isinstance(output, np.ndarray) and output.size == 1:
+        return float(output.item())
+    return output

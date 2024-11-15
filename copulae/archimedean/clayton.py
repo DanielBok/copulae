@@ -96,7 +96,10 @@ class ClaytonCopula(AbstractArchimedeanCopula):
 
     @params.setter
     def params(self, theta: float):
-        theta = float(theta)
+        if np.isscalar(theta):
+            theta = float(theta)
+        elif isinstance(theta, np.ndarray) and theta.size == 1:
+            theta = float(theta.item())
 
         if self.dim == 2 and theta < -1:
             raise ValueError('theta must be greater than -1 in 2 dimensional Clayton copula')
