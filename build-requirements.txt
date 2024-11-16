@@ -1,12 +1,15 @@
-cython>=0.29
-numpy>=1.24
+build>=1.1
+cython>=3.0
+numpy>=2.0
 pandas>=2.0
-pytest>=7
-pytest-cov>=2.10
-scikit-learn>=1.2
+pytest>=8
+pytest-cov>=6
+scikit-learn>=1.5
 scipy>=1.10
 setuptools>=67
 statsmodels>=0.14
 twine>=2.0.0
 typing-extensions>=4.0.0; python_version < '3.11'
+versioneer[toml] >= 0.29
+wheel
 wrapt>=1.12
