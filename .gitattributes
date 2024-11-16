@@ -1,1 +1,2 @@
 *.sh text eol=lf
+copulae/_version.py export-subst

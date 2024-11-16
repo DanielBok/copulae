@@ -16,8 +16,11 @@ typing-extensions = "*"
 coverage = "*"
 pytest-cov = "*"
 ipython = "*"
+setuptools = "*"
+build = "*"
+versioneer = {extras = ["toml"], version = "*"}
 
 [dev-packages]
 
 [requires]
-python_version = "3.10"
+python_version = "3.13"

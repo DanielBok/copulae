@@ -1,0 +1,119 @@
+[project]
+name = "copulae"
+dynamic = [
+    "version"
+]
+description = "Python copulae library for dependency modelling"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name = "Daniel Bok", email = "daniel.bok@outlook.com" },
+]
+maintainers = [
+    { name = "Daniel Bok", email = "daniel.bok@outlook.com" },
+]
+keywords = ["copula", "copulae", "dependency modelling", "dependence structures", "archimdean", "elliptical", "finance"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Programming Language :: Cython",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "numpy>=2.0",
+    "pandas>=2.0",
+    "scikit-learn>=1.0",
+    "scipy>=1.5",
+    "statsmodels>=0.12.1",
+    "typing-extensions>=4.0.0; python_version < '3.11'",
+    "wrapt>=1.12",
+]
+
+[project.urls]
+documentation = "https://copulae.readthedocs.io/en/latest/"
+repository = "https://github.com/DanielBok/copulae"
+
+[tool.setuptools]
+packages = ["copulae"]
+include-package-data = true
+
+[tool.setuptools.cmdclass]
+build_ext = "setuptools.command.build_ext.build_ext"
+
+# Extension configuration
+[[tool.setuptools.ext-modules]]
+name = "copulae"  # Add this line
+sources = ["**/*.pyx"]  # Changed from 'module' to 'sources'
+language = "c"
+
+# Development mode settings - these will be read by our build script
+[tool.dev-mode]
+enable = false
+annotate = false
+
+[build-system]
+requires = [
+    "setuptools>=68.0",
+    "wheel",
+    "cython>=3.0",
+    "numpy>=2.0",
+    "scipy>=1.5",
+    "versioneer[toml] >= 0.29"
+]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+addopts = "--tb=short --cov=copulae --cov-report=term-missing --doctest-modules"
+filterwarnings = [
+    "ignore::UserWarning",
+    "ignore:invalid value encountered in log",
+    "ignore:covariance is not positive-semidefinite.",
+]
+
+[tool.coverage.report]
+omit = [
+    "*/__init__.py",
+    "copulae/_version.py",
+    "copulae/special/_machine.py",
+    "copulae/special/trig.py",
+    "copulae/types.py",
+]
+
+[tool.flake8]
+max-line-length = 100
+ignore = ["E122", "E123", "E126", "E127", "E128", "E731", "E722"]
+exclude = [
+    ".asv",
+    ".git",
+    "build",
+    "copulae/_version.py",
+    "dist",
+    "docs",
+    "tests",
+    "versioneer.py",
+    "benchmarks",
+]
+
+[tool.versioneer]
+VCS = "git"
+style = "pep440"
+versionfile_source = "copulae/_version.py"
+versionfile_build = "copulae/_version.py"
+tag_prefix = ""
+parentdir_prefix = "copulae-"
