@@ -3,11 +3,11 @@ import subprocess
 from argparse import ArgumentParser
 from pathlib import Path
 
-root = Path(__file__).parent
+root = Path(__file__).parents[2]
 
 p = ArgumentParser(
     "Version updater",
-    usage="python version.py [major|minor|patch|0.0.0]",
+    usage="python .github/utils/version.py [major|minor|patch|0.0.0]",
     description="""
 Manage Copulae version
 

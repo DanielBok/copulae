@@ -25,10 +25,11 @@ clean:
 	rm -rf build/ .pytest_cache/ *.egg-info dist/ __pycache__/ dist/
 
 	# delete cython linker files
-	find . -type f -name "*.pyd" -print -delete
+	poetry run python .github/utils/find.py remove -pattern *.pyd
 
 	# delete pytest coverage file
-	find . -type f -name "*.coverage" -print -delete
+	poetry run python .github/utils/find.py remove -pattern *.coverage
+
 
 linux:
 	rm -rf dist/*
