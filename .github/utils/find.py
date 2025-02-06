@@ -1,3 +1,4 @@
+import os
 import re
 import shutil
 from argparse import ArgumentParser
@@ -8,15 +9,22 @@ from typing import Optional
 def _create_parser():
     p = ArgumentParser(
         "Find and copy files",
-        usage="python find.py -from <from> -to <to>",
+        usage="python .github/utils/find.py copy -from <from> -to <to>",
         description="""
 Used to replace the linux find function because we need some magic that the 'find' function
 doesn't provide. 
 
-Currently, only the 'copy' function is supported. During copy, the basename of the file is
-kept (all the parent paths are stripped).
+Currently, only the 'copy' and 'remove' function are supported. During copy, 
+the basename of the file is kept (all the parent paths are stripped).
+
+When running remove, the current working directory is searched recursively for all the
+files matching the pattern.
 """.strip()
     )
+
+    p.add_argument("action",
+                   type=str,
+                   help="The action to execute, currently only `copy` or `remove`".strip())
 
     p.add_argument("-from",
                    type=str,
@@ -37,12 +45,15 @@ we never change the filename.""".strip(),
                    type=str,
                    help="Regex file pattern to match")
 
+    p.add_argument("-dry_run", action="store_true")
+
     return p
 
 
 def find_and_copy(from_folder: Path,
                   to_folder: Path,
-                  pattern: Optional[str]):
+                  pattern: Optional[str],
+                  dry_run: bool):
     if pattern is None:
         pat = None
     else:
@@ -53,8 +64,17 @@ def find_and_copy(from_folder: Path,
     for file in Path(from_folder).rglob('*'):
         if file.is_file():
             if pat is None or pat.search(file.as_posix()):
-                print(f"Copying file '{file}' to {to_folder / file.name} ")
-                shutil.copy(file, to_folder / file.name)
+                print(f"Copying file '{file}' to {to_folder / file.name}")
+                if not dry_run:
+                    shutil.copy(file, to_folder / file.name)
+
+
+def find_and_remove(pattern: str, dry_run: bool):
+    for file in Path.cwd().rglob(pattern):  # type: Path
+        if file.is_file():
+            print(f"Removing file: '{file}'")
+            if not dry_run:
+                os.remove(file)
 
 
 def create_path(path: str):
@@ -68,6 +88,11 @@ if __name__ == '__main__':
     parser = _create_parser()
     args = parser.parse_args()
 
-    find_and_copy(create_path(getattr(args, 'from')),
-                  create_path(getattr(args, 'to')),
-                  args.pattern)
+    action = args.action.lower().strip()
+    if action == "copy":
+        find_and_copy(create_path(getattr(args, 'from')),
+                      create_path(getattr(args, 'to')),
+                      args.pattern,
+                      args.dry_run)
+    elif action == "remove":
+        find_and_remove(args.pattern, args.dry_run)
