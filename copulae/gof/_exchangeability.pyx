@@ -209,7 +209,7 @@ def exch_test_stat(double[:, :] u, double[:, :] g, int n, int m):
     return s * n / m
 
 
-def exch_replication(long[:, :] ir, double[:, :] u, double[:, :] g, int n, int m, int ng):
+def exch_replication(long long[:, :] ir, double[:, :] u, double[:, :] g, int n, int m, int ng):
     """
     One instance of the bootstrap replication
 

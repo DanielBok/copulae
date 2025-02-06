@@ -84,13 +84,13 @@ def dsum_sibuya(x, n, alpha: float, method='log', log=False):
             if xx < nn:
                 continue
             js = np.arange(nn) + 1
-            s[i] = np.sum(comb(nn, js) * comb(alpha * js, xx) * (-1) ** (xx - js))
+            s[i] = np.sum(comb(nn, js, nan_to_0=True) * comb(alpha * js, xx, nan_to_0=True) * (-1) ** (xx - js))
 
         return np.log(s) if log else s
 
     else:  # diff
         for i, xx, nn in zip(range(len_long), x, n):
-            dd = comb(np.array([*range(nn, 0, -1), 0]) * alpha, xx)
+            dd = comb(np.arange(nn, -1, -1) * alpha, xx, nan_to_0=True)
             s[i] = np.diff(dd, nn) * (-1) ** xx
 
         return np.log(s) if log else s

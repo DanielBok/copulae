@@ -237,7 +237,7 @@ def debye1(x):
     --------
     :code:`copulae.special.debye.debye_1`: The debye order 1 function
     """
-    x = np.asarray(x, np.float_).ravel()
+    x = np.asarray(x, np.float64).ravel()
     fin = np.isfinite(x)
     d = np.ravel(np.abs(x))
 
@@ -275,7 +275,7 @@ def debye2(x):
     --------
     :code:`copulae.special.debye.debye_2`: The debye order 2 function
     """
-    x = np.asarray(x, np.float_).ravel()
+    x = np.asarray(x, np.float64).ravel()
     fin = np.isfinite(x)
     d = np.ravel(np.abs(x))
 
