@@ -1,0 +1,4 @@
+cython==3.0.11 ; python_version <= "3.11" and python_version >= "3.10" or python_version >= "3.12"
+numpy==2.2.2 ; python_version <= "3.11" and python_version >= "3.10" or python_version >= "3.12"
+scipy==1.15.1 ; python_version <= "3.11" and python_version >= "3.10" or python_version >= "3.12"
+setuptools==75.8.0 ; python_version <= "3.11" and python_version >= "3.10" or python_version >= "3.12"
