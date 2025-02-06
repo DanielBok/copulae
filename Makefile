@@ -6,19 +6,19 @@ all: dist
 
 
 dist: wheel clean
-	python setup.py sdist
+	poetry run python setup.py sdist
 
 
 wheel: clean ext
-	python setup.py bdist_wheel
+	poetry run python setup.py bdist_wheel
 
 
 ext:
-	python setup.py build_ext --inplace
+	poetry run python setup.py build_ext --inplace
 
 
 test:
-	python -m pytest tests/
+	poetry run python -m pytest tests/
 
 
 clean:
