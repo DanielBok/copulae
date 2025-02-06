@@ -37,7 +37,7 @@ def rad_sym_test_stat(const double[:] u, const int n, const int p):
     return s
 
 
-def rad_sym_replicate(double[:, :] u, long[:, :] ir, const int n, const int p, bint has_ties):
+def rad_sym_replicate(double[:, :] u, long long[:, :] ir, const int n, const int p, bint has_ties):
     """One instance of bootstrap replication for radial symmetry test"""
     cdef:
         double[:, :] ub = np.copy(u), tub
