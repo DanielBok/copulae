@@ -1,9 +1,19 @@
 name: Test, Build and Deploy
 
 on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build'
+        required: true
+        type: choice
+        options:
+          - master
+          - refs/remotes/**
+
   push:
     branches:
-      - master
+      - develop/*
   pull_request:
     branches:
       - master
