@@ -37,3 +37,4 @@ linux:
 write-req:
 	poetry export -f requirements.txt --output requirements/build.txt --only=build --without-hashes
 	poetry export -f requirements.txt --output requirements/test.txt --with=test,build --without-hashes
+	poetry run python .github\utils\requirements.py
