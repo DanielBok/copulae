@@ -4,8 +4,8 @@ cimport numpy as cnp
 from cython.parallel import prange
 import numpy as np
 
-ctypedef double (*Fn1R) (double) nogil
-ctypedef ComplexResult (*Fn1C) (double, double) nogil
+ctypedef double (*Fn1R) (double) noexcept nogil
+ctypedef ComplexResult (*Fn1C) (double, double) noexcept nogil
 ctypedef struct ComplexResult:
     double real
     double imag
@@ -196,21 +196,21 @@ cdef double cheb_eval(double[::1] constants, double x, int a, int b) nogil:
     return y * d - dd + 0.5 * constants[0]
 
 
-cdef void map_dbl_p(Fn1R f, double[::1] x, int size) nogil:
+cdef void map_dbl_p(Fn1R f, double[::1] x, int size) noexcept nogil:
     # Parallel
     cdef int i
     for i in prange(size, nogil=True):
         x[i] = f(x[i])
 
 
-cdef void map_dbl_s(Fn1R f, double[::1] x, int size) nogil:
+cdef void map_dbl_s(Fn1R f, double[::1] x, int size) noexcept nogil:
     # single
     cdef int i
     for i in range(size):
         x[i] = f(x[i])
 
 
-cdef void mapc_dbl_p(Fn1C f, double[::1] r, double[::1] t, int size) nogil:
+cdef void mapc_dbl_p(Fn1C f, double[::1] r, double[::1] t, int size) noexcept nogil:
     # Parallel
     cdef:
         ComplexResult c
@@ -222,7 +222,7 @@ cdef void mapc_dbl_p(Fn1C f, double[::1] r, double[::1] t, int size) nogil:
         t[i] = c.imag
 
 
-cdef void mapc_dbl_s(Fn1C f, double[::1] r, double[::1] t, int size) nogil:
+cdef void mapc_dbl_s(Fn1C f, double[::1] r, double[::1] t, int size) noexcept nogil:
     # Single
     cdef:
         ComplexResult c
@@ -234,7 +234,7 @@ cdef void mapc_dbl_s(Fn1C f, double[::1] r, double[::1] t, int size) nogil:
         t[i] = c.imag
 
 
-cdef double _clausen(double x) nogil:
+cdef double _clausen(double x) noexcept nogil:
     cdef:
         double res, sr
         double x_cut = PI * DBL_EPSILON
@@ -261,7 +261,7 @@ cdef double _clausen(double x) nogil:
     return res * sgn
 
 
-cdef double _debye_1(double x) nogil:
+cdef double _debye_1(double x) noexcept nogil:
     cdef:
         double res = 0
         double val_infinity = 1.64493406684822644
@@ -298,7 +298,7 @@ cdef double _debye_1(double x) nogil:
     return res
 
 
-cdef double _debye_2(double x) nogil:
+cdef double _debye_2(double x) noexcept nogil:
     cdef:
         double res = 0
         double val_infinity = 4.80822761263837714, x2 = x ** 2
@@ -336,7 +336,7 @@ cdef double _debye_2(double x) nogil:
 
     return res
 
-cdef double _dilog(double x) nogil:
+cdef double _dilog(double x) noexcept nogil:
     cdef:
         double res = 0, d1, d2
 
@@ -398,7 +398,7 @@ cdef double dilog_xge0(double x) nogil:
 
     return res
 
-cdef double dilog_series_1(double x) nogil:
+cdef double dilog_series_1(double x) noexcept nogil:
     cdef:
         double rk2, term = x, total = x
         int k
@@ -415,7 +415,7 @@ cdef double dilog_series_1(double x) nogil:
     return cm.NAN
 
 
-cdef double dilog_series_2(double x) nogil:
+cdef double dilog_series_2(double x) noexcept nogil:
     cdef:
         double res = 0
         double total = 0.5 * x, y = x, z = 0
@@ -441,7 +441,7 @@ cdef double dilog_series_2(double x) nogil:
     return res + z + 1
 
 
-cdef ComplexResult _dilog_complex(double r, double theta) nogil:
+cdef ComplexResult _dilog_complex(double r, double theta) noexcept nogil:
     cdef:
         ComplexResult c = make_c_0()
         double x = r * cm.cos(theta)
@@ -480,7 +480,7 @@ cdef ComplexResult _dilog_complex(double r, double theta) nogil:
     return c
 
 
-cdef ComplexResult complex_log(double zr, double zi) nogil:
+cdef ComplexResult complex_log(double zr, double zi) noexcept nogil:
     cdef:
         ComplexResult res = make_c_0()
         double ax, ay, min_, max_
@@ -500,7 +500,7 @@ cdef ComplexResult complex_log(double zr, double zi) nogil:
 
     return res
 
-cdef inline ComplexResult dilogc_fundamental(double r, double x, double y) nogil:
+cdef inline ComplexResult dilogc_fundamental(double r, double x, double y) noexcept nogil:
     if r > 0.98:
         return dilogc_series_3(r, x, y)
     elif r > 0.25:
@@ -509,7 +509,7 @@ cdef inline ComplexResult dilogc_fundamental(double r, double x, double y) nogil
         return dilogc_series_1(r, x, y)
 
 
-cdef ComplexResult dilogc_unit_disk(double x, double y) nogil:
+cdef ComplexResult dilogc_unit_disk(double x, double y) noexcept nogil:
     cdef:
         ComplexResult c = make_c_0()
         ComplexResult tmp_c
@@ -536,7 +536,7 @@ cdef ComplexResult dilogc_unit_disk(double x, double y) nogil:
         return dilogc_fundamental(r, x, y)
 
 
-cdef ComplexResult dilogc_series_1(double r, double x, double y) nogil:
+cdef ComplexResult dilogc_series_1(double r, double x, double y) noexcept nogil:
     cdef:
         ComplexResult c = make_c_0()
         double cos_theta = x / r
@@ -567,7 +567,7 @@ cdef ComplexResult dilogc_series_1(double r, double x, double y) nogil:
     return c
 
 
-cdef ComplexResult dilogc_series_2(double r, double x, double y) nogil:
+cdef ComplexResult dilogc_series_2(double r, double x, double y) noexcept nogil:
     cdef:
         ComplexResult c = make_c_0()
         ComplexResult ln_omz, sum_c
@@ -590,7 +590,7 @@ cdef ComplexResult dilogc_series_2(double r, double x, double y) nogil:
 
     return c
 
-cdef ComplexResult dilogc_series_3(double r, double x, double y) nogil:
+cdef ComplexResult dilogc_series_3(double r, double x, double y) noexcept nogil:
     cdef:
         ComplexResult c = make_c_0()
         double theta = cm.atan2(y, x)
@@ -632,7 +632,7 @@ cdef ComplexResult dilogc_series_3(double r, double x, double y) nogil:
     c.imag = sum_im
     return c
 
-cdef ComplexResult series_2_c(double r, double x, double y) nogil:
+cdef ComplexResult series_2_c(double r, double x, double y) noexcept nogil:
     cdef:
         ComplexResult c = make_c_0()
         double cos_theta = x / r
@@ -665,7 +665,7 @@ cdef ComplexResult series_2_c(double r, double x, double y) nogil:
     return c
 
 
-cdef ComplexResult make_c_0() nogil:
+cdef ComplexResult make_c_0() noexcept nogil:
     cdef ComplexResult c
     c.real, c.imag = 0, 0
     return c
