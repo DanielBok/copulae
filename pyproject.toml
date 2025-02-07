@@ -13,12 +13,12 @@ license = { file = "LICENSE" }
 requires-python = ">=3.10"
 dependencies = [
     "numpy (>=2.0,<3.0.0)",
-    "pandas (>=2.2.3,<3.0.0)",
-    "scikit-learn (>=1.6.1,<2.0.0)",
-    "scipy (>=1.15.1,<2.0.0)",
-    "statsmodels (>=0.14.4,<0.15.0)",
+    "pandas (>=2.1.4,<3.0.0)",
+    "scikit-learn (>=1.5.0,<2.0.0)",
+    "scipy (>=1.14.0,<2.0.0)",
+    "statsmodels (>=0.14.4,<1.0.0)",
     "typing-extensions (>=4.0.0) ; python_version < \"3.11\"",
-    "wrapt (>=1.17.2,<2.0.0)",
+    "wrapt (>=1.14.0,<2.0.0)",
 ]
 
 keywords = [
@@ -53,8 +53,8 @@ Code = "https://github.com/DanielBok/copulae"
 "Issue tracker" = "https://github.com/DanielBok/copulae/issues"
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0", "numpy", "scipy", "cython", "setuptools"]
-build-backend = "poetry.core.masonry.api"
+requires = ["numpy", "scipy", "cython", "setuptools"]
+build-backend = "setuptools.build_meta"
 
 [tool.poetry.group.dev.dependencies]
 ipython = "^8.32.0"
@@ -70,8 +70,24 @@ coverage = "^7.6.10"
 pytest = "^8.3.4"
 pytest-cov = "^6.0.0"
 
-[tool.poetry.build]
-script = "setup.py"
+[tool.pytest.ini_options]
+addopts = [
+    "--tb=short",
+    "--cov=copulae",
+    "--cov-report=term-missing",
+    "--doctest-modules"
+]
+filterwarnings = [
+    "ignore::UserWarning",
+    "ignore:invalid value encountered in log",
+    "ignore:covariance is not positive-semidefinite."
+]
 
-[tool.poetry.requires-plugins]
-poetry-plugin-export = ">=1.8"
+[tool.coverage.report]
+omit = [
+    "*/__init__.py",
+    "copulae/_version.py",
+    "copulae/special/_machine.py",
+    "copulae/special/trig.py",
+    "copulae/types.py"
+]
