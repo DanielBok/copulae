@@ -1,25 +1,12 @@
-colorama==0.4.6
-coverage==7.6.10
-cython==3.0.11
-exceptiongroup==1.2.2
-iniconfig==2.0.0
-joblib==1.4.2
-numpy==2.2.2
-packaging==24.2
-pandas==2.2.3
-patsy==1.0.1
-pluggy==1.5.0
-pytest-cov==6.0.0
-pytest==8.3.4
-python-dateutil==2.9.0.post0
-pytz==2025.1
-scikit-learn==1.6.1
-scipy==1.15.1
-setuptools==75.8.0
-six==1.17.0
-statsmodels==0.14.4
-threadpoolctl==3.5.0
-tomli==2.2.1
-typing-extensions==4.12.2 ; python_version < "3.11"
-tzdata==2025.1
-wrapt==1.17.2
+cython>=3.0.11,<4
+numpy>=2.0,<3.0.0
+scipy>=1.15.1,<2.0.0
+setuptools>=75.8.0,<76
+coverage>=7.6.10,<8
+pytest>=8.3.4,<9
+pytest-cov>=6.0.0,<7
+pandas>=2.2.3,<3.0.0
+scikit-learn>=1.6.1,<2.0.0
+statsmodels>=0.14.4,<0.15.0
+typing-extensions>=4.0.0 ; python_version < "3.11"
+wrapt>=1.17.2,<2.0.0

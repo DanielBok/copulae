@@ -34,7 +34,5 @@ linux:
 	rm -rf dist/*
 	docker container run --rm -v $(CURDIR):/copulae danielbok/manylinux1 /copulae/manylinux-build.sh
 
-write-req:
-	poetry export -f requirements.txt --output requirements/build.txt --only=build --without-hashes
-	poetry export -f requirements.txt --output requirements/test.txt --with=test,build --without-hashes
+req:
 	poetry run python .github\utils\requirements.py
