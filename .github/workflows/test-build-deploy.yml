@@ -92,7 +92,7 @@ jobs:
       - name: Place distribution in artifacts folder
         uses: actions/upload-artifact@v4
         with:
-          name: bdist
+          name: sdist
           path: dist/*.tar.gz
           if-no-files-found: error
 
@@ -230,8 +230,8 @@ jobs:
 
       - name: Upload packages to testpypi
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-        run: python -m twine upload --skip-existing --repository testpypi dist/* --verbose
+        run: python -m twine upload --skip-existing --repository testpypi files/* --verbose
 
       - name: Upload packages to pypi
         if: startsWith(github.ref, 'refs/tags/')
-        run: python -m twine upload --skip-existing dist/* --verbose
+        run: python -m twine upload --skip-existing files/* --verbose
